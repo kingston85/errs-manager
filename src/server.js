@@ -16,9 +16,11 @@ const kpiRoutes = require('./routes/kpi');
 const usersRoutes = require('./routes/users');
 const auditlogRoutes = require('./routes/auditlog');
 
-const app = express();
+   const app = express();
 
-app.set('view engine', 'ejs');
+   app.set('trust proxy', 1);
+
+   app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, '..', 'views'));
 app.use(expressLayouts);
 app.set('layout', 'layout');
