@@ -1,0 +1,67 @@
+<%
+  const dateVal = (v) => {
+    if (!v) return '';
+    const d = (v instanceof Date) ? v : new Date(v);
+    return isNaN(d) ? '' : d.toISOString().slice(0, 10);
+  };
+  const humanize = (s) => String(s).replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase());
+%>
+
+<form action="<%= isNew ? '/app/' + entityKey : '/app/' + entityKey + '/' + record.id %>" method="POST">
+  <div class="card" style="max-width:640px;">
+    <% entity.fields.forEach((f) => { %>
+      <div class="form-row">
+        <label for="f_<%= f.name %>"><%= f.label %><% if (f.required) { %> *<% } %></label>
+
+        <% if (f.type === 'textarea') { %>
+          <textarea class="form-textarea" id="f_<%= f.name %>" name="<%= f.name %>" <%= f.required ? 'required' : '' %>><%= record[f.name] || '' %></textarea>
+
+        <% } else if (f.type === 'enum') { %>
+          <select class="form-select" id="f_<%= f.name %>" name="<%= f.name %>" <%= f.required ? 'required' : '' %>>
+            <option value="">— Select —</option>
+            <% f.options.forEach((opt) => { %>
+              <option value="<%= opt %>" <%= String(record[f.name]) === opt ? 'selected' : (record[f.name] === undefined && f.default === opt ? 'selected' : '') %>>
+                <%= (opt === 'true') ? 'Yes' : (opt === 'false') ? 'No' : humanize(opt) %>
+              </option>
+            <% }) %>
+          </select>
+
+        <% } else if (f.type === 'fk') { %>
+          <select class="form-select" id="f_<%= f.name %>" name="<%= f.name %>" <%= f.required ? 'required' : '' %>>
+            <option value="">— Select —</option>
+            <% (fkOptions[f.name] || []).forEach((opt) => { %>
+              <option value="<%= opt.id %>" <%= String(record[f.name]) === String(opt.id) ? 'selected' : '' %>><%= opt.label %></option>
+            <% }) %>
+          </select>
+
+        <% } else if (f.type === 'date') { %>
+          <input class="form-input" type="date" id="f_<%= f.name %>" name="<%= f.name %>" value="<%= dateVal(record[f.name]) %>" <%= f.required ? 'required' : '' %>>
+
+        <% } else if (f.type === 'number') { %>
+          <input class="form-input" type="number" step="any" id="f_<%= f.name %>" name="<%= f.name %>" value="<%= record[f.name] !== undefined && record[f.name] !== null ? record[f.name] : (f.default !== undefined ? f.default : '') %>" <%= f.required ? 'required' : '' %>>
+
+        <% } else { %>
+          <input class="form-input" type="text" id="f_<%= f.name %>" name="<%= f.name %>" value="<%= record[f.name] !== undefined && record[f.name] !== null ? record[f.name] : (f.default !== undefined ? f.default : '') %>" <%= f.required ? 'required' : '' %>>
+        <% } %>
+
+        <% if (f.help) { %><div class="help"><%= f.help %></div><% } %>
+      </div>
+    <% }) %>
+
+    <% if (units) { %>
+      <div class="form-row">
+        <label for="f_unit_id">Unit</label>
+        <select class="form-select" id="f_unit_id" name="unit_id">
+          <% units.forEach((u) => { %>
+            <option value="<%= u.id %>" <%= String(record.unit_id) === String(u.id) ? 'selected' : '' %>><%= u.name %></option>
+          <% }) %>
+        </select>
+      </div>
+    <% } %>
+
+    <div class="flex gap-2" style="margin-top:6px;">
+      <button class="btn btn-primary" type="submit"><%= isNew ? 'Create' : 'Save Changes' %></button>
+      <a class="btn btn-secondary" href="/app/<%= entityKey %>">Cancel</a>
+    </div>
+  </div>
+</form>
