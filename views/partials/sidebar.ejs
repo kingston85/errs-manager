@@ -1,0 +1,72 @@
+<%
+  // Nav sections for entities that belong to one specific unit. Only shown
+  // to that unit's own staff, or to the Department Head (who sees all four).
+  const unitSections = [
+    { key: 'CHEMICAL', label: 'Chemical Unit', items: [
+        { href: '/app/chemical_escorts', label: 'Chemical Escorts', icon: '🚚' },
+        { href: '/app/chemical_inventory_audits', label: 'Nationwide Inventory', icon: '📋' },
+      ] },
+    { key: 'ENV_MONITORING', label: 'Env. Monitoring & Research', items: [
+        { href: '/app/site_inspections', label: 'Site Inspections', icon: '🔍' },
+        { href: '/app/complaints', label: 'Complaints', icon: '📢' },
+        { href: '/app/lab_results', label: 'Lab Results', icon: '⚗️' },
+        { href: '/app/reporting_quality_entries', label: 'Reporting Quality', icon: '📊' },
+      ] },
+    { key: 'RADIATION', label: 'Radiation Safety', items: [
+        { href: '/app/radiation_inventories', label: 'Source Inventory', icon: '☢️' },
+        { href: '/app/radiation_trainings', label: 'Trainings', icon: '🎓' },
+      ] },
+    { key: 'WASTE', label: 'Waste & Remediation', items: [
+        { href: '/app/esia_participations', label: 'ESIA Participation', icon: '📝' },
+      ] },
+  ];
+  const visibleUnitSections = user.role === 'DEPT_HEAD'
+    ? unitSections
+    : unitSections.filter((s) => s.key === user.unit_key);
+  const isActive = (href) => currentPath === href || (currentPath || '').startsWith(href + '/');
+%>
+<aside class="sidebar">
+  <div class="sidebar-brand">
+    <div class="sidebar-brand-mark">EPA</div>
+    <div class="sidebar-brand-text">ERRS Manager<small>Environmental Research &amp; Radiation Safety</small></div>
+  </div>
+  <nav>
+    <div class="sidebar-section">Overview</div>
+    <a class="nav-link <%= currentPath === '/' ? 'active' : '' %>" href="/">🏠 Dashboard</a>
+
+    <div class="sidebar-section">Licensing</div>
+    <a class="nav-link <%= isActive('/app/documents') ? 'active' : '' %>" href="/app/documents">📄 Licenses &amp; Certificates</a>
+    <a class="nav-link <%= isActive('/app/kpi') ? 'active' : '' %>" href="/app/kpi">🎯 KPI &amp; Deliverables</a>
+
+    <div class="sidebar-section">Master Data</div>
+    <a class="nav-link <%= isActive('/app/companies') ? 'active' : '' %>" href="/app/companies">🏢 Companies</a>
+    <a class="nav-link <%= isActive('/app/chemicals') ? 'active' : '' %>" href="/app/chemicals">🧪 Chemicals</a>
+
+    <% visibleUnitSections.forEach((section) => { %>
+      <div class="sidebar-section"><%= section.label %></div>
+      <% section.items.forEach((item) => { %>
+        <a class="nav-link <%= isActive(item.href) ? 'active' : '' %>" href="<%= item.href %>"><%= item.icon %> <%= item.label %></a>
+      <% }) %>
+    <% }) %>
+
+    <div class="sidebar-section">Shared Tools</div>
+    <a class="nav-link <%= isActive('/app/reminders') ? 'active' : '' %>" href="/app/reminders">⏰ Reminders</a>
+    <a class="nav-link <%= isActive('/app/assets') ? 'active' : '' %>" href="/app/assets">🧰 Assets &amp; Equipment</a>
+    <a class="nav-link <%= isActive('/app/activity_logs') ? 'active' : '' %>" href="/app/activity_logs">🗓️ Activity Log</a>
+
+    <% if (user.role === 'DEPT_HEAD') { %>
+      <div class="sidebar-section">Administration</div>
+      <a class="nav-link <%= isActive('/app/users') ? 'active' : '' %>" href="/app/users">👥 Staff Accounts</a>
+      <a class="nav-link <%= isActive('/app/audit-log') ? 'active' : '' %>" href="/app/audit-log">🕵️ Audit Log</a>
+    <% } %>
+  </nav>
+  <div class="sidebar-footer">
+    <div class="sidebar-user">
+      <strong><%= user.name %></strong>
+      <%= user.role.replace('_', ' ') %><%= user.unit_name ? ' · ' + user.unit_name : '' %>
+    </div>
+    <form action="/logout" method="POST">
+      <button type="submit" class="btn btn-secondary btn-sm" style="width:100%;">Sign out</button>
+    </form>
+  </div>
+</aside>

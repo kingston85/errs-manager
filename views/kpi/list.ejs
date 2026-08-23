@@ -1,0 +1,59 @@
+<div class="toolbar">
+  <form method="GET" class="filters">
+    <label class="text-sm text-muted" style="margin:0;">Year</label>
+    <select name="year" onchange="this.form.submit()">
+      <% for (let y = new Date().getFullYear() + 1; y >= new Date().getFullYear() - 3; y--) { %>
+        <option value="<%= y %>" <%= year === y ? 'selected' : '' %>><%= y %></option>
+      <% } %>
+    </select>
+  </form>
+  <a class="btn btn-primary" href="/app/kpi/new">+ Add Deliverable</a>
+</div>
+
+<div class="card" style="padding:0;">
+  <% if (!deliverables.length) { %>
+    <div class="empty-state">
+      <div class="icon">🎯</div>
+      No deliverables tracked for <%= year %> yet.
+    </div>
+  <% } else { %>
+    <div style="overflow-x:auto;">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Deliverable</th>
+            <% if (isDeptHead) { %><th>Unit</th><% } %>
+            <th>Target</th>
+            <th>Cumulative</th>
+            <th style="min-width:120px;">Progress</th>
+            <% MONTHS.forEach((m) => { %><th style="text-align:center;"><%= m %></th><% }) %>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          <% deliverables.forEach((d) => { %>
+            <tr>
+              <td><%= d.label %></td>
+              <% if (isDeptHead) { %><td><%= d.unit_name || '<span class="badge badge-brand">Dept-wide</span>' %></td><% } %>
+              <td><%= d.annual_target %><%= d.target_unit ? ' ' + d.target_unit : '' %></td>
+              <td><%= d.cumulative %></td>
+              <td>
+                <div class="progress-bar"><div style="width: <%= d.pct !== null ? Math.min(100, d.pct) : 0 %>%;"></div></div>
+                <div class="text-sm text-muted"><%= d.pct !== null ? d.pct + '%' : '—' %></div>
+              </td>
+              <% for (let m = 1; m <= 12; m++) { %>
+                <td style="text-align:center;" class="text-sm"><%= (d.monthly[m] !== undefined) ? d.monthly[m] : '<span class="text-muted">·</span>' %></td>
+              <% } %>
+              <td style="white-space:nowrap; text-align:right;">
+                <a class="btn btn-secondary btn-sm" href="/app/kpi/<%= d.id %>/edit">Edit</a>
+                <form action="/app/kpi/<%= d.id %>/delete" method="POST" style="display:inline;" onsubmit="return confirm('Delete this deliverable and all its monthly values?');">
+                  <button class="btn btn-danger btn-sm" type="submit">Delete</button>
+                </form>
+              </td>
+            </tr>
+          <% }) %>
+        </tbody>
+      </table>
+    </div>
+  <% } %>
+</div>

@@ -1,0 +1,39 @@
+<form action="/app/kpi" method="POST">
+  <div class="card" style="max-width:520px;">
+    <div class="form-row">
+      <label for="label">Deliverable Label *</label>
+      <input class="form-input" type="text" id="label" name="label" required placeholder="e.g. Site inspections conducted">
+    </div>
+
+    <% if (units) { %>
+      <div class="form-row">
+        <label for="unit_id">Unit</label>
+        <select class="form-select" id="unit_id" name="unit_id">
+          <option value="">— Department-wide —</option>
+          <% units.forEach((u) => { %><option value="<%= u.id %>"><%= u.name %></option><% }) %>
+        </select>
+      </div>
+    <% } %>
+
+    <div class="grid grid-2">
+      <div class="form-row">
+        <label for="year">Year *</label>
+        <input class="form-input" type="number" id="year" name="year" value="<%= defaultYear %>" required>
+      </div>
+      <div class="form-row">
+        <label for="annual_target">Annual Target *</label>
+        <input class="form-input" type="number" step="any" id="annual_target" name="annual_target" required>
+      </div>
+    </div>
+
+    <div class="form-row">
+      <label for="target_unit">Target Unit</label>
+      <input class="form-input" type="text" id="target_unit" name="target_unit" placeholder="e.g. inspections, reports, sites">
+    </div>
+
+    <div class="flex gap-2" style="margin-top:6px;">
+      <button class="btn btn-primary" type="submit">Create Deliverable</button>
+      <a class="btn btn-secondary" href="/app/kpi">Cancel</a>
+    </div>
+  </div>
+</form>
