@@ -243,6 +243,17 @@ async function checkPage(page, path, label) {
     await Promise.all([page.waitForNavigation(), page.click('button:has-text("Upload")')]);
     bodyText = await page.textContent('body');
     log(bodyText.includes('.tmp-test-attachment.png') || bodyText.includes('tmp-test-attachment'), '[depthead] uploaded attachment appears in the attachment list');
+
+    // New: list views show a "📎 N" file-count indicator per row (see
+    // countAttachmentsFor in src/lib/attachmentsDb.js) — check it shows up
+    // on the companies list for the row we just uploaded to.
+    await page.goto(`${BASE}/app/companies?q=Acme`);
+    const fileBadgeText = await page.$eval('table.data-table tbody tr:first-child .badge', (el) => el.textContent).catch(() => '');
+    log(fileBadgeText.includes('1'), '[depthead] companies list shows a file-count badge after upload');
+
+    await page.goto(`${BASE}/app/companies?q=Acme`);
+    const companyEditLink2 = await page.$('a:has-text("Edit")');
+    await Promise.all([page.waitForNavigation(), companyEditLink2.click()]);
     const attachmentLink = await page.$('.attachment-link');
     log(!!attachmentLink, '[depthead] attachment has a link to view/download it');
     if (attachmentLink) {
@@ -260,6 +271,10 @@ async function checkPage(page, path, label) {
       // to (briefly) mention the filename too.
       const attachmentListText = await page.$eval('.attachment-list, .empty-state', (el) => el.textContent).catch(() => '');
       log(!attachmentListText.includes('tmp-test-attachment'), '[depthead] removed attachment no longer listed');
+
+      await page.goto(`${BASE}/app/companies?q=Acme`);
+      const noFileBadge = await page.$('table.data-table tbody tr:first-child .badge');
+      log(!noFileBadge, '[depthead] companies list file-count badge cleared after removal');
     }
 
     // New: dashboard "issued this month" widget
