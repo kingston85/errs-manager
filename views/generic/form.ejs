@@ -1,0 +1,102 @@
+<%
+  const dateVal = (v) => {
+    if (!v) return '';
+    const d = (v instanceof Date) ? v : new Date(v);
+    return isNaN(d) ? '' : d.toISOString().slice(0, 10);
+  };
+  const humanize = (s) => String(s).replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase());
+  const comboFields = entity.fields.filter((f) => f.type === 'fk').map((f) => f.name);
+%>
+
+<form action="<%= isNew ? '/app/' + entityKey : '/app/' + entityKey + '/' + record.id %>" method="POST">
+  <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+  <div class="card" style="max-width:640px;">
+    <% entity.fields.forEach((f) => { %>
+      <div class="form-row">
+        <label for="f_<%= f.name %>"><%= f.label %><% if (f.required) { %> *<% } %></label>
+
+        <% if (f.type === 'textarea') { %>
+          <textarea class="form-textarea" id="f_<%= f.name %>" name="<%= f.name %>" <%= f.required ? 'required' : '' %>><%= record[f.name] || '' %></textarea>
+
+        <% } else if (f.type === 'enum') { %>
+          <select class="form-select" id="f_<%= f.name %>" name="<%= f.name %>" <%= f.required ? 'required' : '' %>>
+            <option value="">— Select —</option>
+            <% f.options.forEach((opt) => { %>
+              <option value="<%= opt %>" <%= String(record[f.name]) === opt ? 'selected' : (record[f.name] === undefined && f.default === opt ? 'selected' : '') %>>
+                <%= (opt === 'true') ? 'Yes' : (opt === 'false') ? 'No' : humanize(opt) %>
+              </option>
+            <% }) %>
+          </select>
+
+        <% } else if (f.type === 'fk') { %>
+          <%
+            const options = fkOptions[f.name] || [];
+            const selected = options.find((o) => String(o.id) === String(record[f.name]));
+          %>
+          <!--
+            A plain <select> with 300+ companies is unusable to scroll or
+            type through. This pairs a visible text input + <datalist> so
+            staff can type a few letters and narrow it down, backed by a
+            hidden input that's what actually gets submitted — see the
+            bindCombobox() script at the bottom of this page.
+          -->
+          <input class="form-input" type="text" list="dl_<%= f.name %>" id="f_<%= f.name %>_search"
+                 value="<%= selected ? selected.label : '' %>" placeholder="Type to search…" autocomplete="off">
+          <datalist id="dl_<%= f.name %>">
+            <% options.forEach((opt) => { %><option value="<%= opt.label %>" data-id="<%= opt.id %>"><% }) %>
+          </datalist>
+          <input type="hidden" id="f_<%= f.name %>" name="<%= f.name %>" value="<%= record[f.name] || '' %>" <%= f.required ? 'required' : '' %>>
+          <div class="help">Start typing a name, then pick it from the list.</div>
+
+        <% } else if (f.type === 'date') { %>
+          <input class="form-input" type="date" id="f_<%= f.name %>" name="<%= f.name %>" value="<%= dateVal(record[f.name]) %>" <%= f.required ? 'required' : '' %>>
+
+        <% } else if (f.type === 'number') { %>
+          <input class="form-input" type="number" step="any" id="f_<%= f.name %>" name="<%= f.name %>" value="<%= record[f.name] !== undefined && record[f.name] !== null ? record[f.name] : (f.default !== undefined ? f.default : '') %>" <%= f.required ? 'required' : '' %>>
+
+        <% } else { %>
+          <input class="form-input" type="text" id="f_<%= f.name %>" name="<%= f.name %>" value="<%= record[f.name] !== undefined && record[f.name] !== null ? record[f.name] : (f.default !== undefined ? f.default : '') %>" <%= f.required ? 'required' : '' %>>
+        <% } %>
+
+        <% if (f.help) { %><div class="help"><%= f.help %></div><% } %>
+      </div>
+    <% }) %>
+
+    <% if (units) { %>
+      <div class="form-row">
+        <label for="f_unit_id">Unit</label>
+        <select class="form-select" id="f_unit_id" name="unit_id">
+          <% units.forEach((u) => { %>
+            <option value="<%= u.id %>" <%= String(record.unit_id) === String(u.id) ? 'selected' : '' %>><%= u.name %></option>
+          <% }) %>
+        </select>
+      </div>
+    <% } %>
+
+    <div class="flex gap-2" style="margin-top:6px;">
+      <button class="btn btn-primary" type="submit"><%= isNew ? 'Create' : 'Save Changes' %></button>
+      <a class="btn btn-secondary" href="/app/<%= entityKey %>">Cancel</a>
+    </div>
+  </div>
+</form>
+
+<% if (!isNew) { %>
+  <%- include('../partials/attachments', { attachments, attachmentsBase }) %>
+<% } %>
+
+<% if (comboFields.length) { %>
+<script>
+  function bindCombobox(searchId, hiddenId, listId) {
+    const search = document.getElementById(searchId);
+    const hidden = document.getElementById(hiddenId);
+    const list = document.getElementById(listId);
+    search.addEventListener('input', () => {
+      const match = Array.from(list.options).find((o) => o.value === search.value);
+      hidden.value = match ? match.dataset.id : '';
+    });
+  }
+  <% comboFields.forEach((name) => { %>
+    bindCombobox('f_<%= name %>_search', 'f_<%= name %>', 'dl_<%= name %>');
+  <% }) %>
+</script>
+<% } %>

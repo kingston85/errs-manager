@@ -1,0 +1,170 @@
+<%
+  const STATUSES = ['APPLICATION_RECEIVED', 'RESPONDED', 'AWAITING_PAYMENT', 'PAID', 'ISSUED', 'EXPIRED', 'REJECTED'];
+  const humanize = (s) => String(s).replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase());
+  const dateVal = (v) => {
+    if (!v) return '';
+    const d = (v instanceof Date) ? v : new Date(v);
+    return isNaN(d) ? '' : d.toISOString().slice(0, 10);
+  };
+  const selectedCompany = companies.find((c) => String(c.id) === String(record.company_id));
+  const selectedChemical = chemicals.find((c) => String(c.id) === String(record.chemical_id));
+%>
+
+<form action="<%= isNew ? '/app/documents' : '/app/documents/' + record.id %>" method="POST">
+  <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+  <div class="grid grid-2" style="align-items:start;">
+    <div class="card">
+      <h2 class="mt-0">Case Details</h2>
+
+      <% if (isNew) { %>
+        <div class="form-row">
+          <label for="document_type_id">Document Type *</label>
+          <select class="form-select" id="document_type_id" name="document_type_id" required>
+            <option value="">— Select —</option>
+            <% types.forEach((t) => { %>
+              <option value="<%= t.id %>"><%= t.unit_name ? t.unit_name + ' — ' : '' %><%= t.label %> (<%= humanize(t.kind) %>)</option>
+            <% }) %>
+          </select>
+        </div>
+        <% if (units) { %>
+          <div class="form-row">
+            <label for="unit_id">Unit *</label>
+            <select class="form-select" id="unit_id" name="unit_id" required>
+              <% units.forEach((u) => { %><option value="<%= u.id %>"><%= u.name %></option><% }) %>
+            </select>
+          </div>
+        <% } %>
+      <% } else { %>
+        <div class="form-row">
+          <label>Document Type</label>
+          <div><span class="badge badge-brand"><%= record.type_label %></span></div>
+        </div>
+      <% } %>
+
+      <div class="form-row">
+        <label for="company_id_search">Company *</label>
+        <input class="form-input" type="text" list="dl_company_id" id="company_id_search"
+               value="<%= selectedCompany ? selectedCompany.name : '' %>" placeholder="Type to search…" autocomplete="off">
+        <datalist id="dl_company_id">
+          <% companies.forEach((c) => { %><option value="<%= c.name %>" data-id="<%= c.id %>"><% }) %>
+        </datalist>
+        <input type="hidden" id="company_id" name="company_id" value="<%= record.company_id || '' %>" required>
+      </div>
+
+      <div class="form-row">
+        <label for="chemical_id_search">Chemical (if applicable)</label>
+        <input class="form-input" type="text" list="dl_chemical_id" id="chemical_id_search"
+               value="<%= selectedChemical ? selectedChemical.name : '' %>" placeholder="Type to search, or leave blank…" autocomplete="off">
+        <datalist id="dl_chemical_id">
+          <% chemicals.forEach((c) => { %><option value="<%= c.name %>" data-id="<%= c.id %>"><% }) %>
+        </datalist>
+        <input type="hidden" id="chemical_id" name="chemical_id" value="<%= record.chemical_id || '' %>">
+      </div>
+
+      <div class="form-row">
+        <label for="activity">Activity</label>
+        <input class="form-input" type="text" id="activity" name="activity" value="<%= record.activity || '' %>">
+      </div>
+
+      <div class="grid grid-2">
+        <div class="form-row">
+          <label for="quantity">Quantity</label>
+          <input class="form-input" type="number" step="any" id="quantity" name="quantity" value="<%= record.quantity ?? '' %>">
+        </div>
+        <div class="form-row">
+          <label for="quantity_unit">Unit of Measure</label>
+          <input class="form-input" type="text" id="quantity_unit" name="quantity_unit" value="<%= record.quantity_unit || '' %>">
+        </div>
+      </div>
+
+      <div class="form-row">
+        <label for="notes">Notes</label>
+        <textarea class="form-textarea" id="notes" name="notes"><%= record.notes || '' %></textarea>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2 class="mt-0">Processing</h2>
+
+      <div class="grid grid-2">
+        <div class="form-row">
+          <label for="application_date">Application Date</label>
+          <input class="form-input" type="date" id="application_date" name="application_date" value="<%= dateVal(record.application_date) %>">
+        </div>
+        <div class="form-row">
+          <label for="response_date">Response Date</label>
+          <input class="form-input" type="date" id="response_date" name="response_date" value="<%= dateVal(record.response_date) %>">
+        </div>
+      </div>
+
+      <div class="form-row">
+        <label for="reference_code">Reference Code</label>
+        <input class="form-input" type="text" id="reference_code" name="reference_code" value="<%= record.reference_code || '' %>">
+      </div>
+
+      <div class="grid grid-2">
+        <div class="form-row">
+          <label for="amount_paid">Amount Paid</label>
+          <input class="form-input" type="number" step="any" id="amount_paid" name="amount_paid" value="<%= record.amount_paid ?? '' %>">
+        </div>
+        <div class="form-row">
+          <label for="receipt_number">Receipt Number</label>
+          <input class="form-input" type="text" id="receipt_number" name="receipt_number" value="<%= record.receipt_number || '' %>">
+        </div>
+      </div>
+
+      <div class="form-row">
+        <label for="status">Status</label>
+        <select class="form-select" id="status" name="status">
+          <% STATUSES.forEach((s) => { %>
+            <option value="<%= s %>" <%= (record.status || 'APPLICATION_RECEIVED') === s ? 'selected' : '' %>><%= humanize(s) %></option>
+          <% }) %>
+        </select>
+        <% if (isNew) { %><div class="help">New cases usually start as "Application Received".</div><% } %>
+      </div>
+
+      <% if (!isNew && record.document_number) { %>
+        <div class="form-row">
+          <label>Issued Document</label>
+          <div>
+            <span class="badge badge-green"><%= record.document_number %></span>
+            <span class="text-sm text-muted">issued <%= dateVal(record.date_issued) %><% if (record.expiry_date) { %>, expires <%= dateVal(record.expiry_date) %><% } %></span>
+          </div>
+          <div style="margin-top:8px;"><a class="btn btn-secondary btn-sm" href="/app/documents/<%= record.id %>/print" target="_blank">🖨 Printable copy</a></div>
+        </div>
+      <% } else if (!isNew) { %>
+        <div class="form-row">
+          <div class="help">Not yet issued<% if (typeof usedThisYear !== 'undefined' && record.block_size) { %> — <%= usedThisYear %> of <%= record.block_size %> issued this year for this type<% } %>. Save changes, then use "Issue" from the case list once ready.</div>
+        </div>
+      <% } %>
+    </div>
+  </div>
+
+  <div class="flex gap-2" style="margin-top:6px;">
+    <button class="btn btn-primary" type="submit"><%= isNew ? 'Create Case' : 'Save Changes' %></button>
+    <a class="btn btn-secondary" href="/app/documents">Cancel</a>
+  </div>
+</form>
+
+<% if (!isNew) { %>
+  <%- include('../partials/attachments', { attachments, attachmentsBase }) %>
+
+  <form action="/app/documents/<%= record.id %>/delete" method="POST" style="margin-top:10px;" onsubmit="return confirm('Delete this case permanently? This cannot be undone.');">
+    <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+    <button class="btn btn-danger btn-sm" type="submit">Delete Case</button>
+  </form>
+<% } %>
+
+<script>
+  function bindCombobox(searchId, hiddenId, listId) {
+    const search = document.getElementById(searchId);
+    const hidden = document.getElementById(hiddenId);
+    const list = document.getElementById(listId);
+    search.addEventListener('input', () => {
+      const match = Array.from(list.options).find((o) => o.value === search.value);
+      hidden.value = match ? match.dataset.id : '';
+    });
+  }
+  bindCombobox('company_id_search', 'company_id', 'dl_company_id');
+  bindCombobox('chemical_id_search', 'chemical_id', 'dl_chemical_id');
+</script>

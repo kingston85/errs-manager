@@ -1,0 +1,128 @@
+<%
+  const statusBadge = (s) => {
+    if (['ISSUED','ACKNOWLEDGED','COMPLIANT','OPERATIONAL'].includes(s)) return 'badge-green';
+    if (['REJECTED','EXPIRED','NON_COMPLIANT','OUT_OF_SERVICE'].includes(s)) return 'badge-red';
+    if (['AWAITING_PAYMENT','PENDING_REVIEW','NEEDS_CALIBRATION','SENT'].includes(s)) return 'badge-amber';
+    return 'badge-slate';
+  };
+  const fmtDate = (d) => d ? new Date(d).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' }) : '—';
+  const displayUnits = isDeptHead ? units : units.filter((u) => u.id === user.unit_id);
+%>
+
+<div class="grid grid-4">
+  <% displayUnits.forEach((u) => { const cs = caseStatsMap[u.id] || { open_count: 0, issued_this_year: 0, issued_this_month: 0 }; %>
+    <div class="stat-tile">
+      <div class="stat-label"><%= u.name %></div>
+      <div class="stat-value"><%= cs.open_count %></div>
+      <div class="stat-sub"><%= cs.issued_this_month %> issued this month · <%= cs.issued_this_year %> this year</div>
+    </div>
+  <% }) %>
+</div>
+
+<div class="flex justify-between items-center" style="margin-top:-2px; margin-bottom:12px;">
+  <span></span>
+  <a class="btn btn-secondary btn-sm" href="/app/reports">📊 Monthly Summary Report →</a>
+</div>
+
+<div class="grid grid-2" style="margin-top:4px;">
+  <div class="card">
+    <h2>Open Complaints by Unit</h2>
+    <% if (displayUnits.every((u) => !(complaintsMap[u.id] && complaintsMap[u.id].open_count > 0))) { %>
+      <div class="empty-state"><div class="icon">✅</div>No open complaints right now.</div>
+    <% } else { %>
+      <table class="data-table">
+        <thead><tr><th>Unit</th><th>Open</th></tr></thead>
+        <tbody>
+          <% displayUnits.forEach((u) => { const c = complaintsMap[u.id]; if (c && c.open_count > 0) { %>
+            <tr><td><%= u.name %></td><td><span class="badge badge-amber"><%= c.open_count %></span></td></tr>
+          <% } }) %>
+        </tbody>
+      </table>
+    <% } %>
+  </div>
+
+  <div class="card">
+    <h2>KPI &amp; Deliverables — <%= year %></h2>
+    <% if (!kpis.length) { %>
+      <div class="empty-state"><div class="icon">🎯</div>No deliverables tracked yet for <%= year %>.<br><a href="/app/kpi">Add one →</a></div>
+    <% } else { %>
+      <% kpis.slice(0, 6).forEach((k) => { const pct = k.annual_target ? Math.min(100, Math.round((k.cumulative / k.annual_target) * 100)) : 0; %>
+        <div style="margin-bottom:12px;">
+          <div class="flex justify-between text-sm" style="margin-bottom:4px;">
+            <span><%= k.label %></span>
+            <span class="text-muted"><%= k.cumulative %> / <%= k.annual_target %><%= k.target_unit ? ' ' + k.target_unit : '' %></span>
+          </div>
+          <div class="progress-bar"><div style="width: <%= pct %>%;"></div></div>
+        </div>
+      <% }) %>
+      <a class="text-sm" href="/app/kpi">View full tracker →</a>
+    <% } %>
+  </div>
+</div>
+
+<div class="grid grid-2">
+  <div class="card">
+    <h2>Upcoming Reminders</h2>
+    <% if (!reminders.length) { %>
+      <div class="empty-state"><div class="icon">⏰</div>Nothing scheduled.</div>
+    <% } else { %>
+      <table class="data-table">
+        <thead><tr><th>Subject</th><th>Company</th><% if (isDeptHead) { %><th>Unit</th><% } %><th>Due</th><th>Status</th></tr></thead>
+        <tbody>
+          <% reminders.forEach((r) => { %>
+            <tr>
+              <td><%= r.subject %></td>
+              <td><%= r.company_name || '—' %></td>
+              <% if (isDeptHead) { %><td><%= r.unit_name %></td><% } %>
+              <td><%= fmtDate(r.due_date) %></td>
+              <td><span class="badge <%= statusBadge(r.status) %>"><%= r.status %></span></td>
+            </tr>
+          <% }) %>
+        </tbody>
+      </table>
+    <% } %>
+  </div>
+
+  <div class="card">
+    <h2>Assets Needing Attention</h2>
+    <% if (!assetsNeedingAttention.length) { %>
+      <div class="empty-state"><div class="icon">🧰</div>All assets operational.</div>
+    <% } else { %>
+      <table class="data-table">
+        <thead><tr><th>Asset</th><% if (isDeptHead) { %><th>Unit</th><% } %><th>Status</th><th>Calibration Due</th></tr></thead>
+        <tbody>
+          <% assetsNeedingAttention.forEach((a) => { %>
+            <tr>
+              <td><%= a.name %></td>
+              <% if (isDeptHead) { %><td><%= a.unit_name || '—' %></td><% } %>
+              <td><span class="badge <%= statusBadge(a.status) %>"><%= a.status %></span></td>
+              <td><%= fmtDate(a.calibration_due_date) %></td>
+            </tr>
+          <% }) %>
+        </tbody>
+      </table>
+    <% } %>
+  </div>
+</div>
+
+<div class="card">
+  <h2>Recent Activity</h2>
+  <% if (!recentActivity.length) { %>
+    <div class="empty-state">No activity recorded yet.</div>
+  <% } else { %>
+    <table class="data-table">
+      <thead><tr><th>When</th><th>Who</th><th>Action</th><th>On</th><th>Details</th></tr></thead>
+      <tbody>
+        <% recentActivity.forEach((a) => { %>
+          <tr>
+            <td class="text-sm text-muted"><%= new Date(a.created_at).toLocaleString('en-US', { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' }) %></td>
+            <td><%= a.user_name || 'System' %></td>
+            <td><span class="badge badge-slate"><%= a.action %></span></td>
+            <td class="text-sm"><%= a.entity_type %><%= a.entity_id ? ' #' + a.entity_id : '' %></td>
+            <td class="text-sm text-muted"><%= a.details || '' %></td>
+          </tr>
+        <% }) %>
+      </tbody>
+    </table>
+  <% } %>
+</div>
