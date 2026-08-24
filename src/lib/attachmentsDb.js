@@ -18,6 +18,24 @@ async function listAttachments(table, id) {
   return rows;
 }
 
+// Batched version of listAttachments for a whole page of list-view rows —
+// one query for the page instead of one per row. Returns a Map keyed by
+// entity_id, each value {count, filenames: [most recent first]}, so list
+// views can show a "📎 3" indicator (with the actual names on hover)
+// without an N+1 query per row.
+async function countAttachmentsFor(table, ids) {
+  const map = new Map();
+  if (!ids || !ids.length) return map;
+  const { rows } = await db.query(
+    `SELECT entity_id, COUNT(*) AS count, array_agg(filename ORDER BY created_at DESC) AS filenames
+     FROM attachments WHERE entity_table = $1 AND entity_id = ANY($2::int[])
+     GROUP BY entity_id`,
+    [table, ids]
+  );
+  for (const r of rows) map.set(r.entity_id, { count: Number(r.count), filenames: r.filenames });
+  return map;
+}
+
 async function getAttachment(attachmentId) {
   const { rows } = await db.query(`SELECT * FROM attachments WHERE id = $1`, [attachmentId]);
   return rows[0] || null;
@@ -36,4 +54,4 @@ async function deleteAttachment(attachmentId) {
   await db.query(`DELETE FROM attachments WHERE id = $1`, [attachmentId]);
 }
 
-module.exports = { listAttachments, getAttachment, saveAttachment, deleteAttachment };
+module.exports = { listAttachments, countAttachmentsFor, getAttachment, saveAttachment, deleteAttachment };
