@@ -84,13 +84,14 @@
           <tr>
             <th style="width:32px;"><input type="checkbox" class="bulk-select-all" aria-label="Select all"></th>
             <th>Type</th><th>Company</th><% if (isDeptHead) { %><th>Unit</th><% } %>
-            <th>Status</th><th>Document #</th><th>Applied</th><th>Issued</th><th>Expiry</th><th></th>
+            <th>Status</th><th>Document #</th><th>Applied</th><th>Issued</th><th>Expiry</th><th>Files</th><th></th>
           </tr>
         </thead>
         <tbody>
           <% rows.forEach((r) => {
             const renewable = isRenewable(r) && !alreadyRenewedIds.has(r.id);
             const expired = r.expiry_date && new Date(r.expiry_date) < new Date();
+            const att = attachmentCounts.get(r.id);
           %>
             <tr data-href="/app/documents/<%= r.id %>/edit">
               <td><input type="checkbox" class="bulk-row-check" value="<%= r.id %>"></td>
@@ -102,6 +103,13 @@
               <td><%= fmtDate(r.application_date) %></td>
               <td><%= fmtDate(r.date_issued) %></td>
               <td><%= fmtDate(r.expiry_date) %><% if (renewable) { %><br><span class="badge badge-amber"><%= expired ? 'Expired' : 'Expires soon' %></span><% } %></td>
+              <td>
+                <% if (att) { %>
+                  <span class="badge badge-slate" title="<%= att.filenames.join(', ') %>">📎 <%= att.count %></span>
+                <% } else { %>
+                  <span class="text-muted">—</span>
+                <% } %>
+              </td>
               <td style="white-space:nowrap; text-align:right;">
                 <a class="btn btn-secondary btn-sm" href="/app/documents/<%= r.id %>/edit">Open</a>
                 <% if (r.document_number) { %>
