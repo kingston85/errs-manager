@@ -11,6 +11,7 @@ const { parseIdsParam, withIdsFilter } = require('../lib/entityAccess');
 const { sendCsv } = require('../lib/csv');
 const { upload } = require('../lib/attachmentUpload');
 const { makeAttachmentHandlers, listAttachments } = require('../lib/attachmentHandlers');
+const { countAttachmentsFor } = require('../lib/attachmentsDb');
 
 const ownedCase = loadOwnedRecord('case_documents', { forbiddenMessage: 'That case belongs to a different unit.' });
 
@@ -96,13 +97,14 @@ router.get('/', async (req, res) => {
     [rows.map((r) => r.id)]
   );
   const alreadyRenewedIds = new Set(renewedFromRows.map((r) => r.renewed_from_id));
+  const attachmentCounts = await countAttachmentsFor('case_documents', rows.map((r) => r.id));
 
   res.render('documents/list', {
     title: 'Licenses, Clearances, Certificates & Bills',
     rows, units, types, unitFilter: unitId, statusFilter, typeFilter, q,
     isDeptHead: req.user.role === 'DEPT_HEAD',
     page: Math.min(page, totalPages), totalPages, total, pageSize: PAGE_SIZE,
-    isRenewable, alreadyRenewedIds,
+    isRenewable, alreadyRenewedIds, attachmentCounts,
   });
 });
 
