@@ -1,41 +1,51 @@
-// Thin nodemailer wrapper for the reminder-digest scaffold (see
-// src/routes/internal.js). Deliberately inert until SMTP_HOST/SMTP_USER/
-// SMTP_PASS/SMTP_FROM are set in the environment — the audit's "email
-// reminders" recommendation needs real mail credentials this codebase
-// can't supply on its own, so this ships the wiring and fails soft (logs
-// instead of throwing) rather than pretending to send mail it can't.
-const nodemailer = require('nodemailer');
+// Thin wrapper around Resend's HTTP API for the reminder-digest scaffold
+// (see src/routes/internal.js). Deliberately inert until RESEND_API_KEY is
+// set in the environment — fails soft (logs instead of throwing) rather
+// than pretending to send mail it can't.
+//
+// This used to talk raw SMTP via nodemailer, but Render's free web-service
+// tier blocks all outbound traffic to SMTP ports (25/465/587) — see
+// https://render.com/changelog/free-web-services-will-no-longer-allow-outbound-traffic-to-smtp-ports
+// — so every send just hung until it timed out, regardless of credentials
+// or port. Resend's API is plain HTTPS (port 443), which isn't blocked.
+//
+// Until a custom domain is verified on the Resend account, MAIL_FROM must
+// stay on their shared onboarding@resend.dev sender, and — per Resend's
+// sandbox rules — mail can only actually be delivered to the email address
+// the Resend account itself was signed up with. Verifying a domain (free,
+// just proves DNS ownership) lifts both restrictions for real rollout.
+const RESEND_API_URL = 'https://api.resend.com/emails';
 
 function isConfigured() {
-  return Boolean(process.env.SMTP_HOST && process.env.SMTP_USER && process.env.SMTP_PASS);
-}
-
-let transporter = null;
-function getTransporter() {
-  if (!isConfigured()) return null;
-  if (!transporter) {
-    transporter = nodemailer.createTransport({
-      host: process.env.SMTP_HOST,
-      port: Number(process.env.SMTP_PORT || 587),
-      secure: Number(process.env.SMTP_PORT) === 465,
-      auth: { user: process.env.SMTP_USER, pass: process.env.SMTP_PASS },
-      // Force IPv4. Gmail's SMTP host resolves to both an A and an AAAA
-      // record, and some hosts (Render included) have no IPv6 egress route
-      // — without this, Node happily picks the IPv6 address and every
-      // connection attempt fails fast with ENETUNREACH.
-      family: 4,
-    });
-  }
-  return transporter;
+  return Boolean(process.env.RESEND_API_KEY);
 }
 
 async function sendMail({ to, subject, text, html }) {
-  const t = getTransporter();
-  if (!t) {
-    console.log(`[mailer] SMTP not configured — would have sent "${subject}" to ${to}`);
+  if (!isConfigured()) {
+    console.log(`[mailer] RESEND_API_KEY not configured — would have sent "${subject}" to ${to}`);
     return { sent: false, reason: 'not_configured' };
   }
-  await t.sendMail({ from: process.env.SMTP_FROM || process.env.SMTP_USER, to, subject, text, html });
+
+  const res = await fetch(RESEND_API_URL, {
+    method: 'POST',
+    headers: {
+      Authorization: `Bearer ${process.env.RESEND_API_KEY}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      from: process.env.MAIL_FROM || 'ERRS Manager <onboarding@resend.dev>',
+      to,
+      subject,
+      text,
+      html,
+    }),
+  });
+
+  if (!res.ok) {
+    const body = await res.text().catch(() => '');
+    throw new Error(`Resend API ${res.status}: ${body.slice(0, 300)}`);
+  }
+
   return { sent: true };
 }
 
