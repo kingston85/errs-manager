@@ -19,6 +19,11 @@ function getTransporter() {
       port: Number(process.env.SMTP_PORT || 587),
       secure: Number(process.env.SMTP_PORT) === 465,
       auth: { user: process.env.SMTP_USER, pass: process.env.SMTP_PASS },
+      // Force IPv4. Gmail's SMTP host resolves to both an A and an AAAA
+      // record, and some hosts (Render included) have no IPv6 egress route
+      // — without this, Node happily picks the IPv6 address and every
+      // connection attempt fails fast with ENETUNREACH.
+      family: 4,
     });
   }
   return transporter;
