@@ -11,6 +11,7 @@ const { canAccessEntity, unitIdForKey, buildWhere, parseIdsParam, withIdsFilter 
 const { sendCsv } = require('../lib/csv');
 const { upload } = require('../lib/attachmentUpload');
 const { makeAttachmentHandlers, listAttachments } = require('../lib/attachmentHandlers');
+const { countAttachmentsFor } = require('../lib/attachmentsDb');
 
 const PAGE_SIZE = 25;
 
@@ -91,12 +92,14 @@ router.get('/:entityKey', async (req, res) => {
     fkLabelMaps[name] = Object.fromEntries(opts.map((o) => [o.id, o.label]));
   }
   const units = entity.unitScoped && !entity.unit && req.user.role === 'DEPT_HEAD' ? await loadUnits() : null;
+  const attachmentCounts = await countAttachmentsFor(entity.table, rows.map((r) => r.id));
 
   res.render('generic/list', {
     title: entity.label, entity, entityKey: req.entityKey, rows, fkLabelMaps, units,
     selectedUnit: req.query.unit || null,
     q: req.query.q || '',
     page: Math.min(page, totalPages), totalPages, total, pageSize: PAGE_SIZE,
+    attachmentCounts,
   });
 });
 
