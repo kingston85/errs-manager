@@ -74,15 +74,28 @@ router.get('/send-due-reminders', requireTaskToken, async (req, res) => {
       );
     }
     const totalCount = mineReminders.length + mineExpiring.length;
-    const result = await sendMail({
-      to: person.email,
-      subject: `ERRS Manager: ${totalCount} item${totalCount === 1 ? '' : 's'} need${totalCount === 1 ? 's' : ''} attention`,
-      text: `Hi ${person.name},\n\n${sections.join('\n\n')}\n\n— ERRS Manager`,
-    });
-    results.push({ to: person.email, ...result });
+    try {
+      const result = await sendMail({
+        to: person.email,
+        subject: `ERRS Manager: ${totalCount} item${totalCount === 1 ? '' : 's'} need${totalCount === 1 ? 's' : ''} attention`,
+        text: `Hi ${person.name},\n\n${sections.join('\n\n')}\n\n— ERRS Manager`,
+      });
+      results.push({ to: person.email, ...result });
+    } catch (err) {
+      // Don't let one recipient's SMTP failure (bad address, transient
+      // connection error, etc.) take down the whole digest run — log it,
+      // record it, and keep going so everyone else still gets their mail.
+      console.error(`[internal] failed to send digest to ${person.email}:`, err.message);
+      results.push({ to: person.email, sent: false, reason: 'send_error', error: err.message });
+    }
   }
 
-  if (isConfigured()) {
+  // Only mark things as sent/notified if EVERY attempted send actually
+  // succeeded — if any recipient failed, leave the underlying rows alone
+  // so tomorrow's run (or a manual retry) picks them back up, instead of
+  // silently losing a reminder because one unrelated send errored out.
+  const allSent = !results.some((r) => !r.sent);
+  if (isConfigured() && allSent) {
     if (due.length) await db.query(`UPDATE reminders SET status = 'SENT', sent_at = now() WHERE id = ANY($1::int[])`, [due.map((r) => r.id)]);
     if (expiring.length) await db.query(`UPDATE case_documents SET expiry_notified_at = now() WHERE id = ANY($1::int[])`, [expiring.map((r) => r.id)]);
   }
