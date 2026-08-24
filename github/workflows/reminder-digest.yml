@@ -1,0 +1,26 @@
+name: Daily reminder digest
+
+# Render's free web-service tier has no built-in cron and spins the app
+# down after 15 minutes idle, so "check for due reminders/expiring
+# licenses once a day" has to be triggered from *outside* the app. This
+# hits src/routes/internal.js's shared-secret endpoint, which does the
+# actual work (finds what's due, emails the right unit heads, marks it
+# sent) — this workflow's only job is showing up on a schedule.
+#
+# Requires one repository secret: INTERNAL_TASK_TOKEN, matching the value
+# set in the app's own environment (Render dashboard → Environment). See
+# Settings → Secrets and variables → Actions → New repository secret.
+on:
+  schedule:
+    # 07:00 UTC daily. Adjust to your preferred local morning — GitHub
+    # Actions cron is always UTC.
+    - cron: '0 7 * * *'
+  workflow_dispatch: {} # lets you trigger it by hand from the Actions tab too
+
+jobs:
+  send-digest:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Call the reminder-digest endpoint
+        run: |
+          curl -fsS "https://errs-manager.onrender.com/internal/send-due-reminders?token=${{ secrets.INTERNAL_TASK_TOKEN }}"
