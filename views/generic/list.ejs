@@ -95,17 +95,27 @@
             <th style="width:32px;"><input type="checkbox" class="bulk-select-all" aria-label="Select all"></th>
             <% listFields.forEach((f) => { %><th><%= f.label %></th><% }) %>
             <% if (units) { %><th>Unit</th><% } %>
+            <th>Files</th>
             <th></th>
           </tr>
         </thead>
         <tbody>
-          <% rows.forEach((row) => { %>
+          <% rows.forEach((row) => {
+            const att = attachmentCounts.get(row.id);
+          %>
             <tr data-href="/app/<%= entityKey %>/<%= row.id %>/edit">
               <td><input type="checkbox" class="bulk-row-check" value="<%= row.id %>"></td>
               <% listFields.forEach((f) => { const val = fmtValue(f, row); %>
                 <td><% if (val === null) { %><span class="text-muted">—</span><% } else { %><%= val %><% } %></td>
               <% }) %>
               <% if (units) { %><td><%= unitNameById[row.unit_id] || '—' %></td><% } %>
+              <td>
+                <% if (att) { %>
+                  <span class="badge badge-slate" title="<%= att.filenames.join(', ') %>">📎 <%= att.count %></span>
+                <% } else { %>
+                  <span class="text-muted">—</span>
+                <% } %>
+              </td>
               <td style="white-space:nowrap; text-align:right;">
                 <a class="btn btn-secondary btn-sm" href="/app/<%= entityKey %>/<%= row.id %>/edit">Edit</a>
                 <% if (user.role !== 'INTERN') { %>
