@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Verify a License or Certificate — ERRS Manager</title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <div class="login-wrap">
+    <div class="login-card verify-card">
+      <h1>Verify a License or Certificate</h1>
+      <p class="sub">Check whether a document issued by the Environmental Research &amp; Radiation Safety Department — Liberia EPA — is genuine and currently valid.</p>
+
+      <form action="/verify" method="GET" style="display:flex; gap:8px; margin-bottom:4px;">
+        <input class="form-input" type="search" name="q" value="<%= q %>" placeholder="Document number or company name…" autofocus>
+        <button class="btn btn-primary" type="submit">Check</button>
+      </form>
+
+      <% if (searched) { %>
+        <% if (!results.length) { %>
+          <div class="empty-state" style="padding:24px 10px;">
+            <div class="icon">❓</div>
+            No matching license, clearance, certificate, or bill was found for “<%= q %>”. Double-check the document number, or contact the department directly.
+          </div>
+        <% } else { %>
+          <div class="verify-results">
+            <% results.forEach((r) => { %>
+              <div class="verify-result <%= r.verdict.valid ? 'verify-valid' : 'verify-invalid' %>">
+                <div class="verify-result-top">
+                  <span class="badge <%= r.verdict.valid ? 'badge-green' : 'badge-red' %>"><%= r.verdict.valid ? '✓ Valid' : r.verdict.label %></span>
+                  <span class="doc-number"><%= r.document_number %></span>
+                </div>
+                <div class="verify-result-body">
+                  <div><strong><%= r.type_label %></strong> (<%= r.type_kind.charAt(0) + r.type_kind.slice(1).toLowerCase() %>)</div>
+                  <div>Issued to <strong><%= r.company_name %></strong><% if (r.chemical_name) { %> — <%= r.chemical_name %><% } %></div>
+                  <div class="text-sm text-muted">
+                    <%= r.unit_name %> ·
+                    Issued <%= new Date(r.date_issued).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' }) %>
+                    <% if (r.expiry_date) { %> · Valid until <%= new Date(r.expiry_date).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' }) %><% } %>
+                  </div>
+                </div>
+              </div>
+            <% }) %>
+          </div>
+        <% } %>
+      <% } %>
+    </div>
+  </div>
+</body>
+</html>

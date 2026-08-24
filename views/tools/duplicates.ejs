@@ -1,0 +1,61 @@
+<%
+  const pct = (s) => Math.round(s * 100) + '%';
+%>
+
+<p class="text-sm text-muted" style="max-width:70ch;">
+  Pairs of company or chemical names that look similar enough to plausibly be the same real-world entity spelled two
+  ways — the exact problem <code>chemicals.aliases</code> exists to solve, and a recurring issue in the department's
+  original spreadsheets. This only <strong>finds</strong> candidates; nothing is changed automatically. To merge two
+  records, edit the one you're keeping so it captures anything useful from the other (e.g. add the other chemical's
+  name to its Known Alternate Spellings), then delete the surplus record from its own list page.
+</p>
+
+<div class="grid grid-2" style="align-items:start;">
+  <div class="card">
+    <h2 class="mt-0">🏢 Companies</h2>
+    <% if (!companies.length) { %>
+      <div class="empty-state"><div class="icon">✅</div>No likely duplicates found.</div>
+    <% } else { %>
+      <table class="data-table">
+        <thead><tr><th>Name A</th><th>Name B</th><th>Similarity</th><th></th></tr></thead>
+        <tbody>
+          <% companies.forEach((p) => { %>
+            <tr>
+              <td><%= p.name_a %></td>
+              <td><%= p.name_b %></td>
+              <td><span class="similarity-pill"><%= pct(p.score) %></span></td>
+              <td style="white-space:nowrap;">
+                <a class="btn btn-secondary btn-sm" href="/app/companies/<%= p.id_a %>/edit">Edit A</a>
+                <a class="btn btn-secondary btn-sm" href="/app/companies/<%= p.id_b %>/edit">Edit B</a>
+              </td>
+            </tr>
+          <% }) %>
+        </tbody>
+      </table>
+    <% } %>
+  </div>
+
+  <div class="card">
+    <h2 class="mt-0">🧪 Chemicals</h2>
+    <% if (!chemicals.length) { %>
+      <div class="empty-state"><div class="icon">✅</div>No likely duplicates found.</div>
+    <% } else { %>
+      <table class="data-table">
+        <thead><tr><th>Name A</th><th>Name B</th><th>Similarity</th><th></th></tr></thead>
+        <tbody>
+          <% chemicals.forEach((p) => { %>
+            <tr>
+              <td><%= p.name_a %></td>
+              <td><%= p.name_b %></td>
+              <td><span class="similarity-pill"><%= pct(p.score) %></span></td>
+              <td style="white-space:nowrap;">
+                <a class="btn btn-secondary btn-sm" href="/app/chemicals/<%= p.id_a %>/edit">Edit A</a>
+                <a class="btn btn-secondary btn-sm" href="/app/chemicals/<%= p.id_b %>/edit">Edit B</a>
+              </td>
+            </tr>
+          <% }) %>
+        </tbody>
+      </table>
+    <% } %>
+  </div>
+</div>

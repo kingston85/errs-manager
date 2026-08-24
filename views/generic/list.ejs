@@ -1,0 +1,131 @@
+<%
+  const listFields = entity.fields.filter((f) => f.listShow);
+  const unitNameById = {};
+  if (units) units.forEach((u) => { unitNameById[u.id] = u.name; });
+  const IMPORTABLE = ['companies', 'chemicals'];
+
+  // Returns the plain value to display, or null for "nothing to show" —
+  // the caller decides how to render it. Previously this returned
+  // pre-built HTML strings (including the placeholder markup for a blank
+  // value) and the view printed them through EJS's unescaped-output tag,
+  // which meant any ordinary text field (company name, notes, findings —
+  // anything a Staff or Intern account can type) was echoed back as live
+  // HTML to every other viewer: a stored-XSS hole reachable from every one
+  // of these list pages. Now every actual data value goes through EJS's
+  // normal escaped-output tag instead, down in the table body below.
+  const fmtValue = (f, row) => {
+    const v = row[f.name];
+    if (v === null || v === undefined || v === '') return null;
+    if (f.type === 'fk') return (fkLabelMaps[f.name] && fkLabelMaps[f.name][v]) || v;
+    if (f.type === 'taglist') return Array.isArray(v) ? v.join(', ') : v;
+    if (f.type === 'date') return new Date(v).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
+    if (f.type === 'enum' && (v === true || v === false || v === 'true' || v === 'false')) return (v === true || v === 'true') ? 'Yes' : 'No';
+    return v;
+  };
+
+  const withQuery = (params) => {
+    const usp = new URLSearchParams();
+    if (selectedUnit) usp.set('unit', selectedUnit);
+    if (q) usp.set('q', q);
+    Object.entries(params).forEach(([k, v]) => usp.set(k, v));
+    return `/app/${entityKey}?${usp.toString()}`;
+  };
+  const exportUrl = () => {
+    const usp = new URLSearchParams();
+    if (selectedUnit) usp.set('unit', selectedUnit);
+    if (q) usp.set('q', q);
+    const qs = usp.toString();
+    return `/app/${entityKey}/export.csv${qs ? '?' + qs : ''}`;
+  };
+%>
+
+<div class="toolbar">
+  <div class="filters">
+    <% if (units) { %>
+      <form method="GET" style="display:flex; gap:8px;">
+        <% if (q) { %><input type="hidden" name="q" value="<%= q %>"><% } %>
+        <select name="unit" onchange="this.form.submit()">
+          <option value="">All units</option>
+          <% units.forEach((u) => { %>
+            <option value="<%= u.key %>" <%= selectedUnit === u.key ? 'selected' : '' %>><%= u.name %></option>
+          <% }) %>
+        </select>
+      </form>
+    <% } %>
+    <form method="GET" style="display:flex; gap:8px;">
+      <% if (selectedUnit) { %><input type="hidden" name="unit" value="<%= selectedUnit %>"><% } %>
+      <input class="search-input" type="search" name="q" value="<%= q %>" placeholder="Search <%= entity.label.toLowerCase() %>…">
+      <button class="btn btn-secondary btn-sm" type="submit">Search</button>
+      <% if (q) { %><a class="btn btn-secondary btn-sm" href="<%= withQuery({ q: '' }) %>">Clear</a><% } %>
+    </form>
+  </div>
+  <div class="flex gap-2">
+    <a class="btn btn-secondary" href="<%= exportUrl() %>">⬇ Export CSV</a>
+    <% if (IMPORTABLE.includes(entityKey)) { %>
+      <a class="btn btn-secondary" href="/app/<%= entityKey %>/import">⬆ Import CSV</a>
+    <% } %>
+    <a class="btn btn-primary" href="/app/<%= entityKey %>/new">+ Add <%= entity.labelSingular %></a>
+  </div>
+</div>
+
+<% if (rows.length) { %>
+  <div class="bulk-toolbar" id="bulk-toolbar" hidden>
+    <span class="bulk-count" id="bulk-count"></span>
+    <a class="btn btn-secondary btn-sm" id="bulk-export-link" href="<%= exportUrl() %>">⬇ Export selected</a>
+    <% if (user.role !== 'INTERN') { %>
+      <button class="btn btn-danger btn-sm" type="button" id="bulk-delete-btn">🗑 Delete selected</button>
+    <% } %>
+  </div>
+  <form id="bulk-delete-form" action="/app/<%= entityKey %>/bulk-delete" method="POST" style="display:none;">
+    <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+  </form>
+<% } %>
+
+<div class="card" style="padding:0;">
+  <% if (!rows.length) { %>
+    <div class="empty-state">
+      <div class="icon"><%= entity.icon %></div>
+      <% if (q) { %>No <%= entity.label.toLowerCase() %> match “<%= q %>”.<% } else { %>No <%= entity.label.toLowerCase() %> recorded yet.<% } %>
+    </div>
+  <% } else { %>
+    <div style="overflow-x:auto;">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th style="width:32px;"><input type="checkbox" class="bulk-select-all" aria-label="Select all"></th>
+            <% listFields.forEach((f) => { %><th><%= f.label %></th><% }) %>
+            <% if (units) { %><th>Unit</th><% } %>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          <% rows.forEach((row) => { %>
+            <tr data-href="/app/<%= entityKey %>/<%= row.id %>/edit">
+              <td><input type="checkbox" class="bulk-row-check" value="<%= row.id %>"></td>
+              <% listFields.forEach((f) => { const val = fmtValue(f, row); %>
+                <td><% if (val === null) { %><span class="text-muted">—</span><% } else { %><%= val %><% } %></td>
+              <% }) %>
+              <% if (units) { %><td><%= unitNameById[row.unit_id] || '—' %></td><% } %>
+              <td style="white-space:nowrap; text-align:right;">
+                <a class="btn btn-secondary btn-sm" href="/app/<%= entityKey %>/<%= row.id %>/edit">Edit</a>
+                <% if (user.role !== 'INTERN') { %>
+                  <form action="/app/<%= entityKey %>/<%= row.id %>/delete" method="POST" style="display:inline;" onsubmit="return confirm('Delete this record? This cannot be undone.');">
+                    <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                    <button class="btn btn-danger btn-sm" type="submit">Delete</button>
+                  </form>
+                <% } %>
+              </td>
+            </tr>
+          <% }) %>
+        </tbody>
+      </table>
+    </div>
+    <% if (totalPages > 1) { %>
+      <div class="pagination">
+        <% if (page > 1) { %><a href="<%= withQuery({ page: page - 1 }) %>">← Prev</a><% } else { %><span class="disabled">← Prev</span><% } %>
+        <span class="page-info">Page <%= page %> of <%= totalPages %> · <%= total %> total</span>
+        <% if (page < totalPages) { %><a href="<%= withQuery({ page: page + 1 }) %>">Next →</a><% } else { %><span class="disabled">Next →</span><% } %>
+      </div>
+    <% } %>
+  <% } %>
+</div>

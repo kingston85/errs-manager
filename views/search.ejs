@@ -1,0 +1,33 @@
+<div class="card">
+  <form action="/app/search" method="GET" style="display:flex; gap:8px; max-width:480px;">
+    <input class="search-input" type="search" name="q" value="<%= q %>" placeholder="Search companies, chemicals, cases, everything…" autofocus style="flex:1;">
+    <button class="btn btn-primary btn-sm" type="submit">Search</button>
+  </form>
+</div>
+
+<% if (q.length > 0 && q.length < 2) { %>
+  <div class="card"><div class="empty-state">Keep typing — at least 2 characters.</div></div>
+<% } else if (q.length >= 2 && !groups.length) { %>
+  <div class="card">
+    <div class="empty-state">
+      <div class="icon">🔎</div>
+      No records match “<%= q %>”.
+    </div>
+  </div>
+<% } else if (groups.length) { %>
+  <div class="search-groups">
+    <% groups.forEach((g) => { %>
+      <div class="card" style="padding:0;">
+        <div class="search-group-label" style="padding:12px 14px 0;"><%= g.icon %> <%= g.label %></div>
+        <div>
+          <% g.items.forEach((item) => { %>
+            <a class="search-result-item" href="<%= item.href %>">
+              <span class="search-result-title"><%= item.title %></span>
+              <% if (item.sub) { %><span class="text-sm text-muted"><%= item.sub %></span><% } %>
+            </a>
+          <% }) %>
+        </div>
+      </div>
+    <% }) %>
+  </div>
+<% } %>
