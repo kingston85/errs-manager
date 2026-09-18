@@ -24,6 +24,7 @@ This is a **working prototype** — a real web app with a real database, meant t
 - **Global search** — one box in the top bar, on every page, finds a company, chemical, case, or any other record by name/number without needing to know which of the dozen list pages it lives on. Same unit-scoping rules as every list page — nobody can search their way into another unit's records.
 - **Bulk actions** — select multiple rows on a list (checkbox column, "select all") and delete or export just those, instead of one at a time. Same permission checks as the single-row actions (Interns can't bulk-delete either; a Unit Head can only bulk-delete their own unit's rows even if they hand-craft the request).
 - **One-click license renewal** — an issued License/Clearance/Certificate within 60 days of its expiry (or already past it) gets a "Renew" button, on the dashboard and the documents list, that creates a fresh application pre-filled from the old one (same company, chemical, unit, type) instead of re-keying everything. The new case links back to the old one, and vice versa, so the renewal history is traceable.
+- **Excel health dashboard** — `exports/ERRS-Health-Dashboard.xlsx` (`npm run health-dashboard`) is a standalone workbook for the health side of the work: samples against safety limits, complaints and the illness cases behind them, inspection outcomes, and radiation worker dose — 12 live KPI cards and 8 charts, all driven by formulas over the data sheets. See "Health dashboard workbook (Excel)" below.
 - **Sortable, clickable tables** — click any column header to sort what's on screen; click anywhere on a row to open it. Vanilla JS, no dependency, works on every list/report table in the app (`public/js/app.js`).
 
 ## Tech stack
@@ -151,6 +152,48 @@ To turn it on:
 1. Create a free Resend account and generate an API key (dashboard → API Keys). Set `RESEND_API_KEY` in Render's environment. Until you verify a custom domain on the Resend account, leave `MAIL_FROM` unset (it defaults to their shared `onboarding@resend.dev` sender) — note that in this unverified mode, Resend only delivers to the email address the Resend account itself was signed up with. Verifying a domain (free — just proves DNS ownership, dashboard → Domains) lifts that restriction for sending to real staff addresses; once done, set `MAIL_FROM` to an address at that domain.
 2. Set `INTERNAL_TASK_TOKEN` to any long random string, in the same Render environment.
 3. Render's free tier has no built-in cron, so something outside the app has to trigger the endpoint daily — `.github/workflows/reminder-digest.yml` does this via a scheduled GitHub Actions run (07:00 UTC by default). It needs one repository secret, `INTERNAL_TASK_TOKEN`, set to the *same* value as step 2 (Settings → Secrets and variables → Actions → New repository secret). A free [cron-job.org](https://cron-job.org) schedule hitting the same URL works just as well if you'd rather not use Actions.
+
+## Health dashboard workbook (Excel)
+
+`exports/ERRS-Health-Dashboard.xlsx` is a standalone Excel dashboard for the health side of
+the department's work — what the environment is doing to people, and what the department is
+doing about it. It is generated, not hand-built:
+
+```bash
+npm run health-dashboard      # rebuilds exports/ERRS-Health-Dashboard.xlsx
+```
+
+That script (`scripts/build_health_dashboard.py`) needs Python 3 and
+`pip install openpyxl`; nothing else in the app depends on Python.
+
+Every figure on the Dashboard is a live formula over the data sheets (`COUNTIFS` / `SUMIFS` /
+`AVERAGEIFS` against bounded ranges), so pasting in real records updates the twelve KPI cards
+and eight charts without anyone touching the formulas. The workbook ships pre-filled with
+**realistic sample data, not real records** — the Read Me sheet inside says so twice, on
+purpose, because a dashboard full of plausible-looking numbers is exactly the kind of thing
+that gets quoted in a meeting by mistake.
+
+| Sheet | Holds |
+|---|---|
+| Dashboard | 12 KPI cards + 8 charts; every value a live formula |
+| Lab Results | one row per sample — water, soil, air, ambient radiation — against the applicable limit |
+| Health Complaints | one row per complaint: illness cases reported, severity, days to resolve |
+| Facility Inspections | one row per inspection with a 1-10 health risk score and follow-up status |
+| Radiation Safety | one row per licensed facility: sources, workers monitored, annual dose vs the 20 mSv limit, PPE, calibration |
+| Reference | the safety limits applied (WHO / US EPA / IAEA) and the lists behind every dropdown |
+| Read Me | how to use it, and how to swap in real data |
+| CalcData | the aggregation engine the cards and charts read from |
+
+The thresholds are widely used international guidelines (WHO drinking-water and air-quality
+guidelines, US EPA regional screening levels for soil, an IAEA reference level for ambient
+dose rate) and the occupational dose limit is the IAEA's 20 mSv/year. They are a sensible
+default, **not a legal position** — confirm each one against Liberia's own national standards
+before this is used for a decision. `scripts/build_health_dashboard.py` is the single place
+to change them: the `PARAMS` dictionary holds the limits, and `DOSE_LIMIT_MSV` the dose limit.
+
+The sample rows are generated around Liberia's rainy and dry seasons (waterborne and
+sanitation complaints climb May-October, dust and smoke complaints in December-March), so the
+charts have a believable shape to demonstrate rather than a flat line.
 
 ## Notes on the data model
 
