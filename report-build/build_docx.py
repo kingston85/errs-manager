@@ -19,8 +19,8 @@ OUT = os.path.abspath(os.path.join(
 GREEN = RGBColor(0x1F, 0x4E, 0x3D)
 GREEN_L = RGBColor(0x2E, 0x7D, 0x5B)
 GOLD = RGBColor(0xC9, 0xA2, 0x27)
-BODY = RGBColor(0x25, 0x29, 0x2E)
-MUTED = RGBColor(0x5B, 0x64, 0x70)
+BODY = RGBColor(0x00, 0x00, 0x00)
+MUTED = RGBColor(0x00, 0x00, 0x00)
 WHITE = RGBColor(0xFF, 0xFF, 0xFF)
 
 HEX_GREEN = "1F4E3D"
@@ -29,7 +29,7 @@ HEX_ZEBRA = "F4F7F5"
 HEX_TOTAL = "DCE6E0"
 HEX_RULE = "C9CFD6"
 
-FONT = "Calibri"
+FONT = "Times New Roman"
 PORTRAIT_W = Inches(6.69)      # A4 210mm - 2 x 20mm margins
 LANDSCAPE_W = Inches(10.31)    # A4 297mm - 2 x 20mm margins
 
@@ -38,7 +38,7 @@ doc = Document()
 # ------------------------------------------------------------------ styles
 normal = doc.styles["Normal"]
 normal.font.name = FONT
-normal.font.size = Pt(10.5)
+normal.font.size = Pt(11.5)
 normal.font.color.rgb = BODY
 normal.paragraph_format.space_after = Pt(6)
 normal.paragraph_format.line_spacing = 1.12
@@ -86,7 +86,7 @@ def para_border(p, position="bottom", size=12, color=HEX_RULE, space=4):
     bd.append(e)
 
 
-def add_par(text="", size=10.5, bold=False, italic=False, color=BODY,
+def add_par(text="", size=11.5, bold=False, italic=False, color=BODY,
             align=None, space_before=0, space_after=6, leading=1.12,
             left_indent=0, font=FONT):
     p = doc.add_paragraph()
@@ -212,8 +212,8 @@ def tbl_borders(t, color):
 def add_table(b, content_width):
     tbl_no[0] += 1
     n = tbl_no[0]
-    cap = add_par("Table %d.  %s" % (n, b["caption"]), size=9.2, bold=True,
-                  color=GREEN, space_before=8, space_after=3)
+    cap = add_par("Table %d.  %s" % (n, b["caption"]), size=9.8, bold=True,
+                  color=BODY, space_before=8, space_after=3)
 
     head = b["head"]
     ncols = len(head)
@@ -222,8 +222,8 @@ def add_table(b, content_width):
     group = b.get("group_head")
     small = b.get("small")
     xsmall = b.get("xsmall")
-    fsize = 6.8 if xsmall else (8.2 if small else 9.0)
-    hsize = 6.8 if xsmall else 8.6
+    fsize = 7.5 if xsmall else (9.0 if small else 9.8)
+    hsize = 7.5 if xsmall else 9.3
 
     nrows = len(b["rows"]) + 1 + (1 if group else 0)
     t = doc.add_table(rows=nrows, cols=ncols)
@@ -311,7 +311,7 @@ def add_table(b, content_width):
                 shade(cell._tc.get_or_add_tcPr(), HEX_ZEBRA)
 
     if b.get("note"):
-        add_par("Note: " + b["note"], size=8.4, italic=False, color=MUTED,
+        add_par("Note: " + b["note"], size=9.2, italic=False, color=MUTED,
                 space_before=3, space_after=10, leading=1.05)
     else:
         add_par("", size=4, space_after=4)
@@ -327,7 +327,7 @@ def add_figure(b, content_width):
     p.paragraph_format.space_after = Pt(2)
     width = min(Inches(b.get("width", 6.0)), Emu(int(content_width)))
     p.add_run().add_picture(b["path"], width=width)
-    cp = add_par("Figure %d.  %s" % (n, b["caption"]), size=9.2, bold=True,
+    cp = add_par("Figure %d.  %s" % (n, b["caption"]), size=9.8, bold=True,
                  color=GREEN, align=WD_ALIGN_PARAGRAPH.CENTER,
                  space_before=2, space_after=12)
     return cp
@@ -428,7 +428,7 @@ def main():
             doc.add_paragraph().add_run().add_break(WD_BREAK.PAGE)
 
         elif k == "toc":
-            p = add_par("Table of Contents", size=16, bold=True, color=GREEN,
+            p = add_par("Table of Contents", size=17, bold=True, color=BODY,
                         space_after=4)
             para_border(p, "bottom", 14, "C9A227", 6)
             add_par("", space_after=8)
@@ -436,78 +436,78 @@ def main():
             field(tp, r' TOC \o "1-3" \h \z \u ')
 
         elif k == "lot":
-            p = add_par("List of Tables", size=16, bold=True, color=GREEN,
+            p = add_par("List of Tables", size=17, bold=True, color=BODY,
                         space_after=4)
             para_border(p, "bottom", 14, "C9A227", 6)
             add_par("", space_after=8)
             for i, (num, cap) in enumerate(LOT, 1):
-                add_par("Table %d.  %s" % (num, cap), size=9.4,
+                add_par("Table %d.  %s" % (num, cap), size=10.1,
                         space_after=2, leading=1.05)
 
         elif k == "lof":
-            p = add_par("List of Figures", size=16, bold=True, color=GREEN,
+            p = add_par("List of Figures", size=17, bold=True, color=BODY,
                         space_after=4)
             para_border(p, "bottom", 14, "C9A227", 6)
             add_par("", space_after=8)
             for num, cap in LOF:
-                add_par("Figure %d.  %s" % (num, cap), size=9.4,
+                add_par("Figure %d.  %s" % (num, cap), size=10.1,
                         space_after=2, leading=1.05)
 
         elif k == "h1":
             if b.get("unnumbered"):
-                p = add_par(b["text"], size=16, bold=True, color=GREEN,
+                p = add_par(b["text"], size=17, bold=True, color=BODY,
                             space_before=6, space_after=4)
                 para_border(p, "bottom", 14, "C9A227", 6)
                 add_par("", space_after=6)
             else:
                 H1[0] += 1
                 H2[0] = H3[0] = H4[0] = 0
-                p = add_par("%d.  %s" % (H1[0], b["text"]), size=16, bold=True,
-                            color=GREEN, space_before=6, space_after=4)
+                p = add_par("%d.  %s" % (H1[0], b["text"]), size=17, bold=True,
+                            color=BODY, space_before=6, space_after=4)
                 bookmark_heading(p, 1, b["text"])
                 for r in p.runs:
-                    r.font.size = Pt(16)
+                    r.font.size = Pt(17)
                     r.font.bold = True
-                    r.font.color.rgb = GREEN
+                    r.font.color.rgb = BODY
                 para_border(p, "bottom", 14, "C9A227", 6)
                 add_par("", space_after=6)
 
         elif k == "h2":
             H2[0] += 1
             H3[0] = H4[0] = 0
-            p = add_par("%d.%d  %s" % (H1[0], H2[0], b["text"]), size=12.6,
-                        bold=True, color=GREEN, space_before=14, space_after=5)
+            p = add_par("%d.%d  %s" % (H1[0], H2[0], b["text"]), size=13.4,
+                        bold=True, color=BODY, space_before=14, space_after=5)
             bookmark_heading(p, 2, b["text"])
             for r in p.runs:
-                r.font.size = Pt(12.6)
+                r.font.size = Pt(13.4)
                 r.font.bold = True
-                r.font.color.rgb = GREEN
+                r.font.color.rgb = BODY
 
         elif k == "h3":
             if b.get("unnumbered"):
-                add_par(b["text"], size=10.8, bold=True, color=GREEN_L,
+                add_par(b["text"], size=11.6, bold=True, color=BODY,
                         space_before=11, space_after=4)
             else:
                 H3[0] += 1
                 H4[0] = 0
                 p = add_par("%d.%d.%d  %s" % (H1[0], H2[0], H3[0], b["text"]),
-                            size=10.8, bold=True, color=GREEN_L,
+                            size=11.6, bold=True, color=BODY,
                             space_before=11, space_after=4)
                 bookmark_heading(p, 3, b["text"])
                 for r in p.runs:
-                    r.font.size = Pt(10.8)
+                    r.font.size = Pt(11.6)
                     r.font.bold = True
-                    r.font.color.rgb = GREEN_L
+                    r.font.color.rgb = BODY
 
         elif k == "h4":
             if b.get("unnumbered"):
-                add_par(b["text"], size=10.2, bold=True, color=BODY,
+                add_par(b["text"], size=10.8, bold=True, color=BODY,
                         space_before=9, space_after=3)
             else:
                 H4[0] += 1
                 add_par("%d.%d.%d.%d  %s" % (H1[0], H2[0], H3[0], H4[0],
                                              b["text"]),
-                        size=10.2, bold=True, color=BODY,
+                        size=10.8, bold=True, color=BODY,
                         space_before=9, space_after=3)
 
         elif k == "placeholder":
@@ -531,14 +531,14 @@ def main():
                 ip.paragraph_format.space_after = Pt(3)
                 ip.paragraph_format.left_indent = Pt(12)
                 ir = ip.add_run("\u2022  " + it)
-                ir.font.size = Pt(9.5)
+                ir.font.size = Pt(10)
                 ir.font.name = FONT
                 ir.font.color.rgb = BODY
             tbl_borders(t, "C9A227")
             add_par("", space_after=8)
 
         elif k == "para":
-            add_par(b["text"], size=10.5, align=WD_ALIGN_PARAGRAPH.JUSTIFY,
+            add_par(b["text"], size=11.5, align=WD_ALIGN_PARAGRAPH.JUSTIFY,
                     space_after=7, leading=1.14)
 
         elif k == "bullets":
@@ -549,7 +549,7 @@ def main():
                 p.paragraph_format.left_indent = Inches(0.28)
                 p.alignment = WD_ALIGN_PARAGRAPH.JUSTIFY
                 r = p.add_run(it)
-                r.font.size = Pt(10.3)
+                r.font.size = Pt(11.3)
                 r.font.color.rgb = BODY
             add_par("", size=4, space_after=4)
 
@@ -561,7 +561,7 @@ def main():
                 p.paragraph_format.left_indent = Inches(0.34)
                 p.alignment = WD_ALIGN_PARAGRAPH.JUSTIFY
                 r = p.add_run(it)
-                r.font.size = Pt(10.3)
+                r.font.size = Pt(11.3)
                 r.font.color.rgb = BODY
             add_par("", size=4, space_after=4)
 

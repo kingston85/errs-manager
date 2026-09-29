@@ -3,10 +3,22 @@ import os
 import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
+from matplotlib import font_manager
 from matplotlib.ticker import MaxNLocator
 
-OUT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "figures")
+HERE = os.path.dirname(os.path.abspath(__file__))
+OUT = os.path.join(HERE, "figures")
 os.makedirs(OUT, exist_ok=True)
+
+# Times New Roman for every chart.  Tinos is metrically and visually
+# compatible with Times New Roman and is bundled in report-build/fonts.
+FONT_DIR = os.path.join(HERE, "fonts")
+SERIF = "DejaVu Serif"
+if os.path.isdir(FONT_DIR):
+    for _f in sorted(os.listdir(FONT_DIR)):
+        if _f.lower().endswith(".ttf"):
+            font_manager.fontManager.addfont(os.path.join(FONT_DIR, _f))
+    SERIF = "Tinos"
 
 # ----------------------------------------------------------------- house style
 GREEN = "#1F4E3D"
@@ -18,17 +30,22 @@ GREY = "#6B7280"
 PALETTE = [GREEN, GREEN_L, GOLD, BLUE, RUST, "#7A6A9B", "#4FA3A5", "#8C3B3B"]
 
 plt.rcParams.update({
-    "font.family": "DejaVu Sans",
-    "font.size": 10.5,
+    "font.family": SERIF,
+    "font.serif": [SERIF, "Times New Roman", "DejaVu Serif"],
+    "font.size": 11,
     "axes.titlesize": 13,
     "axes.titleweight": "bold",
-    "axes.titlecolor": GREEN,
-    "axes.labelsize": 10.5,
-    "axes.labelcolor": "#333333",
+    "axes.titlecolor": "black",
+    "axes.labelsize": 11,
+    "axes.labelcolor": "black",
+    "text.color": "black",
+    "legend.labelcolor": "black",
     "axes.edgecolor": "#C9CDD4",
     "axes.linewidth": 0.8,
-    "xtick.color": "#444444",
-    "ytick.color": "#444444",
+    "xtick.color": "black",
+    "ytick.color": "black",
+    "xtick.labelcolor": "black",
+    "ytick.labelcolor": "black",
     "figure.facecolor": "white",
     "axes.facecolor": "white",
     "savefig.dpi": 220,
@@ -37,6 +54,14 @@ plt.rcParams.update({
 })
 
 EMBED_TITLES = False
+
+
+def xcats(ax, labels, fontsize=9.5, rotate=45):
+    """Category labels on one line, inclined 45 degrees so they never collide."""
+    flat = [str(l).replace("\n", " ") for l in labels]
+    ax.set_xticks(range(len(flat)))
+    ax.set_xticklabels(flat, rotation=rotate, ha="right",
+                       rotation_mode="anchor", fontsize=fontsize)
 
 
 def _finish(ax, ygrid=True):
@@ -64,7 +89,7 @@ def barh(fname, labels, values, title, xlabel, colors=None, figsize=(7.4, 4.0),
     for b, v in zip(bars, values):
         ax.text(b.get_width() + span * 0.015, b.get_y() + b.get_height() / 2,
                 fmt.format(v), va="center", ha="left", fontsize=10,
-                fontweight="bold", color="#333333")
+                fontweight="bold", color="black")
     ax.set_xlim(0, span * 1.16)
     ax.spines["top"].set_visible(False)
     ax.spines["right"].set_visible(False)
@@ -81,9 +106,12 @@ def barv(fname, labels, values, title, ylabel, colors=None, figsize=(7.4, 4.0),
     x = range(len(labels))
     bars = ax.bar(list(x), values, color=colors, width=0.62,
                   edgecolor="white", linewidth=0.6)
-    ax.set_xticks(list(x))
-    ax.set_xticklabels(labels, rotation=rotate,
-                       ha="right" if rotate else "center")
+    if rotate or (len(labels) >= 4
+                  and max(len(str(l)) for l in labels) > 9):
+        xcats(ax, labels, rotate=rotate or 45)
+    else:
+        ax.set_xticks(list(x))
+        ax.set_xticklabels(labels)
     ax.set_ylabel(ylabel)
     if EMBED_TITLES:
         ax.set_title(title, pad=14, loc="left")
@@ -91,7 +119,7 @@ def barv(fname, labels, values, title, ylabel, colors=None, figsize=(7.4, 4.0),
     for b, v in zip(bars, values):
         ax.text(b.get_x() + b.get_width() / 2, b.get_height() + span * 0.02,
                 fmt.format(v), ha="center", va="bottom", fontsize=10,
-                fontweight="bold", color="#333333")
+                fontweight="bold", color="black")
     top = span * 1.18
     if hline:
         top = max(top, hline * 1.15)
@@ -216,9 +244,8 @@ for bars in (b1, b2, b3):
         if b.get_height() > 0:
             ax.text(b.get_x() + b.get_width() / 2, b.get_height() + 0.15,
                     int(b.get_height()), ha="center", va="bottom",
-                    fontsize=9.5, fontweight="bold", color="#333333")
-ax.set_xticks(list(x))
-ax.set_xticklabels(groups)
+                    fontsize=9.5, fontweight="bold", color="black")
+xcats(ax, groups)
 ax.set_ylabel("Number of proponents")
 ax.set_ylim(0, 11)
 ax.yaxis.set_major_locator(MaxNLocator(integer=True))
@@ -266,7 +293,7 @@ bars = ax.bar(locs, noise, color=cols, width=0.62, edgecolor="white",
 for b, v in zip(bars, noise):
     ax.text(b.get_x() + b.get_width() / 2, b.get_height() + 1.2, v,
             ha="center", va="bottom", fontsize=9, fontweight="bold",
-            color="#333333")
+            color="black")
 ax.axhline(55, color="#8C3B3B", linestyle="--", linewidth=1.5)
 ax.text(-0.45, 50.5, "Permissible night-time limit  55 dBA", color="#8C3B3B",
         fontsize=9.5, fontweight="bold", ha="left", va="top")
@@ -282,7 +309,7 @@ plt.close(fig)
 
 # ========================================================== PART III  —  R S U
 # Figure 11: radiation licences issued
-fig, ax = plt.subplots(figsize=(7.0, 3.6))
+fig, ax = plt.subplots(figsize=(7.0, 4.0))
 inst = ["Bea Mountain Mining\nCorporation (BMMC)",
         "ArcelorMittal", "AMI Expeditionary\nHealth Care"]
 imp = [7, 0, 0]
@@ -297,9 +324,8 @@ for bars in (b1, b2):
         if b.get_height() > 0:
             ax.text(b.get_x() + b.get_width() / 2, b.get_height() + 0.12,
                     int(b.get_height()), ha="center", va="bottom",
-                    fontsize=10, fontweight="bold", color="#333333")
-ax.set_xticks(list(x))
-ax.set_xticklabels(inst)
+                    fontsize=10, fontweight="bold", color="black")
+xcats(ax, inst)
 ax.set_ylabel("Licences issued")
 ax.set_ylim(0, 8.6)
 ax.yaxis.set_major_locator(MaxNLocator(integer=True))
@@ -401,7 +427,7 @@ ax.text(101.5, len(kpi_labels) - 0.3, "Annual target  100%", color="#8C3B3B",
 for b, p, pend in zip(bars, kpi_pct, kpi_pending):
     lab = "{:.1f}%".format(p) + ("  (Q3 pending)" if pend else "")
     ax.text(b.get_width() + 2, b.get_y() + b.get_height() / 2, lab,
-            va="center", fontsize=9, fontweight="bold", color="#333333")
+            va="center", fontsize=9, fontweight="bold", color="black")
 ax.set_yticks(y)
 ax.set_yticklabels(kpi_labels)
 ax.invert_yaxis()
@@ -439,16 +465,15 @@ emru_lbl = ["Environmental\ninvestigations", "Environmental media\nanalysed",
             "Lab results\nreceived", "Certificates\nissued",
             "Laboratory\naccreditations"]
 emru_val = [91, 91, 35, 26, 19, 11, 1]
-fig, ax = plt.subplots(figsize=(7.4, 3.9))
+fig, ax = plt.subplots(figsize=(7.4, 4.3))
 bars = ax.bar(range(len(emru_lbl)), emru_val, 0.62,
               color=[GREEN, GREEN, GREEN_L, BLUE, BLUE, GOLD, RUST],
               edgecolor="white", linewidth=0.6)
 for b, v in zip(bars, emru_val):
     ax.text(b.get_x() + b.get_width() / 2, b.get_height() + 1.8, v,
             ha="center", va="bottom", fontsize=10, fontweight="bold",
-            color="#333333")
-ax.set_xticks(range(len(emru_lbl)))
-ax.set_xticklabels(emru_lbl, fontsize=9)
+            color="black")
+xcats(ax, emru_lbl, fontsize=9.5)
 ax.set_ylabel("Count")
 ax.set_ylim(0, 105)
 _finish(ax)
@@ -472,9 +497,8 @@ for bars in (b1, b2, b3):
     for b in bars:
         ax.text(b.get_x() + b.get_width() / 2, b.get_height() + 1.5,
                 int(b.get_height()), ha="center", va="bottom", fontsize=8.6,
-                fontweight="bold", color="#333333")
-ax.set_xticks(list(x))
-ax.set_xticklabels(cats_q, fontsize=9)
+                fontweight="bold", color="black")
+xcats(ax, cats_q, fontsize=9.5)
 ax.set_ylabel("Count")
 ax.set_ylim(0, 100)
 ax.legend(frameon=False, fontsize=9.5, ncol=3, loc="upper right")
@@ -483,7 +507,7 @@ fig.savefig(os.path.join(OUT, "figD_emru_quarters.png"))
 plt.close(fig)
 
 # Figure E: field investigations and assessments by unit, Q3
-fig, ax = plt.subplots(figsize=(7.0, 3.4))
+fig, ax = plt.subplots(figsize=(7.0, 4.0))
 unit_lbl = ["EMRU\nenvironmental\ninvestigations", "CMU\nchemical escort\noperations",
             "RSU\nfacility inspections\n& inventories", "WRU\nfacility\nassessments"]
 unit_val = [91, 6, 0, 0]
@@ -494,9 +518,8 @@ labels = ["91", "6", "0", "Pending"]
 for b, lab in zip(bars, labels):
     ax.text(b.get_x() + b.get_width() / 2, b.get_height() + 1.8, lab,
             ha="center", va="bottom", fontsize=10, fontweight="bold",
-            color="#333333")
-ax.set_xticks(range(4))
-ax.set_xticklabels(unit_lbl, fontsize=9)
+            color="black")
+xcats(ax, unit_lbl, fontsize=9.5)
 ax.set_ylabel("Activities conducted")
 ax.set_ylim(0, 105)
 _finish(ax)

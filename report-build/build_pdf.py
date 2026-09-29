@@ -23,28 +23,37 @@ OUT = os.path.abspath(os.path.join(
     HERE, "..", "ERRS-Consolidated-Third-Quarter-Report-2026.pdf"))
 
 # ----------------------------------------------------------------- fonts
-FONT, FONT_B, FONT_I = "Helvetica", "Helvetica-Bold", "Helvetica-Oblique"
-for fam, reg, bold, ital in [
-    ("DejaVu", "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf",
-     "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf",
-     "/usr/share/fonts/truetype/dejavu/DejaVuSans-Oblique.ttf"),
-]:
-    if os.path.exists(reg) and os.path.exists(bold):
-        pdfmetrics.registerFont(TTFont(fam, reg))
-        pdfmetrics.registerFont(TTFont(fam + "-Bold", bold))
-        if os.path.exists(ital):
-            pdfmetrics.registerFont(TTFont(fam + "-Italic", ital))
-            FONT_I = fam + "-Italic"
-        FONT, FONT_B = fam, fam + "-Bold"
-        break
+FONT, FONT_B, FONT_I = "Times-Roman", "Times-Bold", "Times-Italic"
+FONT_BI = "Times-BoldItalic"
+_FD = os.path.join(HERE, "fonts")
+_TINOS = {"": "Tinos-Regular.ttf", "-Bold": "Tinos-Bold.ttf",
+          "-Italic": "Tinos-Italic.ttf", "-BoldItalic": "Tinos-BoldItalic.ttf"}
+if all(os.path.exists(os.path.join(_FD, v)) for v in _TINOS.values()):
+    # Tinos is metrically and visually compatible with Times New Roman and
+    # carries the full Unicode range the report needs.
+    for suf, fn in _TINOS.items():
+        pdfmetrics.registerFont(TTFont("Times New Roman" + suf,
+                                       os.path.join(_FD, fn)))
+    pdfmetrics.registerFontFamily(
+        "Times New Roman", normal="Times New Roman",
+        bold="Times New Roman-Bold", italic="Times New Roman-Italic",
+        boldItalic="Times New Roman-BoldItalic")
+    FONT = "Times New Roman"
+    FONT_B = "Times New Roman-Bold"
+    FONT_I = "Times New Roman-Italic"
+    FONT_BI = "Times New Roman-BoldItalic"
 
 # ----------------------------------------------------------------- palette
 GREEN = colors.HexColor("#1F4E3D")
 GREEN_L = colors.HexColor("#2E7D5B")
 GOLD = colors.HexColor("#C9A227")
-INK = colors.HexColor("#1F2328")
-BODY = colors.HexColor("#25292E")
-MUTED = colors.HexColor("#5B6470")
+BLACK = colors.black
+# All running text is black; the accent colours below are used only for
+# design elements (rules, table header bands, zebra fills, the cover page
+# and the PENDING placeholder panels).
+INK = BLACK
+BODY = BLACK
+MUTED = BLACK
 RULE = colors.HexColor("#C9CFD6")
 ZEBRA = colors.HexColor("#F4F7F5")
 PANEL = colors.HexColor("#EEF3F0")
@@ -67,51 +76,51 @@ def S(name, **kw):
 
 
 ST = {
-    "body": S("body", fontSize=10.2, leading=15.2, alignment=TA_JUSTIFY,
+    "body": S("body", fontSize=11.2, leading=15.8, alignment=TA_JUSTIFY,
               spaceAfter=7),
-    "lead": S("lead", fontSize=11, leading=16.5, alignment=TA_JUSTIFY,
+    "lead": S("lead", fontSize=12, leading=17.2, alignment=TA_JUSTIFY,
               spaceAfter=9, textColor=INK),
-    "note": S("note", fontSize=8.4, leading=11.6, textColor=MUTED,
+    "note": S("note", fontSize=9.2, leading=12.4, textColor=MUTED,
               spaceBefore=3, spaceAfter=10, alignment=TA_LEFT),
-    "h1": S("h1", fontName=FONT_B, fontSize=16, leading=20, textColor=GREEN,
+    "h1": S("h1", fontName=FONT_B, fontSize=17, leading=21, textColor=BLACK,
             spaceBefore=6, spaceAfter=10),
-    "h2": S("h2", fontName=FONT_B, fontSize=12.6, leading=16.5,
-            textColor=GREEN, spaceBefore=14, spaceAfter=6),
-    "h3": S("h3", fontName=FONT_B, fontSize=10.8, leading=14.5,
-            textColor=GREEN_L, spaceBefore=11, spaceAfter=4),
-    "h4": S("h4", fontName=FONT_B, fontSize=9.9, leading=13.4,
-            textColor=INK, spaceBefore=9, spaceAfter=3),
-    "phtitle": S("phtitle", fontName=FONT_B, fontSize=9.8, leading=13.4,
+    "h2": S("h2", fontName=FONT_B, fontSize=13.4, leading=17.4,
+            textColor=BLACK, spaceBefore=14, spaceAfter=6),
+    "h3": S("h3", fontName=FONT_B, fontSize=11.6, leading=15.2,
+            textColor=BLACK, spaceBefore=11, spaceAfter=4),
+    "h4": S("h4", fontName=FONT_B, fontSize=10.8, leading=14.2,
+            textColor=BLACK, spaceBefore=9, spaceAfter=3),
+    "phtitle": S("phtitle", fontName=FONT_B, fontSize=10.4, leading=13.8,
                  textColor=colors.HexColor("#8A6D1F")),
-    "phitem": S("phitem", fontSize=9.3, leading=13, textColor=BODY),
-    "cap": S("cap", fontName=FONT_B, fontSize=8.9, leading=12.2,
-             textColor=GREEN, spaceBefore=2, spaceAfter=4),
-    "figcap": S("figcap", fontName=FONT_B, fontSize=8.9, leading=12.2,
-                textColor=GREEN, spaceBefore=5, spaceAfter=12,
+    "phitem": S("phitem", fontSize=10, leading=13.6, textColor=BODY),
+    "cap": S("cap", fontName=FONT_B, fontSize=9.6, leading=12.8,
+             textColor=BLACK, spaceBefore=2, spaceAfter=4),
+    "figcap": S("figcap", fontName=FONT_B, fontSize=9.6, leading=12.8,
+                textColor=BLACK, spaceBefore=5, spaceAfter=12,
                 alignment=TA_CENTER),
-    "bullet": S("bullet", fontSize=10.2, leading=15, alignment=TA_JUSTIFY,
+    "bullet": S("bullet", fontSize=11.2, leading=15.6, alignment=TA_JUSTIFY,
                 spaceAfter=4),
-    "th": S("th", fontName=FONT_B, fontSize=8.6, leading=11.2,
+    "th": S("th", fontName=FONT_B, fontSize=9.3, leading=11.8,
             textColor=colors.white),
-    "thc": S("thc", fontName=FONT_B, fontSize=8.6, leading=11.2,
+    "thc": S("thc", fontName=FONT_B, fontSize=9.3, leading=11.8,
              textColor=colors.white, alignment=TA_CENTER),
-    "td": S("td", fontSize=9.0, leading=12.2),
-    "tdc": S("tdc", fontSize=9.0, leading=12.2, alignment=TA_CENTER),
-    "tds": S("tds", fontSize=8.1, leading=11.0),
-    "tdsc": S("tdsc", fontSize=8.1, leading=11.0, alignment=TA_CENTER),
-    "tdx": S("tdx", fontSize=6.8, leading=8.6),
-    "tdxc": S("tdxc", fontSize=6.8, leading=8.6, alignment=TA_CENTER),
-    "tot": S("tot", fontName=FONT_B, fontSize=9.0, leading=12.2,
-             textColor=GREEN),
-    "totc": S("totc", fontName=FONT_B, fontSize=9.0, leading=12.2,
-              textColor=GREEN, alignment=TA_CENTER),
-    "toc0": S("toc0", fontName=FONT_B, fontSize=11, leading=20, textColor=GREEN,
+    "td": S("td", fontSize=9.8, leading=12.8),
+    "tdc": S("tdc", fontSize=9.8, leading=12.8, alignment=TA_CENTER),
+    "tds": S("tds", fontSize=8.9, leading=11.6),
+    "tdsc": S("tdsc", fontSize=8.9, leading=11.6, alignment=TA_CENTER),
+    "tdx": S("tdx", fontSize=7.5, leading=9.4),
+    "tdxc": S("tdxc", fontSize=7.5, leading=9.4, alignment=TA_CENTER),
+    "tot": S("tot", fontName=FONT_B, fontSize=9.8, leading=12.8,
+             textColor=BLACK),
+    "totc": S("totc", fontName=FONT_B, fontSize=9.8, leading=12.8,
+              textColor=BLACK, alignment=TA_CENTER),
+    "toc0": S("toc0", fontName=FONT_B, fontSize=11.6, leading=20, textColor=BLACK,
               spaceBefore=8),
-    "toc1": S("toc1", fontName=FONT_B, fontSize=9.8, leading=17,
+    "toc1": S("toc1", fontName=FONT_B, fontSize=10.5, leading=17,
               textColor=INK, leftIndent=8),
-    "toc2": S("toc2", fontSize=9.4, leading=15.4, leftIndent=22),
-    "toc3": S("toc3", fontSize=9.0, leading=14.4, leftIndent=38,
-              textColor=MUTED),
+    "toc2": S("toc2", fontSize=10.1, leading=15.4, leftIndent=22),
+    "toc3": S("toc3", fontSize=9.7, leading=14.4, leftIndent=38,
+              textColor=BLACK),
     "cov1": S("cov1", fontName=FONT_B, fontSize=13, leading=18,
               alignment=TA_CENTER, textColor=GREEN),
     "cov2": S("cov2", fontSize=9.6, leading=13.6, alignment=TA_CENTER,
@@ -188,12 +197,12 @@ def _frame_deco(canvas, doc, pw, ph, first=False, plain=False):
     canvas.saveState()
     if not plain:
         # header rule + running title
-        canvas.setFont(FONT_B, 7.2)
-        canvas.setFillColor(GREEN)
+        canvas.setFont(FONT_B, 8.0)
+        canvas.setFillColor(BLACK)
         canvas.drawCentredString(pw / 2.0, ph - 12.4 * mm,
                                  C.META["running_top"])
-        canvas.setFont(FONT, 7.2)
-        canvas.setFillColor(MUTED)
+        canvas.setFont(FONT, 8.0)
+        canvas.setFillColor(BLACK)
         canvas.drawCentredString(pw / 2.0, ph - 15.8 * mm,
                                  C.META["running_title"])
         canvas.setStrokeColor(RULE)
@@ -202,13 +211,13 @@ def _frame_deco(canvas, doc, pw, ph, first=False, plain=False):
         # footer
         canvas.setStrokeColor(RULE)
         canvas.line(MARGIN_L, 14 * mm, pw - MARGIN_R, 14 * mm)
-        canvas.setFont(FONT, 7.6)
-        canvas.setFillColor(MUTED)
+        canvas.setFont(FONT, 8.4)
+        canvas.setFillColor(BLACK)
         canvas.drawString(MARGIN_L, 10.2 * mm,
                           "Environmental Protection Agency of Liberia  \u00b7  "
                           "ERRS Department")
-        canvas.setFont(FONT_B, 8.4)
-        canvas.setFillColor(GREEN)
+        canvas.setFont(FONT_B, 9.2)
+        canvas.setFillColor(BLACK)
         canvas.drawRightString(pw - MARGIN_R, 10.2 * mm,
                                str(canvas.getPageNumber()))
     canvas.restoreState()
@@ -581,11 +590,11 @@ class LotLof(Flowable):
         rows = LotLof.registry[self.which]
         label = "Table" if self.which == "tables" else "Figure"
         data = [[Paragraph("<b>%s %d</b>" % (label, n),
-                           ParagraphStyle("x", fontName=FONT, fontSize=9.2,
-                                          leading=13, textColor=GREEN)),
+                           ParagraphStyle("x", fontName=FONT, fontSize=10,
+                                          leading=13.6, textColor=BLACK)),
                  Paragraph(esc(cap), ParagraphStyle(
-                     "y", fontName=FONT, fontSize=9.2, leading=13,
-                     textColor=BODY))]
+                     "y", fontName=FONT, fontSize=10, leading=13.6,
+                     textColor=BLACK))]
                 for n, cap in rows]
         if not data:
             data = [[Paragraph("", ST["td"]), Paragraph("", ST["td"])]]
