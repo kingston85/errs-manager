@@ -65,7 +65,7 @@ META = {
         ("Reporting Units",
          "Chemical Management Unit (CMU); Environmental Monitoring and "
          "Research Unit (EMRU); Radiation Safety Unit (RSU); "
-         "Waste and Remediation Unit (WRU \u2014 submission pending)"),
+         "Waste and Remediation Unit (WRU)"),
     ],
     "period": "Reporting Period: 1 July \u2013 30 September 2026",
     "units": "Chemical Management Unit (CMU)  \u00b7  Environmental Monitoring and "
@@ -89,7 +89,6 @@ def B(kind, **kw):
     return kw
 
 
-P = "\u2014 pending WRU submission \u2014"
 
 # Quarter I and Quarter II values are carried forward from the
 # ERRS Second Quarter Report 2026; Quarter III values are derived from the
@@ -181,21 +180,35 @@ KPI_ROWS = [
      "Registration of 100 Waste Generators and 50 Service Providers",
      "Ongoing assessments of waste service providers",
      "26 waste service providers assessed and classified (10 in April, 10 in "
-     "May, 6 in June)", P, "", "26 (Q1\u2013Q2)",
-     "150 (100 Generators, 50 Providers)", "17.3%"],
+     "May, 6 in June)",
+     "17 applications received (3 July, 7 August, 7 September); ongoing "
+     "assessment of waste service providers\u2019 facilities", "",
+     "26 assessed (Q1\u2013Q2) + 17 applications received (Q3) = 43 "
+     "providers engaged",
+     "150 (100 Generators, 50 Providers)", "28.7%"],
     ["", "23", "Conduct Environmental Monitoring at 50 Waste Facilities",
      "Ongoing facility assessments",
-     "Ongoing facility assessments; multiple ESIA site verifications", P, "",
+     "Ongoing facility assessments; multiple ESIA site verifications",
+     "Ongoing assessment of waste service providers\u2019 facilities; "
+     "contributed to multiple ESIA site verification exercises arising from "
+     "technical review sittings; attended the RAP Verification", "",
      "Ongoing", "50 Facilities", DASH],
     ["", "24", "Conduct five (5) Public Awareness Campaigns on Waste "
      "Segregation and Disposal",
      "Composting training and awareness campaigns conducted",
      "Attended World Environment Day celebration; attended 3rd KYE session",
-     P, "", "Ongoing", "5 Campaigns", DASH],
+     "4 engagements: International World Ozone Day (Buchanan); 7th edition "
+     "of Know Your Environment (KYE); 3-day validation and technical "
+     "session on stakeholder mobilisation, sectoral engagement and GHG data "
+     "collection; UNOSD / Korea Environment Corporation scoping mission and "
+     "one-day workshop on waste and the circular economy", "",
+     "Ongoing \u2014 multiple awareness and stakeholder engagements",
+     "5 Campaigns", DASH],
     ["", "25", "Issue waste management licenses to 50 waste services "
      "providers", "Accreditations prepared for qualifying companies",
-     "15 applications responded to; 11 waste certificates issued", P, "",
-     "11 (Q2)", "50 Providers", "22%"],
+     "15 applications responded to; 11 waste certificates issued",
+     "15 applications responded to; 4 waste certificates issued", "",
+     "15 (11 Q2 + 4 Q3)", "50 Providers", "30%"],
     ["Cross-Cutting / All Units (General ERRS)", "13", "Conduct "
      "environmental investigation and research in at least two thematic "
      "areas and publish findings in scientific journals",
@@ -233,9 +246,8 @@ B("para", style="lead", text="The third quarter of 2026 was a period of "
   "and Radiation Safety (ERRS) Department. This report consolidates the "
   "quarterly submissions of the Chemical Management Unit (CMU), the "
   "Environmental Monitoring and Research Unit (EMRU) and the Radiation "
-  "Safety Unit (RSU) for the period 1 July to 30 September 2026. The "
-  "submission of the Waste and Remediation Unit (WRU) was outstanding at "
-  "the time of compilation and is reserved in this document.")
+  "Safety Unit (RSU) and the Waste and Remediation Unit (WRU) for the "
+  "period 1 July to 30 September 2026.")
 B("para", text="The Chemical Management Unit maintained a full response rate "
   "on all applications received, recording thirty-eight (38) applications "
   "and thirty-eight (38) responses. The Unit issued thirty-five (35) "
@@ -277,13 +289,17 @@ B("para", text="Across the Department, performance continued to be "
   "analysis. Low proponent engagement and incomplete parameter reporting "
   "continued to weaken the evidence base available for timely "
   "decision-making.")
-B("placeholder", title="Pending \u2014 Waste and Remediation Unit contribution "
-  "to the Executive Summary",
-  items=["The WRU Quarter III 2026 submission had not been received at the "
-         "time of compilation. Its executive summary paragraph, covering "
-         "waste service provider assessments, ESIA site verification "
-         "support, applications responded to and waste certificates issued, "
-         "will be inserted here on receipt."])
+B("para", text="The Waste and Remediation Unit received seventeen (17) "
+  "waste management applications during the quarter \u2014 three (3) in "
+  "July, seven (7) in August and seven (7) in September \u2014 responded to "
+  "fifteen (15) applications and issued four (4) waste certificates. The "
+  "Unit continued its assessment of waste service providers\u2019 "
+  "facilities, contributed to multiple Environmental and Social Impact "
+  "Assessment (ESIA) site verification exercises, and represented the "
+  "Agency at national and international engagements, including the seventh "
+  "meeting of the Expert Working Group on the review of Annex II in Geneva, "
+  "the Jeju International Environment Forum in Korea and International "
+  "World Ozone Day in Buchanan.")
 
 # =========================================================================
 #  2.  SUMMARY OF THE DEPARTMENT'S MANDATES
@@ -413,18 +429,29 @@ B("para", text="Three (3) staff attended foreign training: the IAEA "
   "several ESIA technical review sittings and site verification visits.")
 
 B("h2", text="Waste and Remediation Unit (WRU)")
-B("placeholder", title="Pending \u2014 WRU outstanding achievements, "
-  "Quarter III 2026",
-  items=["The Waste and Remediation Unit had not submitted its Quarter III "
-         "2026 report at the time of compilation.",
-         "On receipt, this section will carry the Unit\u2019s narrative of "
-         "outstanding achievements, mirroring the structure used in the "
-         "Second Quarter Report 2026: assessments of waste service "
-         "providers\u2019 facilities, contributions to ESIA site "
-         "verification exercises, representation at national environmental "
-         "events, follow-up communications with proponents, and the "
-         "preparation of responses and certificates of accreditation for "
-         "waste companies."])
+B("para", text="During the third quarter of 2026, the Waste and "
+  "Remediation Unit continued the assessment of waste service "
+  "providers\u2019 facilities and processed seventeen (17) waste "
+  "management applications, of which fifteen (15) were responded to and "
+  "four (4) proceeded to the issuance of waste certificates. The Unit "
+  "contributed to multiple Environmental and Social Impact Assessment "
+  "(ESIA) site verification exercises arising from technical review "
+  "sittings, maintained regular telephone follow-ups with proponents on "
+  "response letters, and prepared responses and certificates of "
+  "accreditation for waste companies.")
+B("para", text="The Unit also represented the Agency at a substantial "
+  "number of national and international engagements during the quarter, "
+  "including the seventh meeting of the Expert Working Group on the review "
+  "of Annex II held in Geneva, Switzerland; the 2026 Green Solution Support "
+  "Programme and the Jeju International Environment Forum in Korea; a "
+  "scoping mission on waste management and the circular economy conducted "
+  "with the UNOSD and the Korea Environment Corporation, including a "
+  "one-day workshop on waste; International World Ozone Day activities in "
+  "Buchanan; a three-day validation and technical session on stakeholder "
+  "mobilisation, sectoral engagement and greenhouse gas data collection; a "
+  "five-day training workshop organised by the Liberia Water and Sewer "
+  "Corporation (LWSC); the RAP Verification; and the seventh edition of "
+  "Know Your Environment (KYE) organised by Planning and Policy.")
 
 # =========================================================================
 #  4.  PROGRESS TRACKING Q3 2026
@@ -449,9 +476,10 @@ B("table",
   align=["l", "c", "l", "l", "l", "l", "c", "l", "l", "c"],
   small=True, xsmall=True,
   note="Q1 and Q2 entries are reproduced from the ERRS Second Quarter Report "
-       "2026. Q4 2026 is reserved. WRU rows are pending the Unit\u2019s "
-       "Quarter III submission; their cumulative and percentage values "
-       "therefore still reflect Q1\u2013Q2 performance only.")
+       "2026; Quarter III entries are drawn from the four unit submissions "
+       "consolidated in this report. Q4 2026 is reserved. For Output 22 the "
+       "cumulative figure combines providers assessed in Quarters I\u2013II "
+       "with applications received in Quarter III.")
 B("landscape_off")
 B("figure", caption="Cumulative KPI achievement at the end of Quarter III "
   "2026 against 2026 annual targets", path=f("figA_kpi_progress.png"),
@@ -461,8 +489,8 @@ B("para", text="The figure above visualises cumulative progress over the "
   "2026. Two chemical licensing targets have already been met and exceeded, "
   "while radiation source inventory, nationwide chemical inventory, "
   "chemical disposal licensing and radiography training remain materially "
-  "behind target. The waste management licensing indicator is shown at its "
-  "Quarter II position pending the WRU submission.")
+  "behind target. Waste management licensing has advanced to fifteen (15) "
+  "certificates against an annual target of fifty (50) providers.")
 
 B("h2", text="KPI Achievements and Remaining Tasks, Quarter III 2026")
 
@@ -591,18 +619,54 @@ B("table",
        "\u2014 were left blank in the source unit report.")
 
 B("h3", text="Waste and Remediation Unit")
-B("placeholder", title="Pending \u2014 WRU KPI achievements and remaining "
-  "tasks, Quarter III 2026",
-  items=["Waste service providers assessed, registered and classified during "
-         "the quarter (by month).",
-         "Applications responded to and waste certificates issued.",
-         "Progress against KPI 22 (national mapping and registration of 100 "
-         "waste generators and 50 service providers), KPI 23 (environmental "
-         "monitoring at 50 waste facilities), KPI 24 (five public awareness "
-         "campaigns) and KPI 25 (waste management licences to 50 "
-         "providers).",
-         "A figure equivalent to Figure 4 of the Second Quarter Report 2026 "
-         "(WRU waste service provider assessments) will be inserted here."])
+B("para", text="The Waste and Remediation Unit processed seventeen (17) "
+  "waste management applications during the quarter, responded to fifteen "
+  "(15) and issued four (4) waste certificates. Application volume rose "
+  "sharply after July, with seven (7) applications received in each of "
+  "August and September against three (3) in July. Eleven (11) of the "
+  "seventeen applications concerned non-hazardous municipal waste and five "
+  "(5) concerned hazardous streams \u2014 scrap, used tyres, used "
+  "batteries, used cables, plastics, medical waste and sewage \u2014 while "
+  "one (1) was a request for an acquaintance meeting.")
+B("table",
+  caption="WRU summary of activities, Quarter III 2026",
+  head=["Category", "July", "August", "September", "Quarter III total"],
+  rows=[["Waste management applications received", "3", "7", "7", "17"],
+        ["Applications responded to", DASH, DASH, DASH, "15"],
+        ["Waste certificates issued", DASH, DASH, DASH, "4"],
+        ["Non-hazardous (municipal) undertakings applied for", "3", "3", "5",
+         "11"],
+        ["Hazardous waste undertakings applied for", "0", "3", "2", "5"],
+        ["Other requests (acquaintance meeting)", "0", "1", "0", "1"]],
+  widths=[44, 12, 14, 16, 14], align=["l", "c", "c", "c", "c"],
+  note="Applications responded to and certificates issued were reported for "
+       "the quarter as a whole and are not disaggregated by month in the "
+       "source unit report.")
+B("figure", caption="WRU waste management applications received by month, "
+  "Quarter III 2026", path=f("figF_wru_applications.png"), width=5.9)
+B("para", text="Application volume more than doubled from July to August "
+  "and held at that level in September, indicating growing engagement by "
+  "waste service providers with the accreditation process.")
+B("figure", caption="WRU waste application pipeline, Quarter III 2026",
+  path=f("figG_wru_pipeline.png"), width=6.1)
+B("para", text="The pipeline shows attrition between application and "
+  "certification: fifteen (15) of the seventeen (17) applications received "
+  "a formal response, but only four (4) reached certification within the "
+  "quarter. The Unit records that several requests for permits were "
+  "responded to but the proponents concerned are yet to come into "
+  "compliance.")
+B("figure", caption="Classification of waste undertakings applied for, WRU, "
+  "Quarter III 2026", path=f("figH_wru_streams.png"), width=6.1)
+B("para", text="Non-hazardous municipal waste accounts for just under "
+  "two-thirds of the applications received, with hazardous streams "
+  "\u2014 scrap metal, used tyres, used batteries, used cables, plastics, "
+  "medical waste and sewage \u2014 making up a further 29.4%. Against the "
+  "annual targets, the Unit has now issued fifteen (15) waste management "
+  "certificates of the fifty (50) planned for 2026 (30%), and forty-three "
+  "(43) generators and providers have been assessed or have applied of the "
+  "one hundred and fifty (150) targeted (28.7%). Environmental monitoring "
+  "of waste facilities and the public awareness campaign programme remain "
+  "ongoing.")
 
 B("h3", text="Field Activity Across the Department")
 B("figure", caption="Field investigations, escorts and assessments by unit, "
@@ -610,9 +674,10 @@ B("figure", caption="Field investigations, escorts and assessments by unit, "
 B("para", text="The figure compares the primary field-based activities of "
   "each unit for the quarter. The Environmental Monitoring and Research Unit "
   "accounted for the overwhelming majority of field activity with ninety-one "
-  "(91) investigations. The Radiation Safety Unit recorded no facility "
-  "inspection or inventory during the quarter, and the Waste and Remediation "
-  "Unit figure is pending its submission.")
+  "(91) investigations, followed by the Waste and Remediation Unit with "
+  "seventeen (17) waste management applications processed. The Radiation "
+  "Safety Unit recorded no facility inspection or inventory during the "
+  "quarter.")
 
 # =========================================================================
 #  5.  DETAILED SUMMARY OF UNDERTAKINGS
@@ -1499,18 +1564,162 @@ B("figure", caption="Regulatory output of the Radiation Safety Unit, "
   "Quarter III 2026", path=f("fig13_rsu_instruments.png"), width=6.3)
 
 B("h2", text="Waste and Remediation Unit (WRU)")
-B("placeholder", title="Pending \u2014 WRU detailed summary of undertakings, "
-  "Quarter III 2026",
-  items=["Activities summary for the quarter (July\u2013September 2026).",
-         "Outstanding achievements table, equivalent to Table 56 of the "
-         "Second Quarter Report 2026.",
-         "Waste service providers registered \u2014 July 2026, August 2026 "
-         "and September 2026 (three tables, equivalent to Tables "
-         "57\u201359 of the Second Quarter Report 2026).",
-         "Applications responded to during the quarter, equivalent to Table "
-         "60 of the Second Quarter Report 2026.",
-         "Waste certificates issued during the quarter, equivalent to Table "
-         "61 of the Second Quarter Report 2026."])
+B("h3", text="Report Particulars")
+B("table",
+  caption="Waste and Remediation Unit \u2014 report particulars",
+  head=["Description", "Detail"],
+  rows=[["Reporting unit", "Waste and Remediation Unit (WRU)"],
+        ["Date", "September 29, 2026"],
+        ["Reporting period", "July \u2013 September 2026"],
+        ["Head of Unit", "Margaret M. Beyslow"],
+        ["Contact number", "0886957001  /  0770958385"],
+        ["Email", "mbeyslow@epa.gov.lr"]],
+  widths=[26, 74], align=["l", "l"])
+
+B("h3", text="Summary of the Unit\u2019s Mandates")
+B("para", text="The Waste and Remediation Unit (WRU) is a Unit of the "
+  "Department of Environmental Research and Radiation Safety, charged with "
+  "the responsibility of developing environmental regulation, guidelines, "
+  "Safety and standards which help turn the goal of environmental "
+  "protection into quantified and enforceable laws. The unit conducts "
+  "scientific analyses to validate adherence or conform to regulation, "
+  "guidelines and standards as defined by the regulative instruments. WRU "
+  "also oversees environmental regulations related to waste, pollution and "
+  "pollution sources to assess and control the impact of pollutants on the "
+  "environment.")
+B("para", text="The WR Unit is headed by an Assistant Director.")
+
+B("h3", text="Department Strategic Goals")
+B("para", text="The WR Unit work to support the Department of "
+  "Environmental Research and Radiation Safety in achieving the cardinal "
+  "two strategy goals amongst others developed from the eight (8) strategy "
+  "goals of the EPA.")
+B("bullets", items=[
+    "Goal 1. Developing and enforcing Environmental Laws, Regulations and "
+    "Guidelines",
+    "Goal 2. Ensuring effective Environmental Monitoring, audit and "
+    "evaluation.",
+])
+
+B("h3", text="Outstanding Achievements During the Quarter Under Review")
+B("bullets", items=[
+    "Ongoing assessment of waste service providers\u2019 facilities.",
+    "Contributed to multiple Environmental and Social Impact Assessment "
+    "(ESIA) site verification exercises arising from technical review "
+    "sittings, ensuring compliance with environmental standards and "
+    "regulatory requirements.",
+    "Participated in a three (3) days validation and technical session, "
+    "Stakeholders Mobilization, Sectoral engagement and GHG Data "
+    "Collection.",
+    "Participated in the seventh meeting of the Expert Working Group on the "
+    "review of annexes II, held in Geneva, Switzerland.",
+    "Participated in the International World Ozone\u2019s Day\u2019s "
+    "activities held in Buchana.",
+    "Conducted a scoping mission on waste management and the Circular "
+    "Economy in collaboration with the UNOSD and the Korean Environment "
+    "Corporation, including a one day workshop on waste.",
+    "Attended Five (5) days training workshop organized by the Liberia "
+    "Water and Sewer Corporation (LWSC).",
+    "Attended the RAP Verification.",
+    "Participated in the 2026 Green Solution Support Program and Jeju "
+    "international Environment forum in Korea.",
+    "Participated in the seventh edition of KNOW YOUR ENVIRONMENT (KYE) "
+    "organized by Planning And Policy.",
+    "Regular follow-ups through phone calls to proponents for response "
+    "letters.",
+    "Participated in ESIA meetings and consultation activities.",
+    "Prepared responses and certificate of accreditation for Waste "
+    "companies.",
+])
+
+B("h3", text="Applications Received During the Quarter")
+B("table",
+  caption="Waste management applications received, July 2026",
+  head=["No.", "Company name", "Undertaking"],
+  rows=[["1.", "Dumpa Hero Inc.", "Non-Hazardous (municipal)"],
+        ["2.", "Sylvester Toe sanitation Service",
+         "Non-Hazardous (Municipal)"],
+        ["3.", "Divine Sanitation Services Inc.",
+         "Non-Hazardous (Municipal)"]],
+  widths=[8, 46, 46], align=["c", "l", "l"])
+B("table",
+  caption="Waste management applications received, August 2026",
+  head=["No.", "Company name", "Undertaking"],
+  rows=[["1.", "ARK Group of Companies", "Non-Hazardous (municipal)"],
+        ["2.", "Vision Care Cleaners Business Incorporation",
+         "Non-Hazardous (Municipal)"],
+        ["3.", "Number Group of Companies", "Hazardous (Scraps and Plastic)"],
+        ["4.", "Eco-Green Environmental & Waste Solution",
+         "Hazardous (Medical)"],
+        ["5.", "Z.L Integrated Waste Management Solution",
+         "Non-Hazardous (Municipal)"],
+        ["6.", "S.S.W Incorporated",
+         "Hazardous (Scrap, Used Tires, Used Batteries, Used Cables)"],
+        ["7.", "Eco-Clean Liberia Inc",
+         "Request for Acquaintance Meeting"]],
+  widths=[8, 40, 52], align=["c", "l", "l"])
+B("table",
+  caption="Waste management applications received, September 2026",
+  head=["No.", "Company name", "Undertaking"],
+  rows=[["1.", "JEMB Inc.", "Non-Hazardous (municipal)"],
+        ["2.", "AM Public Sanitation Service", "Non-Hazardous (municipal)"],
+        ["3.", "GIVO Africa", "Hazardous (Plastic)"],
+        ["4.", "Libra Sanitation Incorporated", "Hazardous (Sewage)"],
+        ["5.", "Environmental Service Enterprise",
+         "Non-Hazardous (Municipal)"],
+        ["6.", "OCEANS", "Non-Hazardous (Municipal)"],
+        ["7.", "T. K Group of Companies", "Non-Hazardous (Municipal)"]],
+  widths=[8, 46, 46], align=["c", "l", "l"])
+
+B("h3", text="Applications Responded To")
+B("table",
+  caption="Waste management applications responded to, Quarter III 2026",
+  head=["No.", "Company name", "Location / undertaking"],
+  rows=[["1.", "JEMB Inc.", "Non-Hazardous (municipal)"],
+        ["2.", "AM Public Sanitation Service", "Non-Hazardous (Municipal)"],
+        ["3.", "ARK Group of Companies", "Non-Hazardous (Municipal)"],
+        ["4.", "GIVO Africa", "Hazardous (Plastic)"],
+        ["5.", "Libra Sanitation Incorporated", "Hazardous (Sewage)"],
+        ["6.", "Environmental Service Enterprise",
+         "Non-Hazardous (Municipal)"],
+        ["7.", "Dumpa Hero Inc.", "Non-Hazardous (Municipal)"],
+        ["8.", "Sylvester Toe Sanitation Service",
+         "Non-Hazardous (Municipal) N"],
+        ["9.", "Vision Care Cleaners Business Incorporation",
+         "Non-Hazardous (Municipal)"],
+        ["10.", "WORK-LIBERIA Group of Companies",
+         "Hazardous (Scrap, Used Tires, Used batteries)"],
+        ["11.", "North Star Industrial Inc.", "Hazardous (Scraps)"],
+        ["12.", "Number Group of Companies",
+         "Non-Hazardous (Scrap and Plastic)"],
+        ["13.", "Divine Sanitation Services Inc.",
+         "Non-Hazardous (Municipal)"],
+        ["14.", "OCEANS", "Non-Hazardous (Municipal)"],
+        ["15.", "T. K Group of Companies", "Non-Hazardous (Municipal)"],
+        ["", "Total applications responded to", "15"]],
+  widths=[8, 40, 52], align=["c", "l", "l"], total_row=True,
+  note="Reproduced as recorded in the source unit report, including the "
+       "stray character against serial 8 and the classification of Number "
+       "Group of Companies, which is listed as hazardous on receipt of the "
+       "application and as non-hazardous in the response table.")
+
+B("h3", text="Waste Certificates Issued")
+B("table",
+  caption="Waste certificates issued, Quarter III 2026",
+  head=["No.", "Company", "Location / classification"],
+  rows=[["1.", "North Star Industrial Inc.",
+         "Hazardous (Scraps) Battery Factory, Somalia Drive"],
+        ["2.", "Numbers Group Of Companies",
+         "New Town Community Upper Johnson"],
+        ["3.", "Universal Impex Inc.", "Hazardous (Scrap)"],
+        ["4.", "GIGAS Waste Management",
+         "Hazardous (Used tires, used filters, Used Batteries) Morris Farm "
+         "Paynesville"],
+        ["", "Total certificates issued", "4"]],
+  widths=[8, 34, 58], align=["c", "l", "l"], total_row=True)
+B("para", text="Kindly note that there are several requests for permit that "
+  "have been responded to but the proponents are yet to come to "
+  "compliance.")
 
 # =========================================================================
 #  6.  CHALLENGES
@@ -1586,13 +1795,22 @@ B("bullets", items=[
 ])
 
 B("h2", text="Waste and Remediation Unit (WRU)")
-B("placeholder", title="Pending \u2014 WRU challenges, Quarter III 2026",
-  items=["To be inserted on receipt of the Unit\u2019s Quarter III "
-         "submission. The Second Quarter Report 2026 recorded limited "
-         "logistics (computers, vehicles and fuel), poor internet service "
-         "and no printer, insufficient staffing, lack of scratch cards for "
-         "communication with proponents, and delays in processing "
-         "documentation from receipt to certification."])
+B("bullets", items=[
+    "Limited logistics: lack of computers, vehicles and fuel for fieldwork.",
+    "The Unit does not have a functional printer.",
+    "Insufficient staffing to meet workload demands.",
+    "Lack of scratch cards to communicate with proponents and amongst "
+    "staffs.",
+    "Delay in processing documentation from receipt to certification.",
+])
+B("h3", text="Lessons Learned", unnumbered=True)
+B("bullets", items=[
+    "The unit is squarely positioned as a powerhouse in the department of "
+    "ERRS.",
+    "Better reporting and communication of activities significantly enhance "
+    "the agency\u2019s ability to meet its mandate. The WR unit plays a "
+    "pivotal role in supporting environmental protection and compliance.",
+])
 
 # =========================================================================
 #  7.  RECOMMENDATIONS
@@ -1655,9 +1873,22 @@ B("bullets", items=[
 ])
 
 B("h2", text="Waste and Remediation Unit (WRU)")
-B("placeholder", title="Pending \u2014 WRU recommendations, Quarter III 2026",
-  items=["To be inserted on receipt of the Unit\u2019s Quarter III "
-         "submission."])
+B("para", text="The Unit strongly recommends that the below mentioned "
+  "challenges and logistical constraints outlined be addressed to enable "
+  "technicians respond adequately to emerging environmental incidents of "
+  "waste related issues and to enable the Unit conduct more "
+  "inspections/assessment on Waste activities and companies.")
+B("bullets", items=[
+    "Address the logistical constraints of the Unit \u2014 computers, "
+    "vehicles, fuel for fieldwork, a functional printer and scratch cards "
+    "for communication with proponents.",
+    "Strengthen staffing so that the Unit can meet its workload demands and "
+    "shorten the time taken to process documentation from receipt to "
+    "certification.",
+    "Provide requisite training opportunities and upgradation for staff of "
+    "the unit to enhance their work in scientific research, compliance "
+    "monitoring and data logging.",
+])
 
 # =========================================================================
 #  8.  CONCLUSION
@@ -1701,10 +1932,18 @@ B("para", text="Across the Department, performance continued to be "
   "enhance the ERRS Department\u2019s operational resilience, ensure "
   "stricter regulatory compliance, and fully realise its mandate of "
   "protecting Liberia\u2019s environment in the quarter ahead.")
-B("placeholder", title="Pending \u2014 Waste and Remediation Unit "
-  "contribution to the Conclusion",
-  items=["A closing paragraph covering WRU performance for the quarter will "
-         "be added once the Unit\u2019s report is received."])
+B("para", text="The Waste and Remediation Unit sustained the growth of "
+  "its accreditation pipeline, receiving seventeen (17) waste management "
+  "applications, responding to fifteen (15) and issuing four (4) waste "
+  "certificates, while continuing the assessment of waste service "
+  "providers\u2019 facilities and contributing to ESIA site verification "
+  "exercises. The Unit also carried the Department\u2019s representation "
+  "at a demanding schedule of national and international engagements. Its "
+  "throughput nonetheless remains constrained by the absence of vehicles, "
+  "computers and a functional printer, by insufficient staffing, and by "
+  "delays in moving documentation from receipt to certification \u2014 the "
+  "principal reason why only four (4) of the fifteen (15) applications "
+  "answered during the quarter reached certification.")
 
 # =========================================================================
 #  ANNEX

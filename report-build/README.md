@@ -70,10 +70,23 @@ Two new block types were added to both builders:
 
 * `h4` — fourth-level numbered heading (x.y.z.w); the TOC still stops at level 3.
 * `placeholder` — tinted "PENDING" panel used wherever content is still
-  outstanding. There are eight of them: seven for the Waste and Remediation
+  outstanding. One remains: the EMRU outstanding surveillance returns.  (Seven WRU
   Unit (executive summary, outstanding achievements, KPI achievements,
   detailed undertakings, challenges, recommendations, conclusion) and one for
   the EMRU outstanding surveillance returns. Remove the block and drop in the
   real content once the submissions arrive.
 
 Build: `python3 make_figures.py && python3 build_pdf.py && python3 build_docx.py`
+
+## WRU integration (September 29, 2026)
+
+The Waste and Remediation Unit's Quarter III submission
+(`source/wru_q3_2026.pdf`, taken from `main`) has been integrated: all seven
+WRU placeholders are replaced with the Unit's content — executive-summary
+paragraph, outstanding achievements (§3.4), KPI achievements with a summary
+table and three new figures (§4.2.4), the full detailed submission with the
+July/August/September application tables, the applications-responded-to table
+and the certificates-issued table (§5.4), challenges and lessons learned
+(§6.4), recommendations (§7.4) and the conclusion paragraph. KPI outputs
+22–25 now carry Quarter III values, and Figures A and E include the WRU.
+One placeholder remains: the EMRU outstanding surveillance returns.

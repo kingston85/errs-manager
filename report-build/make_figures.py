@@ -397,16 +397,18 @@ kpi_labels = [
     "Fumigation licences",
     "Laboratory accreditations",
     "Effluent discharge\nlicences",
-    "Radiation source\ninventory",
     "Waste management\nlicences (WRU)",
+    "Waste generators &\nproviders engaged (WRU)",
+    "Radiation source\ninventory",
     "Nationwide chemical\ninventory",
     "Chemical disposal\nlicences",
     "Radiation / radiography\ntraining",
 ]
-kpi_pct = [115.0, 150.0, 87.0, 80.0, 58.3, 43.3, 22.0, 22.0, 1.7, 0.0, 0.0]
-kpi_pending = [False] * 7 + [True] + [False] * 3
+kpi_pct = [115.0, 150.0, 87.0, 80.0, 58.3, 43.3, 30.0, 28.7, 22.0, 1.7,
+           0.0, 0.0]
+kpi_pending = [False] * 12
 
-fig, ax = plt.subplots(figsize=(7.4, 5.0))
+fig, ax = plt.subplots(figsize=(7.4, 5.4))
 y = list(range(len(kpi_labels)))
 cols = []
 for p, pend in zip(kpi_pct, kpi_pending):
@@ -425,7 +427,7 @@ ax.axvline(100, color="#8C3B3B", linestyle="--", linewidth=1.4, zorder=4)
 ax.text(101.5, len(kpi_labels) - 0.3, "Annual target  100%", color="#8C3B3B",
         fontsize=9, fontweight="bold", va="center")
 for b, p, pend in zip(bars, kpi_pct, kpi_pending):
-    lab = "{:.1f}%".format(p) + ("  (Q3 pending)" if pend else "")
+    lab = "{:.1f}%".format(p)
     ax.text(b.get_width() + 2, b.get_y() + b.get_height() / 2, lab,
             va="center", fontsize=9, fontweight="bold", color="black")
 ax.set_yticks(y)
@@ -508,13 +510,15 @@ plt.close(fig)
 
 # Figure E: field investigations and assessments by unit, Q3
 fig, ax = plt.subplots(figsize=(7.0, 4.0))
-unit_lbl = ["EMRU\nenvironmental\ninvestigations", "CMU\nchemical escort\noperations",
-            "RSU\nfacility inspections\n& inventories", "WRU\nfacility\nassessments"]
-unit_val = [91, 6, 0, 0]
+unit_lbl = ["EMRU environmental investigations",
+            "CMU chemical escort operations",
+            "RSU facility inspections & inventories",
+            "WRU waste applications processed"]
+unit_val = [91, 6, 0, 17]
 cols = [GREEN, GREEN_L, GOLD, "#B9C2CB"]
 bars = ax.bar(range(4), unit_val, 0.58, color=cols, edgecolor="white",
               linewidth=0.6)
-labels = ["91", "6", "0", "Pending"]
+labels = ["91", "6", "0", "17"]
 for b, lab in zip(bars, labels):
     ax.text(b.get_x() + b.get_width() / 2, b.get_height() + 1.8, lab,
             ha="center", va="bottom", fontsize=10, fontweight="bold",
@@ -527,3 +531,51 @@ fig.savefig(os.path.join(OUT, "figE_field_by_unit.png"))
 plt.close(fig)
 
 print("Q2-template figures added.")
+
+
+# ---------------------------------------------------------------------------
+#  Waste and Remediation Unit, Quarter III 2026
+# ---------------------------------------------------------------------------
+
+# Figure F: waste management applications received by month
+barv(
+    "figF_wru_applications.png",
+    ["July 2026", "August 2026", "September 2026"],
+    [3, 7, 7],
+    "WRU waste management applications received by month, Quarter III 2026",
+    "Applications received",
+    colors=[GREEN, GREEN_L, GOLD],
+    figsize=(6.6, 3.6),
+)
+
+# Figure G: application-to-certificate pipeline
+barh(
+    "figG_wru_pipeline.png",
+    ["Applications received", "Applications responded to",
+     "Waste certificates issued"],
+    [17, 15, 4],
+    "WRU waste application pipeline, Quarter III 2026",
+    "Number of applications",
+    colors=[GREEN, GREEN_L, GOLD],
+    figsize=(6.8, 2.9),
+)
+
+# Figure H: classification of the waste streams applied for
+fig, ax = plt.subplots(figsize=(6.6, 3.9))
+h_lbl = ["Non-hazardous (municipal)", "Hazardous waste streams",
+         "Unclassified / acquaintance request"]
+h_val = [11, 5, 1]
+wedges, _, autot = ax.pie(
+    h_val, colors=[GREEN, GOLD, "#B9C2CB"], startangle=95,
+    autopct=lambda pct: "%.1f%%" % pct, pctdistance=0.68,
+    wedgeprops=dict(edgecolor="white", linewidth=1.4),
+    textprops=dict(fontsize=10, fontweight="bold", color="white"))
+autot[2].set_color("black")
+ax.legend(wedges, ["%s  (%d)" % (l, v) for l, v in zip(h_lbl, h_val)],
+          loc="center left", bbox_to_anchor=(0.96, 0.5), frameon=False,
+          fontsize=9.5)
+ax.set_aspect("equal")
+fig.savefig(os.path.join(OUT, "figH_wru_streams.png"))
+plt.close(fig)
+
+print("WRU figures added.")
