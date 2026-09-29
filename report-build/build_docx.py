@@ -338,19 +338,34 @@ def main():
     decorate(doc.sections[0], running=False)
 
     # ---------------------------------------------------------- cover page
-    add_par("", space_after=26)
-    if os.path.exists(C.META["logo"]):
-        p = doc.add_paragraph()
-        p.alignment = WD_ALIGN_PARAGRAPH.CENTER
-        p.paragraph_format.space_after = Pt(14)
-        p.add_run().add_picture(C.META["logo"], width=Inches(1.0))
-    add_par(C.META["agency"], size=13, bold=True, color=GREEN,
-            align=WD_ALIGN_PARAGRAPH.CENTER, space_after=2)
-    add_par(C.META["agency2"], size=13, bold=True, color=GREEN,
-            align=WD_ALIGN_PARAGRAPH.CENTER, space_after=6)
-    for line in C.META["address"].split("\n"):
-        add_par(line, size=9.6, color=MUTED, align=WD_ALIGN_PARAGRAPH.CENTER,
-                space_after=1)
+    add_par("", space_after=20)
+    # Liberian coat of arms (left), agency wordmark (centre), EPA logo (right)
+    bt = doc.add_table(rows=1, cols=3)
+    bt.autofit = False
+    bt.alignment = WD_TABLE_ALIGNMENT.CENTER
+    cl, cc, cr = bt.rows[0].cells
+    cl.width, cc.width, cr.width = Inches(1.2), Inches(4.29), Inches(1.2)
+    for cell, img, al in ((cl, C.META.get("coat"), WD_ALIGN_PARAGRAPH.LEFT),
+                          (cr, C.META.get("logo"), WD_ALIGN_PARAGRAPH.RIGHT)):
+        pp = cell.paragraphs[0]
+        pp.alignment = al
+        pp.paragraph_format.space_after = Pt(0)
+        if img and os.path.exists(img):
+            pp.add_run().add_picture(img, width=Inches(0.92))
+    cc.vertical_alignment = WD_ALIGN_VERTICAL.CENTER
+    for i, (txt, size, bold, col) in enumerate([
+            (C.META["agency"], 13, True, GREEN),
+            (C.META["agency2"], 13, True, GREEN)] +
+            [(l, 9.6, False, MUTED) for l in C.META["address"].split("\n")]):
+        pp = cc.paragraphs[0] if i == 0 else cc.add_paragraph()
+        pp.alignment = WD_ALIGN_PARAGRAPH.CENTER
+        pp.paragraph_format.space_after = Pt(2)
+        rr = pp.add_run(txt)
+        rr.font.size = Pt(size)
+        rr.font.bold = bold
+        rr.font.color.rgb = col
+        rr.font.name = FONT
+    add_par("", space_after=10)
     rule = add_par("", space_before=18, space_after=16)
     para_border(rule, "bottom", 18, "C9A227", 6)
     add_par(C.META["dept_line1"], size=21, bold=True, color=GREEN,

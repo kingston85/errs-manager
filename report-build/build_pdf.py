@@ -373,20 +373,34 @@ def build_placeholder(b):
 
 def cover_flow():
     out = [Spacer(1, 6 * mm)]
-    logo = C.META["logo"]
-    if os.path.exists(logo):
-        ir = ImageReader(logo)
-        iw, ih = ir.getSize()
-        w = 26 * mm
-        im = Image(logo, width=w, height=w * ih / float(iw))
-        im.hAlign = "CENTER"
-        out.append(im)
+
+    def _img(path, w_mm):
+        if not os.path.exists(path):
+            return Paragraph("", ST["cov2"])
+        iw, ih = ImageReader(path).getSize()
+        w = w_mm * mm
+        return Image(path, width=w, height=w * ih / float(iw))
+
+    banner = [_img(C.META.get("coat", ""), 23),
+              [Paragraph(C.META["agency"], ST["cov1"]),
+               Paragraph(C.META["agency2"], ST["cov1"]),
+               Spacer(1, 2),
+               Paragraph(esc(C.META["address"]), ST["cov2"])],
+              _img(C.META["logo"], 23)]
+    bt = Table([banner], colWidths=[28 * mm, CW - 56 * mm, 28 * mm],
+               hAlign="CENTER")
+    bt.setStyle(TableStyle([
+        ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
+        ("ALIGN", (0, 0), (0, 0), "LEFT"),
+        ("ALIGN", (2, 0), (2, 0), "RIGHT"),
+        ("LEFTPADDING", (0, 0), (-1, -1), 0),
+        ("RIGHTPADDING", (0, 0), (-1, -1), 0),
+        ("TOPPADDING", (0, 0), (-1, -1), 0),
+        ("BOTTOMPADDING", (0, 0), (-1, -1), 0),
+    ]))
     out += [
-        Spacer(1, 5 * mm),
-        Paragraph(C.META["agency"], ST["cov1"]),
-        Paragraph(C.META["agency2"], ST["cov1"]),
-        Paragraph(esc(C.META["address"]), ST["cov2"]),
-        Spacer(1, 10 * mm),
+        bt,
+        Spacer(1, 12 * mm),
         HRule(CW, 1.4, GOLD, 0),
         Spacer(1, 8 * mm),
         Paragraph(C.META["dept_line1"], ST["covtitle"]),

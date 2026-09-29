@@ -73,6 +73,7 @@ META = {
     "submitted_to": "Mr. Rafael S. Ngumbu, Sr., Manager/Director, "
                     "Environmental Research and Radiation Safety Department",
     "logo": f("epa_logo.jpeg"),
+    "coat": f("liberia_coat_of_arms.png"),
     "running_title": "Environmental Protection Agency  |  ERRS Department  |  Third Quarter Report 2026",
     "running_top": "REPUBLIC OF LIBERIA  |  ENVIRONMENTAL PROTECTION AGENCY",
 }
