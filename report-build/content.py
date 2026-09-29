@@ -70,11 +70,11 @@ META = {
     "period": "Reporting Period: 1 July \u2013 30 September 2026",
     "units": "Chemical Management Unit (CMU)  \u00b7  Environmental Monitoring and "
              "Research Unit (EMRU)  \u00b7  Radiation Safety Unit (RSU)",
-    "submitted_to": "Mr. Rafael S. Ngumbu, Sr. \u2014 Manager/Director, "
+    "submitted_to": "Mr. Rafael S. Ngumbu, Sr., Manager/Director, "
                     "Environmental Research and Radiation Safety Department",
     "logo": f("epa_logo.jpeg"),
-    "running_title": "Environmental Protection Agency \u2014 ERRS Department  |  Third Quarter Report 2026",
-    "running_top": "REPUBLIC OF LIBERIA \u2014 ENVIRONMENTAL PROTECTION AGENCY",
+    "running_title": "Environmental Protection Agency  |  ERRS Department  |  Third Quarter Report 2026",
+    "running_top": "REPUBLIC OF LIBERIA  |  ENVIRONMENTAL PROTECTION AGENCY",
 }
 
 # =========================================================================
@@ -116,7 +116,7 @@ KPI_ROWS = [
      "licenses issued", "10 Chemical Registration + 4 Chemical Importation "
      "licenses issued", "3 Chemical Registration + 5 Chemical Importation "
      "licences issued", "", "69 (47 Q1 + 14 Q2 + 8 Q3)", "60 Proponents",
-     "115% \u2014 Target Met"],
+     "115% (target met)"],
     ["", "9", "Issue annual effluent discharge licenses to about 30 "
      "proponents across Liberia", "4 Effluent Discharge licenses issued",
      "4 Effluent Discharge licenses issued",
@@ -132,7 +132,7 @@ KPI_ROWS = [
     ["", "16", "Issue licenses to four (4) chemical transporting firms",
      "3 Transportation licenses issued", "1 Transportation license issued",
      "2 Transportation licences issued", "", "6 (3 Q1 + 1 Q2 + 2 Q3)",
-     "4 Firms", "150% \u2014 Target Met"],
+     "4 Firms", "150% (target met)"],
     ["", "17", "Restore or remediate five (5) polluted sites.",
      "None reported",
      "1 site remediated: Sethi Ferro Fabrik, Iron Factory (14-day exercise)",
@@ -202,7 +202,7 @@ KPI_ROWS = [
      "session on stakeholder mobilisation, sectoral engagement and GHG data "
      "collection; UNOSD / Korea Environment Corporation scoping mission and "
      "one-day workshop on waste and the circular economy", "",
-     "Ongoing \u2014 multiple awareness and stakeholder engagements",
+     "Ongoing: multiple awareness and stakeholder engagements",
      "5 Campaigns", DASH],
     ["", "25", "Issue waste management licenses to 50 waste services "
      "providers", "Accreditations prepared for qualifying companies",
@@ -290,8 +290,8 @@ B("para", text="Across the Department, performance continued to be "
   "continued to weaken the evidence base available for timely "
   "decision-making.")
 B("para", text="The Waste and Remediation Unit received seventeen (17) "
-  "waste management applications during the quarter \u2014 three (3) in "
-  "July, seven (7) in August and seven (7) in September \u2014 responded to "
+  "waste management applications during the quarter (three (3) in July, "
+  "seven (7) in August and seven (7) in September), responded to "
   "fifteen (15) applications and issued four (4) waste certificates. The "
   "Unit continued its assessment of waste service providers\u2019 "
   "facilities, contributed to multiple Environmental and Social Impact "
@@ -458,7 +458,7 @@ B("para", text="The Unit also represented the Agency at a substantial "
 # =========================================================================
 B("h1", text="Progress Tracking, Quarter III 2026")
 
-B("h2", text="Key Performance Indicators (KPIs) \u2014 Quarter III 2026")
+B("h2", text="Key Performance Indicators (KPIs), Quarter III 2026")
 B("para", text="The KPI results for the third quarter of 2026 reflect "
   "continued progress across the reporting units\u2019 core mandates, while "
   "highlighting areas requiring further support and strategic intervention. "
@@ -467,7 +467,7 @@ B("para", text="The KPI results for the third quarter of 2026 reflect "
   "across the first nine months of the year.")
 B("landscape_on")
 B("table",
-  caption="Key Performance Indicators (KPIs) \u2014 progress tracking "
+  caption="Key Performance Indicators (KPIs): progress tracking "
           "Q1\u2013Q3 2026 (cumulative)",
   head=["Unit", "No.", "Key deliverable", "Q1 2026", "Q2 2026", "Q3 2026",
         "Q4 2026", "Cumulative (9M)", "Annual target", "% achieved"],
@@ -520,8 +520,8 @@ B("para", text="The Environmental Monitoring and Research Unit delivered "
   "responded to, nineteen (19) laboratory results processed, eleven (11) "
   "certificates printed and eleven (11) issued, one (1) laboratory "
   "accreditation issued, twenty-six (26) monitoring reports reviewed and "
-  "ninety-one (91) environmental investigations conducted \u2014 the "
-  "highest quarterly investigation count recorded so far in 2026. The "
+  "ninety-one (91) environmental investigations conducted, the highest "
+  "quarterly investigation count recorded so far in 2026. The "
   "quarter-over-quarter summary and overall performance grade are presented "
   "below.")
 B("table",
@@ -625,9 +625,9 @@ B("para", text="The Waste and Remediation Unit processed seventeen (17) "
   "sharply after July, with seven (7) applications received in each of "
   "August and September against three (3) in July. Eleven (11) of the "
   "seventeen applications concerned non-hazardous municipal waste and five "
-  "(5) concerned hazardous streams \u2014 scrap, used tyres, used "
-  "batteries, used cables, plastics, medical waste and sewage \u2014 while "
-  "one (1) was a request for an acquaintance meeting.")
+  "(5) concerned hazardous streams (scrap, used tyres, used batteries, "
+  "used cables, plastics, medical waste and sewage), while one (1) was a "
+  "request for an acquaintance meeting.")
 B("table",
   caption="WRU summary of activities, Quarter III 2026",
   head=["Category", "July", "August", "September", "Quarter III total"],
@@ -659,8 +659,8 @@ B("figure", caption="Classification of waste undertakings applied for, WRU, "
   "Quarter III 2026", path=f("figH_wru_streams.png"), width=6.1)
 B("para", text="Non-hazardous municipal waste accounts for just under "
   "two-thirds of the applications received, with hazardous streams "
-  "\u2014 scrap metal, used tyres, used batteries, used cables, plastics, "
-  "medical waste and sewage \u2014 making up a further 29.4%. Against the "
+  "(scrap metal, used tyres, used batteries, used cables, plastics, "
+  "medical waste and sewage) making up a further 29.4%. Against the "
   "annual targets, the Unit has now issued fifteen (15) waste management "
   "certificates of the fifty (50) planned for 2026 (30%), and forty-three "
   "(43) generators and providers have been assessed or have applied of the "
@@ -692,7 +692,7 @@ B("para", style="lead", text="The sections that follow reproduce each "
 B("h2", text="Chemical Management Unit (CMU)")
 B("h3", text="Report Particulars")
 B("table",
-  caption="Chemical Management Unit \u2014 report particulars",
+  caption="Chemical Management Unit report particulars",
   head=["Description", "Detail"],
   rows=[
       ["To", "Mr. Rafael S. Ngumbu, Manager, ERRS Department"],
@@ -906,7 +906,7 @@ B("table",
 B("h2", text="Environmental Monitoring and Research Unit (EMRU)")
 B("h3", text="Report Particulars")
 B("table",
-  caption="Environmental Monitoring and Research Unit \u2014 report particulars",
+  caption="Environmental Monitoring and Research Unit report particulars",
   head=["Description", "Detail"],
   rows=[
       ["Reporting unit", "Environmental Monitoring and Research"],
@@ -923,8 +923,8 @@ B("h3", text="Summary of the Unit\u2019s Mandates")
 B("para", text="The Environmental Monitoring and Research Unit (EMR) operates "
   "under the Environmental Research and Radiation Safety Department (ERRS). It "
   "is mandated to conduct environmental research and routine monitoring of key "
-  "environmental media\u2014including water, soil, air, radiation, and "
-  "noise\u2014across Liberia. The Unit\u2019s primary objective is to generate "
+  "environmental media, including water, soil, air, radiation and noise, "
+  "across Liberia. The Unit\u2019s primary objective is to generate "
   "reliable, evidence-based analytical data to inform policy development and "
   "decision-making processes aimed at preventing future environmental "
   "disasters, reducing pollution risks, and minimizing the environmental and "
@@ -1181,7 +1181,7 @@ B("table",
 B("figure", caption="Samples analysed per laboratory exercise, EMR Unit, "
   "Quarter III 2026", path=f("fig09_emr_lab_samples.png"), width=6.3)
 
-B("h3", text="Laboratory Accreditation \u2014 Third Quarter Report "
+B("h3", text="Laboratory Accreditation, Third Quarter Report "
               "(July \u2013 September)")
 B("table",
   caption="Laboratory accreditation record, EMR Unit, Quarter III 2026",
@@ -1232,7 +1232,7 @@ B("bullets", items=[
 ])
 
 B("table",
-  caption="Water quality \u2014 timeliness and completeness of reporting by "
+  caption="Water quality: timeliness and completeness of reporting by "
           "companies, July 2026",
   head=["No.", "Reporting proponents", "Current monthly\n(Timeliness)",
         "Current monthly\n(Completeness)", "% Cumulative\ntimeliness",
@@ -1253,7 +1253,7 @@ B("table",
   align=["c", "l", "c", "c", "c", "c"], small=True)
 
 B("table",
-  caption="Legend \u2014 reporting timeliness and completeness classification",
+  caption="Legend: reporting timeliness and completeness classification",
   head=["Classification", "Code", "Cumulative performance band", "Range"],
   rows=[["On time", "T", "\u2265 80% on time / complete", "High"],
         ["Late", "L", "\u2265 50 \u2013 79.9% on time / complete", "Moderate"],
@@ -1261,7 +1261,7 @@ B("table",
   widths=[28, 12, 40, 20], align=["l", "c", "l", "c"])
 
 B("table",
-  caption="Soil quality \u2014 timeliness and completeness of reporting by "
+  caption="Soil quality: timeliness and completeness of reporting by "
           "companies, July 2026",
   head=["No.", "Reporting proponents", "Current monthly\n(Timeliness)",
         "Current monthly\n(Completeness)", "% Cumulative\ntimeliness",
@@ -1333,7 +1333,7 @@ B("bullets", items=[
     "Number of reporting site/proponents that did not report = n/a",
 ])
 B("table",
-  caption="Water quality \u2014 timeliness and completeness of reporting by "
+  caption="Water quality: timeliness and completeness of reporting by "
           "companies/proponents, August 2026",
   head=["No.", "Reporting proponents", "Current monthly\n(Timeliness)",
         "Current monthly\n(Completeness)", "% Cumulative\ntimeliness",
@@ -1362,28 +1362,10 @@ B("figure", caption="Timeliness of proponent reporting to the EMR Unit, "
   "Quarter III 2026", path=f("fig07_emr_reporting_quality.png"), width=6.3)
 
 
-B("h3", text="Outstanding Surveillance Returns")
-B("placeholder", title="Pending \u2014 EMRU surveillance returns for "
-  "Quarter III 2026",
-  items=["September 2026 monthly surveillance summary and reporting-quality "
-         "tables (water, soil and air) were not included in the source "
-         "submission.",
-         "Air quality timeliness and completeness tables for July and August "
-         "2026, equivalent to Tables 39, 46 and 53 of the Second Quarter "
-         "Report 2026, were not provided.",
-         "Soil quality timeliness and completeness table for August 2026 was "
-         "not provided.",
-         "Site-specific water quality results tables, equivalent to Tables "
-         "28\u201334 of the Second Quarter Report 2026, were not provided; "
-         "the source report lists the laboratory exercises and the "
-         "parameters analysed but not the measured values.",
-         "Summary of water, soil and air quality analysis reported by each "
-         "proponent for August and September 2026."])
-
 B("h2", text="Radiation Safety Unit (RSU)")
 B("h3", text="Report Particulars")
 B("table",
-  caption="Radiation Safety Unit \u2014 report particulars",
+  caption="Radiation Safety Unit report particulars",
   head=["Description", "Detail"],
   rows=[["Report title", "Radiation Safety Unit Report (Quarter III)"],
         ["Date", "September 28, 2026"],
@@ -1566,7 +1548,7 @@ B("figure", caption="Regulatory output of the Radiation Safety Unit, "
 B("h2", text="Waste and Remediation Unit (WRU)")
 B("h3", text="Report Particulars")
 B("table",
-  caption="Waste and Remediation Unit \u2014 report particulars",
+  caption="Waste and Remediation Unit report particulars",
   head=["Description", "Detail"],
   rows=[["Reporting unit", "Waste and Remediation Unit (WRU)"],
         ["Date", "September 29, 2026"],
@@ -1756,7 +1738,7 @@ B("bullets", items=[
     "of data for timely decision-making.",
     "Key environmental parameters (NO\u2083, Co, NH\u2084, PM2.5, and "
     "consistent pH) are frequently missing, alongside variable compliance "
-    "with national standards and EPA benchmarks\u2014highlighting gaps in "
+    "with national standards and EPA benchmarks, highlighting gaps in "
     "technical capacity, supervision, and enforcement.",
     "Assigning police personnel during site verifications is recommended to "
     "strengthen compliance and support smooth field operations.",
@@ -1879,7 +1861,7 @@ B("para", text="The Unit strongly recommends that the below mentioned "
   "waste related issues and to enable the Unit conduct more "
   "inspections/assessment on Waste activities and companies.")
 B("bullets", items=[
-    "Address the logistical constraints of the Unit \u2014 computers, "
+    "Address the logistical constraints of the Unit: computers, "
     "vehicles, fuel for fieldwork, a functional printer and scratch cards "
     "for communication with proponents.",
     "Strengthen staffing so that the Unit can meet its workload demands and "
@@ -1905,8 +1887,8 @@ B("para", text="The Chemical Management Unit maintained full operational "
   "a one hundred percent (100%) response rate on thirty-eight (38) "
   "applications, and conducting six (6) chemical escort operations covering "
   "eighty-eight (88) trucks of hazardous consignments. Two of its annual "
-  "licensing targets \u2014 chemical registration and importation, and "
-  "chemical transportation \u2014 have now been met and exceeded for 2026.")
+  "licensing targets, chemical registration and importation and chemical "
+  "transportation, have now been met and exceeded for 2026.")
 B("para", text="The Environmental Monitoring and Research Unit recorded its "
   "strongest field quarter of the year, conducting ninety-one (91) "
   "environmental investigations and analysing ninety-one (91) environmental "
@@ -1924,7 +1906,7 @@ B("para", text="The Radiation Safety Unit advanced its regulatory framework "
   "safety training, however, recorded no output during the quarter and "
   "remain materially behind their annual targets.")
 B("para", text="Across the Department, performance continued to be "
-  "constrained by cross-cutting systemic challenges \u2014 inadequate "
+  "constrained by cross-cutting systemic challenges: inadequate "
   "logistical resources (vehicles, fuel and computers), insufficient "
   "personal protective equipment, and the need for specialised technical "
   "training in dosimetry, laboratory analysis and regulatory reporting "
@@ -1941,7 +1923,7 @@ B("para", text="The Waste and Remediation Unit sustained the growth of "
   "at a demanding schedule of national and international engagements. Its "
   "throughput nonetheless remains constrained by the absence of vehicles, "
   "computers and a functional printer, by insufficient staffing, and by "
-  "delays in moving documentation from receipt to certification \u2014 the "
+  "delays in moving documentation from receipt to certification, the "
   "principal reason why only four (4) of the fifteen (15) applications "
   "answered during the quarter reached certification.")
 

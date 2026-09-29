@@ -90,3 +90,12 @@ and the certificates-issued table (§5.4), challenges and lessons learned
 (§6.4), recommendations (§7.4) and the conclusion paragraph. KPI outputs
 22–25 now carry Quarter III values, and Figures A and E include the WRU.
 One placeholder remains: the EMRU outstanding surveillance returns.
+
+## Editorial pass (September 29, 2026)
+
+* Section 5.2.10 "Outstanding Surveillance Returns" and its PENDING panel were
+  removed at the client's request; the report now contains no placeholders.
+* Em dashes used as prose punctuation, in captions and in the running header
+  were replaced with commas, colons, parentheses or pipes (246 down to 75).
+  The em dashes that remain are the standalone no-data markers inside table
+  cells, which the accompanying table notes explain.
