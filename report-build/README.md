@@ -51,3 +51,29 @@ python3 build_docx.py
   because the sources repeat and skip numbers.
 * Fourteen figures are included: thirteen charts redrawn at print resolution
   from the underlying data, plus the field photograph from the EMR annex.
+
+## Rebuild on the Second Quarter 2026 template (September 2026)
+
+`content.py` was restructured to follow the architecture of the ERRS Second
+Quarter Report 2026 (`source/errs_q2_2026_consolidated_reference.pdf`):
+
+1. Executive Summary
+2. Summary of the Department's Mandates
+3. Outstanding Achievements During the Quarter
+4. Progress Tracking, Quarter III 2026 (cumulative Q1–Q3 KPI tracker)
+5. Detailed Summary of Undertakings (full verbatim unit reports)
+6. Challenges · 7. Recommendations · 8. Conclusion · Annex and Pictorials
+
+Unit order is CMU → EMRU → RSU throughout.
+
+Two new block types were added to both builders:
+
+* `h4` — fourth-level numbered heading (x.y.z.w); the TOC still stops at level 3.
+* `placeholder` — tinted "PENDING" panel used wherever content is still
+  outstanding. There are eight of them: seven for the Waste and Remediation
+  Unit (executive summary, outstanding achievements, KPI achievements,
+  detailed undertakings, challenges, recommendations, conclusion) and one for
+  the EMRU outstanding surveillance returns. Remove the block and drop in the
+  real content once the submissions arrive.
+
+Build: `python3 make_figures.py && python3 build_pdf.py && python3 build_docx.py`

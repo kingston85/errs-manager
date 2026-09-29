@@ -147,13 +147,18 @@ def decorate(section, running=True):
     hp.text = ""
     hp.paragraph_format.space_after = Pt(2)
     if running:
-        tab = section.page_width - section.left_margin - section.right_margin
-        hp.paragraph_format.tab_stops.add_tab_stop(Emu(int(tab)),
-                                                   WD_ALIGN_PARAGRAPH.RIGHT)
-        r = hp.add_run(C.META["running_title"] + "\t" + C.META["subtitle"])
-        r.font.size = Pt(7.8)
-        r.font.color.rgb = MUTED
-        para_border(hp, "bottom", 6, HEX_RULE, 4)
+        hp.alignment = WD_ALIGN_PARAGRAPH.CENTER
+        r = hp.add_run(C.META["running_top"])
+        r.font.size = Pt(7.6)
+        r.font.bold = True
+        r.font.color.rgb = GREEN
+        hp2 = hdr.add_paragraph()
+        hp2.alignment = WD_ALIGN_PARAGRAPH.CENTER
+        hp2.paragraph_format.space_after = Pt(2)
+        r2 = hp2.add_run(C.META["running_title"])
+        r2.font.size = Pt(7.6)
+        r2.font.color.rgb = MUTED
+        para_border(hp2, "bottom", 6, HEX_RULE, 4)
 
     ftr = section.footer
     fp = ftr.paragraphs[0]
@@ -189,6 +194,19 @@ def decorate(section, running=True):
 # ------------------------------------------------------------------ tables
 tbl_no = [0]
 fig_no = [0]
+
+
+def tbl_borders(t, color):
+    tblPr = t._tbl.tblPr
+    borders = OxmlElement("w:tblBorders")
+    for edge in ("top", "left", "bottom", "right"):
+        e = OxmlElement("w:" + edge)
+        e.set(qn("w:val"), "single")
+        e.set(qn("w:sz"), "18" if edge == "left" else "6")
+        e.set(qn("w:space"), "0")
+        e.set(qn("w:color"), color)
+        borders.append(e)
+    tblPr.append(borders)
 
 
 def add_table(b, content_width):
@@ -335,27 +353,37 @@ def main():
                 space_after=1)
     rule = add_par("", space_before=18, space_after=16)
     para_border(rule, "bottom", 18, "C9A227", 6)
-    add_par(C.META["department"], size=13, bold=True, color=GREEN,
-            align=WD_ALIGN_PARAGRAPH.CENTER, space_after=34)
-    add_par(C.META["title"], size=27, bold=True, color=GREEN,
-            align=WD_ALIGN_PARAGRAPH.CENTER, space_after=8, leading=1.0)
-    add_par(C.META["subtitle"], size=14.5, bold=True, color=GOLD,
-            align=WD_ALIGN_PARAGRAPH.CENTER, space_after=6)
-    add_par(C.META["period"], size=10.6, align=WD_ALIGN_PARAGRAPH.CENTER,
-            space_after=22)
+    add_par(C.META["dept_line1"], size=21, bold=True, color=GREEN,
+            align=WD_ALIGN_PARAGRAPH.CENTER, space_after=2, leading=1.0)
+    add_par(C.META["dept_line2"], size=21, bold=True, color=GREEN,
+            align=WD_ALIGN_PARAGRAPH.CENTER, space_after=12, leading=1.0)
+    add_par(C.META["title"], size=14.5, bold=True, color=GOLD,
+            align=WD_ALIGN_PARAGRAPH.CENTER, space_after=4)
+    add_par(C.META["period_line"], size=10.6,
+            align=WD_ALIGN_PARAGRAPH.CENTER, space_after=20)
     rule = add_par("", space_after=14)
-    para_border(rule, "bottom", 8, HEX_RULE, 6)
-    add_par("Constituent unit reports", size=10.6, bold=True,
-            align=WD_ALIGN_PARAGRAPH.CENTER, space_after=3)
-    add_par(C.META["units"], size=10.6, align=WD_ALIGN_PARAGRAPH.CENTER,
-            space_after=22)
-    add_par("Submitted to", size=10.6, bold=True,
-            align=WD_ALIGN_PARAGRAPH.CENTER, space_after=3)
-    add_par(C.META["submitted_to"], size=10.6,
-            align=WD_ALIGN_PARAGRAPH.CENTER, space_after=26)
-    rule = add_par("", space_after=8)
     para_border(rule, "bottom", 18, "C9A227", 6)
-    add_par("Monrovia, Liberia  \u00b7  September 2026", size=9.6, color=MUTED,
+
+    meta = C.META["cover_meta"]
+    t = doc.add_table(rows=len(meta), cols=2)
+    t.autofit = False
+    for i, (kk, vv) in enumerate(meta):
+        c0, c1 = t.rows[i].cells
+        c0.width = Inches(1.85)
+        c1.width = Inches(4.75)
+        for cell, txt, bold, col in ((c0, kk, True, GREEN),
+                                     (c1, vv, False, BODY)):
+            pp = cell.paragraphs[0]
+            pp.paragraph_format.space_after = Pt(3)
+            pp.paragraph_format.space_before = Pt(3)
+            rr = pp.add_run(txt)
+            rr.font.size = Pt(10)
+            rr.font.bold = bold
+            rr.font.color.rgb = col
+            rr.font.name = FONT
+    rule = add_par("", space_before=18, space_after=8)
+    para_border(rule, "bottom", 18, "C9A227", 6)
+    add_par("Monrovia, Liberia", size=9.6, color=MUTED,
             align=WD_ALIGN_PARAGRAPH.CENTER)
 
     # body section with running head / foot
@@ -433,7 +461,7 @@ def main():
                 add_par("", space_after=6)
             else:
                 H1[0] += 1
-                H2[0] = H3[0] = 0
+                H2[0] = H3[0] = H4[0] = 0
                 p = add_par("%d.  %s" % (H1[0], b["text"]), size=16, bold=True,
                             color=GREEN, space_before=6, space_after=4)
                 bookmark_heading(p, 1, b["text"])
@@ -446,7 +474,7 @@ def main():
 
         elif k == "h2":
             H2[0] += 1
-            H3[0] = 0
+            H3[0] = H4[0] = 0
             p = add_par("%d.%d  %s" % (H1[0], H2[0], b["text"]), size=12.6,
                         bold=True, color=GREEN, space_before=14, space_after=5)
             bookmark_heading(p, 2, b["text"])
@@ -461,6 +489,7 @@ def main():
                         space_before=11, space_after=4)
             else:
                 H3[0] += 1
+                H4[0] = 0
                 p = add_par("%d.%d.%d  %s" % (H1[0], H2[0], H3[0], b["text"]),
                             size=10.8, bold=True, color=GREEN_L,
                             space_before=11, space_after=4)
@@ -469,6 +498,44 @@ def main():
                     r.font.size = Pt(10.8)
                     r.font.bold = True
                     r.font.color.rgb = GREEN_L
+
+        elif k == "h4":
+            if b.get("unnumbered"):
+                add_par(b["text"], size=10.2, bold=True, color=BODY,
+                        space_before=9, space_after=3)
+            else:
+                H4[0] += 1
+                add_par("%d.%d.%d.%d  %s" % (H1[0], H2[0], H3[0], H4[0],
+                                             b["text"]),
+                        size=10.2, bold=True, color=BODY,
+                        space_before=9, space_after=3)
+
+        elif k == "placeholder":
+            t = doc.add_table(rows=1, cols=1)
+            t.autofit = False
+            cell = t.rows[0].cells[0]
+            cell.width = Emu(int(cw[0]))
+            shade(cell._tc, "FDF7E3")
+            title = b["title"].upper()
+            if not title.startswith("PENDING"):
+                title = "PENDING \u2014 " + title
+            pp = cell.paragraphs[0]
+            pp.paragraph_format.space_after = Pt(4)
+            rr = pp.add_run(title)
+            rr.font.size = Pt(10)
+            rr.font.bold = True
+            rr.font.name = FONT
+            rr.font.color.rgb = RGBColor(0x8A, 0x6D, 0x1F)
+            for it in b.get("items", []):
+                ip = cell.add_paragraph()
+                ip.paragraph_format.space_after = Pt(3)
+                ip.paragraph_format.left_indent = Pt(12)
+                ir = ip.add_run("\u2022  " + it)
+                ir.font.size = Pt(9.5)
+                ir.font.name = FONT
+                ir.font.color.rgb = BODY
+            tbl_borders(t, "C9A227")
+            add_par("", space_after=8)
 
         elif k == "para":
             add_par(b["text"], size=10.5, align=WD_ALIGN_PARAGRAPH.JUSTIFY,
@@ -548,7 +615,7 @@ for _b in C.BLOCKS:
         _f += 1
         LOF.append((_f, _b["caption"]))
 
-H1, H2, H3 = [0], [0], [0]
+H1, H2, H3, H4 = [0], [0], [0], [0]
 
 if __name__ == "__main__":
     main()

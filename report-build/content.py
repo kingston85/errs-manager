@@ -49,15 +49,32 @@ META = {
     "address": "Bright Building, 302-A Sekou Toure Avenue, Mamba Point\n"
                "P. O. Box 4024, 1000 Monrovia, 10 Liberia",
     "department": "DEPARTMENT OF ENVIRONMENTAL RESEARCH AND RADIATION SAFETY (ERRS)",
-    "title": "CONSOLIDATED THIRD QUARTER REPORT",
+    "title": "Third Quarter Report, 2026",
     "subtitle": "Quarter III, 2026",
+    "dept_line1": "Environmental Research and Radiation",
+    "dept_line2": "Safety Department (ERRS)",
+    "period_line": "(July 1 \u2013 September 30, 2026)",
+    "cover_meta": [
+        ("Reporting Department",
+         "Environmental Research and Radiation Safety Laboratory"),
+        ("Reporting Period", "July 1 \u2013 September 30, 2026"),
+        ("Date Submitted", "September 2026"),
+        ("Head of Department", "Rafael S. Ngumbu"),
+        ("Contact Number", "0775764953"),
+        ("Email", "rngumbu@epa.gov.lr / rafaelngumbu@yahoo.com"),
+        ("Reporting Units",
+         "Chemical Management Unit (CMU); Environmental Monitoring and "
+         "Research Unit (EMRU); Radiation Safety Unit (RSU); "
+         "Waste and Remediation Unit (WRU \u2014 submission pending)"),
+    ],
     "period": "Reporting Period: 1 July \u2013 30 September 2026",
     "units": "Chemical Management Unit (CMU)  \u00b7  Environmental Monitoring and "
              "Research Unit (EMRU)  \u00b7  Radiation Safety Unit (RSU)",
     "submitted_to": "Mr. Rafael S. Ngumbu, Sr. \u2014 Manager/Director, "
                     "Environmental Research and Radiation Safety Department",
     "logo": f("epa_logo.jpeg"),
-    "running_title": "ERRS Consolidated Third Quarter Report 2026",
+    "running_title": "Environmental Protection Agency \u2014 ERRS Department  |  Third Quarter Report 2026",
+    "running_top": "REPUBLIC OF LIBERIA \u2014 ENVIRONMENTAL PROTECTION AGENCY",
 }
 
 # =========================================================================
@@ -72,36 +89,133 @@ def B(kind, **kw):
     return kw
 
 
+P = "\u2014 pending WRU submission \u2014"
+
+# Quarter I and Quarter II values are carried forward from the
+# ERRS Second Quarter Report 2026; Quarter III values are derived from the
+# unit submissions consolidated in this report.
+KPI_ROWS = [
+    ["Radiation Safety Unit", "1", "Develop and Legislate Nuclear Act of "
+     "Liberia 2026", "In Progress",
+     "Responded to the second set of IAEA comments on the Radiation Safety Act",
+     "Organised and held the Validation Programme for the Draft Radiation "
+     "Safety Law; drafted Inspection Manual, operating guidelines and five "
+     "(05) inspection checklists", "", "In Progress", "1 Act", DASH],
+    ["", "2", "Conduct Basic Radiation Trainings for 50 Radiographers and 50 "
+     "Radiation workers for health Facilities and Industrial and Mining "
+     "facilities", "0", "0", "0", "", "0", "100 Workers", "0%"],
+    ["", "6", "Conduct Nationwide inventory of Radiation Sources at about "
+     "fifty (50) health, mining and industrial facilities across Liberia.",
+     "0", "7 medical facilities + 4 mining-radiation monitoring inventories "
+     "(11 total)", "0", "", "11", "50 Facilities", "22%"],
+    ["Chemical Management Unit", "4", "Conduct Nationwide Chemical inventory "
+     "at about 60 industrial facilities across Liberia.", "None conducted",
+     "1 nationwide inventory (LIDA, Freeport, Monrovia)", "None conducted",
+     "", "1", "60 Facilities", "1.7%"],
+    ["", "7", "Issue chemical registration and importation licenses to 60 "
+     "proponents", "41 Chemical Registration + 6 Chemical Importation "
+     "licenses issued", "10 Chemical Registration + 4 Chemical Importation "
+     "licenses issued", "3 Chemical Registration + 5 Chemical Importation "
+     "licences issued", "", "69 (47 Q1 + 14 Q2 + 8 Q3)", "60 Proponents",
+     "115% \u2014 Target Met"],
+    ["", "9", "Issue annual effluent discharge licenses to about 30 "
+     "proponents across Liberia", "4 Effluent Discharge licenses issued",
+     "4 Effluent Discharge licenses issued",
+     "5 Effluent Discharge licences issued", "", "13 (4 Q1 + 4 Q2 + 5 Q3)",
+     "30 Proponents", "43.3%"],
+    ["", "14", "Issue chemical disposal licenses to five (5) proponents",
+     "None issued", "None issued", "None issued", "", "None", "5 Proponents",
+     "0%"],
+    ["", "15", "Issue fumigation licenses to 10 proponents",
+     "4 Fumigation licenses issued", "3 Fumigation licenses issued",
+     "1 Fumigation licence issued", "", "8 (4 Q1 + 3 Q2 + 1 Q3)",
+     "10 Proponents", "80%"],
+    ["", "16", "Issue licenses to four (4) chemical transporting firms",
+     "3 Transportation licenses issued", "1 Transportation license issued",
+     "2 Transportation licences issued", "", "6 (3 Q1 + 1 Q2 + 2 Q3)",
+     "4 Firms", "150% \u2014 Target Met"],
+    ["", "17", "Restore or remediate five (5) polluted sites.",
+     "None reported",
+     "1 site remediated: Sethi Ferro Fabrik, Iron Factory (14-day exercise)",
+     "None reported by CMU; EMRU reported 1 restoration (chemical spillage "
+     "site, Bomi Highway) and 1 remediation (gold mine, Upper Montserrado / "
+     "Lower Margibi)", "", "3", "5 Sites", "60%"],
+    ["", "20", "Conduct training of fumigation applicators", "None reported",
+     "1 BCRP training conducted (Bong County, April)", "None reported", "",
+     "1 training conducted", "All existing applicators", DASH],
+    ["Environmental Monitoring and Research Unit", "3", "Equip EPA central "
+     "laboratory with advanced analytical equipment, reagents & field "
+     "compliance monitoring tool kits including mobile laboratory",
+     "Ongoing", "Ongoing", "Ongoing", "", "Ongoing", "1 Lab & 1 Mobile Lab",
+     DASH],
+    ["", "5", "Hire two (2) Lab technicians, two (2) quality control "
+     "officers, and two (2) laboratory supervisors for quality laboratory "
+     "delivery services", "Ongoing", "Ongoing", "Ongoing", "", "Ongoing",
+     "6 Staff", DASH],
+    ["", "8", "Issue annual laboratory accreditation to about 12 analytical "
+     "laboratories", "None issued",
+     "6 laboratory accreditations issued (BMMC x4, GLM, ArcelorMittal)",
+     "1 laboratory accreditation issued (MNG Gold Liberia, Bong County)", "",
+     "7", "12 Laboratories", "58.3%"],
+    ["", "10", "Analyze environmental quality media (water, soil, sediments, "
+     "air, noise, vibration, vegetation) and conduct environmental "
+     "monitoring", "53 lab results processed; 44 site verifications "
+     "conducted", "36 lab results processed; 66 environmental investigations "
+     "conducted", "19 lab results received; 91 environmental investigations "
+     "conducted; 6 laboratory analysis exercises", "",
+     "108 lab results; 201 investigations", "All required facilities", DASH],
+    ["", "11", "Review, Update, and Validate the 2022 Environmental "
+     "Inspection Manual of Liberia", "Ongoing", "Ongoing", "Ongoing", "",
+     "Ongoing", "1 Manual", DASH],
+    ["", "12", "Review Environmental monitoring reports submitted by 100 "
+     "proponents.", "34 environmental monitoring reports reviewed",
+     "27 environmental monitoring reports reviewed",
+     "26 environmental monitoring reports reviewed", "",
+     "87 (34 Q1 + 27 Q2 + 26 Q3)", "100 Proponents", "87%"],
+    ["", "21", "Issue Annual Certification to Sachet Water Factories in "
+     "Liberia", "75 certificates printed; 43 certificates picked up",
+     "36 certificates printed; 32 certificates picked up",
+     "11 certificates printed; 11 certificates issued", "",
+     "122 printed; 86 issued", "All Producers", DASH],
+    ["Waste and Remediation Unit", "22", "Conduct National Mapping and "
+     "Registration of 100 Waste Generators and 50 Service Providers",
+     "Ongoing assessments of waste service providers",
+     "26 waste service providers assessed and classified (10 in April, 10 in "
+     "May, 6 in June)", P, "", "26 (Q1\u2013Q2)",
+     "150 (100 Generators, 50 Providers)", "17.3%"],
+    ["", "23", "Conduct Environmental Monitoring at 50 Waste Facilities",
+     "Ongoing facility assessments",
+     "Ongoing facility assessments; multiple ESIA site verifications", P, "",
+     "Ongoing", "50 Facilities", DASH],
+    ["", "24", "Conduct five (5) Public Awareness Campaigns on Waste "
+     "Segregation and Disposal",
+     "Composting training and awareness campaigns conducted",
+     "Attended World Environment Day celebration; attended 3rd KYE session",
+     P, "", "Ongoing", "5 Campaigns", DASH],
+    ["", "25", "Issue waste management licenses to 50 waste services "
+     "providers", "Accreditations prepared for qualifying companies",
+     "15 applications responded to; 11 waste certificates issued", P, "",
+     "11 (Q2)", "50 Providers", "22%"],
+    ["Cross-Cutting / All Units (General ERRS)", "13", "Conduct "
+     "environmental investigation and research in at least two thematic "
+     "areas and publish findings in scientific journals",
+     "51 environmental investigations conducted",
+     "66 environmental investigations conducted (EMRU)",
+     "91 environmental investigations conducted (EMRU)", "",
+     "208 (51 Q1 + 66 Q2 + 91 Q3)", "2 Thematic Areas", DASH],
+    ["", "18", "Conduct two training sessions for Chemical Handlers and "
+     "First Respondents", "None reported", "None reported", "None reported",
+     "", "None reported", "2 Training Sessions", "0%"],
+    ["", "19", "Develop an automated database system of the ERRS Laboratory",
+     "Cloud database set up for document verification", "Ongoing",
+     "RSU updated its facilities and communication databases; RAIS issues "
+     "resolved with IAEA support", "",
+     "Cloud database established; ongoing maintenance", "1 System", DASH],
+]
+
+
 # ------------------------------------------------------------------ front
 B("cover")
-B("pagebreak")
-
-B("h1", text="Document Control", unnumbered=True)
-B("table",
-  caption="Document control and contributing units",
-  head=["Item", "Detail"],
-  rows=[
-      ["Report title", "Consolidated Third Quarter Report 2026 \u2014 Environmental "
-                       "Research and Radiation Safety Department (ERRS)"],
-      ["Reporting quarter", "Quarter III, 2026"],
-      ["Reporting period", "1 July \u2013 30 September 2026"],
-      ["Issuing department", "Environmental Research and Radiation Safety "
-                             "Department (ERRS), Environmental Protection Agency "
-                             "of Liberia"],
-      ["Constituent reports",
-       "Part One \u2014 Chemical Management Unit (CMU)\n"
-       "Part Two \u2014 Environmental Monitoring and Research Unit (EMRU)\n"
-       "Part Three \u2014 Radiation Safety Unit (RSU)"],
-      ["Submitted to", "Mr. Rafael S. Ngumbu, Sr., Manager/Director, ERRS Department"],
-      ["Compilation basis",
-       "The three unit reports are reproduced in full and in the order CMU, "
-       "EMRU, RSU. Content, figures and wording are carried over from the "
-       "source reports without abridgement; tables and charts have been "
-       "reset to a single house style and renumbered consecutively across "
-       "the consolidated document."],
-  ],
-  widths=[26, 74], align=["l", "l"]),
-
 B("pagebreak")
 B("toc")
 B("pagebreak")
@@ -110,14 +224,408 @@ B("pagebreak")
 B("lof")
 
 # =========================================================================
-#  PART ONE  —  CHEMICAL MANAGEMENT UNIT
+#  1.  EXECUTIVE SUMMARY
 # =========================================================================
-B("part", num="PART ONE", title="CHEMICAL MANAGEMENT UNIT",
-  subtitle="Quarterly Report \u2014 Quarter Three, 2026")
+B("pagebreak")
+B("h1", text="Executive Summary")
+B("para", style="lead", text="The third quarter of 2026 was a period of "
+  "sustained regulatory and field activity for the Environmental Research "
+  "and Radiation Safety (ERRS) Department. This report consolidates the "
+  "quarterly submissions of the Chemical Management Unit (CMU), the "
+  "Environmental Monitoring and Research Unit (EMRU) and the Radiation "
+  "Safety Unit (RSU) for the period 1 July to 30 September 2026. The "
+  "submission of the Waste and Remediation Unit (WRU) was outstanding at "
+  "the time of compilation and is reserved in this document.")
+B("para", text="The Chemical Management Unit maintained a full response rate "
+  "on all applications received, recording thirty-eight (38) applications "
+  "and thirty-eight (38) responses. The Unit issued thirty-five (35) "
+  "regulatory instruments: nineteen (19) chemical release/clearances, five "
+  "(5) chemical importation licences, five (5) effluent discharge licences, "
+  "three (3) chemical registration licences, two (2) annual transportation "
+  "licences and one (1) fumigation licence. Chemical release/clearances "
+  "again represented the largest single category, accounting for "
+  "fifty-four percent (54%) of all instruments issued. The Unit also "
+  "conducted six (6) chemical escort operations covering eighty-eight (88) "
+  "trucks of explosives, ferric chloride and ammonium nitrate.")
+B("para", text="The Environmental Monitoring and Research Unit sustained "
+  "strong field performance, conducting ninety-one (91) environmental "
+  "investigation and monitoring activities and analysing ninety-one (91) "
+  "environmental quality media for soil, water and air. The Unit received "
+  "thirty-five (35) sachet water applications and responded to all "
+  "thirty-five (35), issued twenty-six (26) response letters, received "
+  "fourteen (14) payments and nineteen (19) laboratory results, printed "
+  "eleven (11) certificates and issued eleven (11) certificates to "
+  "proponents. It further issued one (1) laboratory accreditation, reviewed "
+  "twenty-six (26) environmental monitoring reports and received six (6) "
+  "complaints, including three (3) noise pollution complaints that "
+  "prompted night-time field measurement exercises.")
+B("para", text="The Radiation Safety Unit advanced its regulatory "
+  "infrastructure, issuing four (4) radiation bills, seven (7) radiation "
+  "importation licences and three (3) possess-and-use licences. The Unit "
+  "organised and held the Validation Programme for the Draft Radiation "
+  "Safety Law, drafted an Inspection Manual, operating guidelines and five "
+  "(05) inspection checklists, calibrated Radiation Safety Laboratory "
+  "equipment and resolved outstanding issues with the RAIS system with IAEA "
+  "support. Three (3) staff attended IAEA fellowships and regional training "
+  "in Ethiopia and Tanzania.")
+B("para", text="Across the Department, performance continued to be "
+  "constrained by cross-cutting systemic challenges: inadequate logistical "
+  "resources, in particular vehicles and fuel; insufficient personal "
+  "protective equipment for chemical handlers; shortages of computers and "
+  "IT infrastructure; staffing gaps; and the need for specialised technical "
+  "training in dosimetry, regulatory reporting systems and laboratory "
+  "analysis. Low proponent engagement and incomplete parameter reporting "
+  "continued to weaken the evidence base available for timely "
+  "decision-making.")
+B("placeholder", title="Pending \u2014 Waste and Remediation Unit contribution "
+  "to the Executive Summary",
+  items=["The WRU Quarter III 2026 submission had not been received at the "
+         "time of compilation. Its executive summary paragraph, covering "
+         "waste service provider assessments, ESIA site verification "
+         "support, applications responded to and waste certificates issued, "
+         "will be inserted here on receipt."])
 
-B("h1", text="Chemical Management Unit (CMU)")
+# =========================================================================
+#  2.  SUMMARY OF THE DEPARTMENT'S MANDATES
+# =========================================================================
+B("h1", text="Summary of the Department\u2019s Mandates")
+B("para", text="The ERRS Department plays a central role in safeguarding "
+  "Liberia\u2019s environmental and public health through research, "
+  "monitoring, licensing, and regulatory oversight.")
+B("para", text="The ERRS Department, originally established under the "
+  "EPA\u2019s Department of Compliance and Enforcement, is mandated to "
+  "conduct routine environmental monitoring and research across various "
+  "environmental media, including water, soil, air, radiation, and noise. "
+  "The primary goal is to generate empirical data that informs national "
+  "policies aimed at preventing environmental degradation, mitigating "
+  "pollution, and minimizing the impacts of development activities on "
+  "ecosystems and human health.")
+B("para", text="Structurally, the Department comprises four core units:")
+B("bullets", items=[
+    "Chemical Management Unit (CMU)",
+    "Environmental Monitoring and Research Unit (EMRU)",
+    "Radiation Safety Unit (RSU)",
+    "Waste and Remediation Unit (WRU)",
+])
+B("para", text="These units collaboratively execute the department\u2019s "
+  "broad mandate, which includes:")
+B("bullets", items=[
+    "Issuing licenses and permits for the importation, use, discharge, and "
+    "disposal of chemicals and radiation sources;",
+    "Accrediting analytical laboratories, waste handlers, industries, and "
+    "health facilities for the safe use and management of hazardous "
+    "substances;",
+    "Maintaining national registries for chemicals and radiation sources in "
+    "accordance with Part IV, Section 44 and Part IX, Section 96 of the "
+    "Environmental Protection and Management Law of Liberia;",
+    "Reviewing environmental monitoring reports submitted by regulated "
+    "entities;",
+    "Designing and implementing research programs to address emerging and "
+    "existing environmental issues;",
+    "Promoting public awareness and stakeholder engagement in environmental "
+    "monitoring and decision-making.",
+])
+B("para", text="The ERRS Department is led by a director and operates under a "
+  "proposed structure that formalizes its specialized units, each playing a "
+  "vital role in supporting Liberia\u2019s environmental governance and "
+  "regulatory compliance framework.")
+B("para", text="This report documents the Department\u2019s performance and "
+  "initiatives undertaken during the third quarter of 2026 (July to "
+  "September 2026), building on the activities of the first and second "
+  "quarters to offer a broader context for understanding the progress and "
+  "strategic direction of the ERRS Department.")
 
-B("h2", text="Report Particulars")
+# =========================================================================
+#  3.  OUTSTANDING ACHIEVEMENTS DURING THE QUARTER
+# =========================================================================
+B("h1", text="Outstanding Achievements During the Quarter")
+
+B("h2", text="Chemical Management Unit (CMU)")
+B("para", text="During the third quarter of 2026 (July\u2013September), the "
+  "Chemical Management Unit demonstrated exemplary operational efficiency, "
+  "achieving a full response rate on all applications received. The Unit "
+  "received thirty-eight (38) applications and issued thirty-eight (38) "
+  "responses, and issued a total of thirty-five (35) regulatory instruments "
+  "across six categories: sixteen (16) formal licences (chemical "
+  "registration, importation, effluent discharge, fumigation and "
+  "transportation) and nineteen (19) chemical release/clearances. Chemical "
+  "release/clearances represented the largest single category, accounting "
+  "for fifty-four percent (54%) of all regulatory instruments issued.")
+B("para", text="Specifically, the Unit issued three (3) Chemical "
+  "Registration Licences, five (5) Chemical Importation Licences, five (5) "
+  "Effluent Discharge Licences, one (1) Fumigation Licence and two (2) "
+  "Annual Transportation Licences, alongside nineteen (19) Chemical "
+  "Release/Clearances. The Unit conducted six (6) chemical escort "
+  "operations covering eighty-eight (88) trucks of explosives, ferric "
+  "chloride and ammonium nitrate between 5 and 24 September 2026.")
+B("para", text="No nationwide chemical inventory, verification/inspection "
+  "investigation, training, seizure or chemical disposal licence was "
+  "recorded during the quarter. A laboratory chemical inventory of school "
+  "laboratories has been scheduled to commence in the next reporting "
+  "period.")
+
+B("h2", text="Environmental Monitoring and Research Unit (EMRU)")
+B("para", text="During the third quarter of 2026, the EMRU sustained robust "
+  "monitoring and research activity. The Unit received thirty-five (35) "
+  "applications for sachet water and responded to all thirty-five (35). It "
+  "issued twenty-six (26) response letters to proponents, received fourteen "
+  "(14) payments from EPA receipts, printed eleven (11) certificates and "
+  "issued eleven (11) certificates to compliant proponents. The laboratory "
+  "received and processed nineteen (19) results from applicants, and the "
+  "Unit issued one (1) laboratory accreditation, to MNG Gold Liberia in "
+  "Bong County.")
+B("para", text="The Unit reviewed twenty-six (26) environmental monitoring "
+  "reports submitted by proponents and conducted ninety-one (91) "
+  "environmental investigation and monitoring activities across multiple "
+  "counties. These included the GIZ-coordinated Joint Anti-Mineral "
+  "Smuggling awareness exercises in Grand Cape Mount County, a large "
+  "multi-agency assessment programme of mineral and sachet water "
+  "facilities, contamination investigations at the Monrovia Industrial "
+  "Park, pollution investigations at ArcelorMittal in Nimba County, and "
+  "noise pollution investigations in Congo Town and Sinkor. Six (6) "
+  "complaints were received during the quarter. Six (6) laboratory analysis "
+  "exercises were conducted on twenty-six (26) water samples.")
+
+B("h2", text="Radiation Safety Unit (RSU)")
+B("para", text="During the third quarter of 2026, the Radiation Safety Unit "
+  "expanded its regulatory and compliance activities. The Unit issued four "
+  "(4) radiation bills, seven (7) radiation importation licences to Bea "
+  "Mountain Mining Corporation and three (3) possess-and-use licences to "
+  "AMI Expeditionary Health Care and ArcelorMittal. Non-compliance notices "
+  "were prepared and sent to facilities operating radiation-emitting "
+  "equipment, and follow-up communications were issued to facilities that "
+  "had not completed the licensing process.")
+B("para", text="The Unit organised and held the Validation Programme for the "
+  "Draft Radiation Safety Law and drafted several regulatory documents, "
+  "including an Inspection Manual, guidelines for operating imaging "
+  "equipment and five (05) inspection checklists. Radiation Safety "
+  "Laboratory equipment (survey meters and the IdentiFinder) was "
+  "calibrated, and outstanding issues with the RAIS system were resolved "
+  "with support from the IAEA.")
+B("para", text="Three (3) staff attended foreign training: the IAEA "
+  "Fellowship on Notification and Authorization in Ethiopia (1\u201331 July "
+  "2026), the IAEA Fellowship on Inspection and Enforcement in Tanzania "
+  "(1\u201331 August 2026) and the Regional Training on Radiation Protection "
+  "in the Context of Non-Medical Human Imaging, Inspection Devices and "
+  "Consumer Products in Dar es Salaam (20\u201324 July 2026). Staff also "
+  "participated in the Africa CDC/One Health Workshop on the Liberia "
+  "National Laboratory Policy and Strategic Plan (2026\u20132030) and in "
+  "several ESIA technical review sittings and site verification visits.")
+
+B("h2", text="Waste and Remediation Unit (WRU)")
+B("placeholder", title="Pending \u2014 WRU outstanding achievements, "
+  "Quarter III 2026",
+  items=["The Waste and Remediation Unit had not submitted its Quarter III "
+         "2026 report at the time of compilation.",
+         "On receipt, this section will carry the Unit\u2019s narrative of "
+         "outstanding achievements, mirroring the structure used in the "
+         "Second Quarter Report 2026: assessments of waste service "
+         "providers\u2019 facilities, contributions to ESIA site "
+         "verification exercises, representation at national environmental "
+         "events, follow-up communications with proponents, and the "
+         "preparation of responses and certificates of accreditation for "
+         "waste companies."])
+
+# =========================================================================
+#  4.  PROGRESS TRACKING Q3 2026
+# =========================================================================
+B("h1", text="Progress Tracking, Quarter III 2026")
+
+B("h2", text="Key Performance Indicators (KPIs) \u2014 Quarter III 2026")
+B("para", text="The KPI results for the third quarter of 2026 reflect "
+  "continued progress across the reporting units\u2019 core mandates, while "
+  "highlighting areas requiring further support and strategic intervention. "
+  "Quarter I and Quarter II figures are carried forward from the ERRS "
+  "Second Quarter Report 2026 so that achievement is tracked cumulatively "
+  "across the first nine months of the year.")
+B("landscape_on")
+B("table",
+  caption="Key Performance Indicators (KPIs) \u2014 progress tracking "
+          "Q1\u2013Q3 2026 (cumulative)",
+  head=["Unit", "No.", "Key deliverable", "Q1 2026", "Q2 2026", "Q3 2026",
+        "Q4 2026", "Cumulative (9M)", "Annual target", "% achieved"],
+  rows=KPI_ROWS,
+  widths=[8, 4.5, 14.5, 12, 14, 15, 4.5, 11, 8, 8],
+  align=["l", "c", "l", "l", "l", "l", "c", "l", "l", "c"],
+  small=True, xsmall=True,
+  note="Q1 and Q2 entries are reproduced from the ERRS Second Quarter Report "
+       "2026. Q4 2026 is reserved. WRU rows are pending the Unit\u2019s "
+       "Quarter III submission; their cumulative and percentage values "
+       "therefore still reflect Q1\u2013Q2 performance only.")
+B("landscape_off")
+B("figure", caption="Cumulative KPI achievement at the end of Quarter III "
+  "2026 against 2026 annual targets", path=f("figA_kpi_progress.png"),
+  width=6.3)
+B("para", text="The figure above visualises cumulative progress over the "
+  "first nine months of the year against the annual targets established for "
+  "2026. Two chemical licensing targets have already been met and exceeded, "
+  "while radiation source inventory, nationwide chemical inventory, "
+  "chemical disposal licensing and radiography training remain materially "
+  "behind target. The waste management licensing indicator is shown at its "
+  "Quarter II position pending the WRU submission.")
+
+B("h2", text="KPI Achievements and Remaining Tasks, Quarter III 2026")
+
+B("h3", text="Chemical Management Unit")
+B("para", text="The Chemical Management Unit maintained strong licensing "
+  "performance, issuing thirty-five (35) regulatory instruments against a "
+  "full (100%) response rate on the thirty-eight (38) applications "
+  "received. Outputs included sixteen (16) formal licences (3 chemical "
+  "registration, 5 chemical importation, 5 effluent discharge, 1 fumigation "
+  "and 2 transportation licences) and nineteen (19) chemical "
+  "release/clearances, alongside six (6) chemical escort operations. "
+  "Remaining tasks for the year include the nationwide chemical inventory, "
+  "for which one (1) of sixty (60) target facilities has been completed, "
+  "and chemical disposal licensing, which remains at zero against a target "
+  "of five (5) proponents.")
+B("figure", caption="Breakdown of CMU regulatory instruments issued, "
+  "Quarter III 2026", path=f("figB_cmu_instruments_pie.png"), width=6.3)
+B("para", text="The chart above breaks down the thirty-five (35) regulatory "
+  "instruments issued by the Chemical Management Unit during the third "
+  "quarter. Chemical release/clearances dominate the Unit\u2019s output at "
+  "54.3%, consistent with the pattern observed in Quarter II, and reflect "
+  "the high volume of trade-related regulatory support provided by the Unit.")
+
+B("h3", text="Environmental Monitoring and Research Unit")
+B("para", text="The Environmental Monitoring and Research Unit delivered "
+  "strong field results: thirty-five (35) application letters received and "
+  "responded to, nineteen (19) laboratory results processed, eleven (11) "
+  "certificates printed and eleven (11) issued, one (1) laboratory "
+  "accreditation issued, twenty-six (26) monitoring reports reviewed and "
+  "ninety-one (91) environmental investigations conducted \u2014 the "
+  "highest quarterly investigation count recorded so far in 2026. The "
+  "quarter-over-quarter summary and overall performance grade are presented "
+  "below.")
+B("table",
+  caption="EMRU summary of activities by quarter, 2026",
+  head=["Category", "Quarter I", "Quarter II", "Quarter III"],
+  rows=[
+      ["Number of Foreign Events Attended", "1", "0", "4"],
+      ["Number of Local Events", "0", "0", "3"],
+      ["Number of Environmental Investigations", "51", "66", "91"],
+      ["Number of Local Trainings Conducted", "0", "0", "0"],
+      ["Number of Sachet Water applications received", "84", "31", "35"],
+      ["Number of Sachet Water responses", "84", "31", "35"],
+      ["Number of Response letters issued", "51", "32", "26"],
+      ["Number of applicants who paid", "49", "37", "14"],
+      ["Number of environmental quality analyses", "53", "36", "91"],
+      ["Laboratory Accreditation", "0", "6", "1"],
+      ["Number of Monitoring activities conducted", "63", "66", "91"],
+      ["Number of Sachet Water certificates issued", "43", "32", "11"],
+      ["Number of Sachet water certificates printed", "75", "36", "11"],
+      ["Number of Site Verifications", "44", "Not separately reported", "0"],
+      ["Number of Laboratory Results", "53", "36", "19"],
+  ],
+  widths=[43, 19, 19, 19], align=["l", "c", "c", "c"],
+  note="Quarter I and Quarter II figures are reproduced from the ERRS Second "
+       "Quarter Report 2026.")
+B("figure", caption="EMRU quarter-on-quarter activity trend, 2026",
+  path=f("figD_emru_quarters.png"), width=6.3)
+B("figure", caption="EMRU operational activity summary, Quarter III 2026",
+  path=f("figC_emru_activity.png"), width=6.3)
+B("table",
+  caption="EMRU overall performance grade, Quarter III 2026",
+  head=["No.", "Output description", "Planned activities", "Indicators",
+        "Targets", "Progress", "Status"],
+  rows=[
+      ["1", "Issue annual laboratory accreditation",
+       "Assess and accredit analytical laboratories",
+       "Number of accreditations issued", "12 laboratories",
+       "1 issued in Q3 (7 cumulative)", "On track"],
+      ["2", "Analyse environmental quality media",
+       "Sample and analyse water, soil and air",
+       "Number of media analysed", "All required facilities",
+       "91 analysed in Q3", "Achieved"],
+      ["3", "Conduct environmental monitoring and investigations",
+       "Field investigations, site verifications, complaint response",
+       "Number of investigations", "All required facilities",
+       "91 conducted in Q3", "Achieved"],
+      ["4", "Review environmental monitoring reports",
+       "Review proponent submissions against national standards",
+       "Number of reports reviewed", "100 proponents",
+       "26 reviewed in Q3 (87 cumulative)", "On track"],
+      ["5", "Issue annual certification to sachet water factories",
+       "Process applications, laboratory testing and certification",
+       "Certificates printed and issued", "All producers",
+       "11 printed and 11 issued in Q3", "Behind target"],
+      ["6", "Conduct site verifications of sachet water proponents",
+       "Field verification of applicant premises",
+       "Number of site verifications", "All applicants",
+       "0 conducted in Q3", "Not started"],
+  ],
+  widths=[6, 16.5, 20.5, 14, 13, 17, 13],
+  align=["c", "l", "l", "l", "l", "l", "c"], small=True)
+
+B("h3", text="Radiation Safety Unit")
+B("para", text="The Radiation Safety Unit concentrated on regulatory "
+  "infrastructure during the quarter, issuing four (4) bills, seven (7) "
+  "importation licences and three (3) possess-and-use licences, and holding "
+  "the Validation Programme for the Draft Radiation Safety Law. No medical "
+  "or industrial facility inventory, inspection or occupational radiation "
+  "safety training was conducted during the quarter, leaving the national "
+  "inventory at eleven (11) of the fifty (50) target facilities and the "
+  "training indicator at zero. The summary of the Unit\u2019s major "
+  "activities for the quarter is presented below.")
+B("table",
+  caption="RSU summary of major activities, Quarter III 2026",
+  head=["Category", "2026\n(Quarter III)", "Annual target\n(2026)",
+        "Total completed", "Percentage completed (%)"],
+  rows=[
+      ["Number of Medical facilities inventoried", "0", "50", "7", DASH],
+      ["Number of industrial facilities inventoried", "0", DASH, "0", DASH],
+      ["Number of Mining Radiation Monitoring and Inventories", "0", DASH, "4",
+       DASH],
+      ["Number of operators/radiographers trained", "0", "50", "0", "0%"],
+      ["Number of trained persons under personnel monitoring", "0", "50", "0",
+       "0%"],
+      ["Number of Publications", "0", "2", "0", "0%"],
+      ["Number of Internal Training(s) Conducted", "0", "N/A", "0", "\u2013"],
+      ["Number of Bills issued", "4", "N/A", "5", "\u2013"],
+      ["Number of Radiation Importation License(s) issued", "7", "N/A", "7",
+       "\u2013"],
+      ["Number of Radiation Possess & Use License(s) issued", "3", "N/A", "3",
+       "\u2013"],
+  ],
+  widths=[40, 15, 15, 15, 15], align=["l", "c", "c", "c", "c"], small=True,
+  note="Reproduced from the RSU Quarter III 2026 submission. Cells shown as "
+       "\u2014 were left blank in the source unit report.")
+
+B("h3", text="Waste and Remediation Unit")
+B("placeholder", title="Pending \u2014 WRU KPI achievements and remaining "
+  "tasks, Quarter III 2026",
+  items=["Waste service providers assessed, registered and classified during "
+         "the quarter (by month).",
+         "Applications responded to and waste certificates issued.",
+         "Progress against KPI 22 (national mapping and registration of 100 "
+         "waste generators and 50 service providers), KPI 23 (environmental "
+         "monitoring at 50 waste facilities), KPI 24 (five public awareness "
+         "campaigns) and KPI 25 (waste management licences to 50 "
+         "providers).",
+         "A figure equivalent to Figure 4 of the Second Quarter Report 2026 "
+         "(WRU waste service provider assessments) will be inserted here."])
+
+B("h3", text="Field Activity Across the Department")
+B("figure", caption="Field investigations, escorts and assessments by unit, "
+  "Quarter III 2026", path=f("figE_field_by_unit.png"), width=6.0)
+B("para", text="The figure compares the primary field-based activities of "
+  "each unit for the quarter. The Environmental Monitoring and Research Unit "
+  "accounted for the overwhelming majority of field activity with ninety-one "
+  "(91) investigations. The Radiation Safety Unit recorded no facility "
+  "inspection or inventory during the quarter, and the Waste and Remediation "
+  "Unit figure is pending its submission.")
+
+# =========================================================================
+#  5.  DETAILED SUMMARY OF UNDERTAKINGS
+# =========================================================================
+B("h1", text="Detailed Summary of Undertakings")
+B("para", style="lead", text="The sections that follow reproduce each "
+  "unit\u2019s Quarter III 2026 submission in full, in the order Chemical "
+  "Management Unit, Environmental Monitoring and Research Unit, Radiation "
+  "Safety Unit and Waste and Remediation Unit. Content, wording and figures "
+  "are carried over from the source unit reports without abridgement.")
+
+B("h2", text="Chemical Management Unit (CMU)")
+B("h3", text="Report Particulars")
 B("table",
   caption="Chemical Management Unit \u2014 report particulars",
   head=["Description", "Detail"],
@@ -132,7 +640,7 @@ B("table",
   widths=[26, 74], align=["l", "l"],
   note="Reporting date reproduced exactly as recorded in the source unit report.")
 
-B("h2", text="Background")
+B("h3", text="Background")
 B("para", text="The Chemical Management Unit is one of the Units in the "
   "Environmental Research and Radiation Safety Department at the Environmental "
   "Protection Agency. In collaboration with relevant sections, units, and "
@@ -168,7 +676,7 @@ B("para", text="This report covers activities beginning in July to September "
   "Transportation, fumigation, and effluent discharge licenses. The unit "
   "conducted critical chemical escort operations.")
 
-B("h2", text="Activities Summary for the Quarter")
+B("h3", text="Activities Summary for the Quarter")
 B("table",
   caption="Activities summary, Chemical Management Unit, Quarter III 2026",
   head=["Indicator", "Number"],
@@ -203,9 +711,9 @@ B("figure", caption="Regulatory instruments issued by the Chemical Management "
 B("figure", caption="Application response performance, Chemical Management "
   "Unit, Quarter III 2026", path=f("fig02_cmu_response.png"), width=3.6)
 
-B("h2", text="Major Deliverables")
+B("h3", text="Major Deliverables")
 
-B("h3", text="Applications Received and Responded To")
+B("h4", text="Applications Received and Responded To")
 B("table",
   caption="Applications received and responded to, CMU, Quarter III 2026",
   head=["No.", "Applicant", "Location"],
@@ -213,7 +721,7 @@ B("table",
   widths=[8, 52, 40], align=["c", "l", "l"], small=True,
   note="Locations shown as \u2014 were not stated in the source unit report.")
 
-B("h3", text="Chemical Registration Licenses Issued")
+B("h4", text="Chemical Registration Licenses Issued")
 B("table",
   caption="Chemical registration licenses issued, CMU, Quarter III 2026",
   head=["No.", "Institution", "Address"],
@@ -222,7 +730,7 @@ B("table",
         ["3", "Jeety Rubber, LLC", "Margibi County"]],
   widths=[10, 50, 40], align=["c", "l", "l"])
 
-B("h3", text="Effluent Discharge Licenses Issued")
+B("h4", text="Effluent Discharge Licenses Issued")
 B("table",
   caption="Effluent discharge licenses issued, CMU, Quarter III 2026",
   head=["No.", "Institution", "Address"],
@@ -233,7 +741,7 @@ B("table",
         ["5", "Bea Mountain Mining Inc. (Matambo Pit)", DASH]],
   widths=[10, 50, 40], align=["c", "l", "l"])
 
-B("h3", text="Chemical Release / Clearances Issued")
+B("h4", text="Chemical Release / Clearances Issued")
 B("table",
   caption="Chemical release and clearances issued, CMU, Quarter III 2026",
   head=["No.", "Institution", "Address"],
@@ -245,21 +753,21 @@ B("table",
   note="The multiplier in parentheses denotes the number of clearances issued "
        "to the proponent, giving the quarter total of nineteen (19) clearances.")
 
-B("h3", text="Fumigation License Issued")
+B("h4", text="Fumigation License Issued")
 B("table",
   caption="Fumigation license issued, CMU, Quarter III 2026",
   head=["No.", "Institution", "Address"],
   rows=[["1", "New Green World", "Russel Avenue, 15\u201316 Streets"]],
   widths=[10, 50, 40], align=["c", "l", "l"])
 
-B("h3", text="Chemical Disposal License Issued")
+B("h4", text="Chemical Disposal License Issued")
 B("table",
   caption="Chemical disposal licenses issued, CMU, Quarter III 2026",
   head=["No.", "Institution", "Address"],
   rows=[["\u2013", "None", "\u2013"]],
   widths=[10, 50, 40], align=["c", "l", "l"])
 
-B("h3", text="Chemical Escorts Conducted")
+B("h4", text="Chemical Escorts Conducted")
 B("table",
   caption="Chemical escort operations conducted, CMU, Quarter III 2026",
   head=["No.", "Chemical escorted", "Date", "Number of trucks"],
@@ -275,14 +783,14 @@ B("table",
 B("figure", caption="Chemical escort operations by consignment and date, "
   "CMU, Quarter III 2026", path=f("fig03_cmu_escorts.png"), width=6.3)
 
-B("h3", text="Chemical Inventory Conducted")
+B("h4", text="Chemical Inventory Conducted")
 B("table",
   caption="Chemical inventory conducted, CMU, Quarter III 2026",
   head=["No.", "Institution", "Address"],
   rows=[["\u2013", "None", "\u2013"]],
   widths=[10, 50, 40], align=["c", "l", "l"])
 
-B("h3", text="Chemical Importation Licenses Issued")
+B("h4", text="Chemical Importation Licenses Issued")
 B("table",
   caption="Chemical importation licenses issued, CMU, Quarter III 2026",
   head=["No.", "Institution", "Address"],
@@ -293,14 +801,14 @@ B("table",
         ["5", "Firestone Liberia, LLC", DASH]],
   widths=[10, 50, 40], align=["c", "l", "l"])
 
-B("h3", text="Chemical Seizure Incidents")
+B("h4", text="Chemical Seizure Incidents")
 B("table",
   caption="Chemical seizure incidents, CMU, Quarter III 2026",
   head=["No.", "Institution", "Address"],
   rows=[["\u2013", "None", "\u2013"]],
   widths=[10, 50, 40], align=["c", "l", "l"])
 
-B("h3", text="Chemical Transportation Licenses Issued")
+B("h4", text="Chemical Transportation Licenses Issued")
 B("table",
   caption="Chemical transportation licenses issued, CMU, Quarter III 2026",
   head=["No.", "Institution", "Address"],
@@ -308,7 +816,7 @@ B("table",
         ["2", "Everette Transport Corporation", DASH]],
   widths=[10, 50, 40], align=["c", "l", "l"])
 
-B("h2", text="Other Deliverables")
+B("h3", text="Other Deliverables")
 B("table",
   caption="Other deliverables, CMU, Quarter III 2026",
   head=["Category", "Status"],
@@ -318,7 +826,7 @@ B("table",
         ["Other Activities", DASH]],
   widths=[60, 40], align=["l", "l"])
 
-B("h2", text="Activities Deferred or Planned for the Next Quarter")
+B("h3", text="Activities Deferred or Planned for the Next Quarter")
 B("table",
   caption="Activities deferred or planned for the next quarter, CMU",
   head=["No.", "Activity"],
@@ -329,45 +837,9 @@ B("table",
               "health, environmental quality, and laboratory safety."]],
   widths=[8, 92], align=["c", "l"])
 
-B("h2", text="Challenges or Problems Encountered")
-B("table",
-  caption="Challenges or problems encountered, CMU, Quarter III 2026",
-  head=["No.", "Challenge"],
-  rows=[["1", "Chemical Handler, should be provided with the necessary "
-              "personal protective equipment (PPE) to guarantee their safety "
-              "and compliance with occupational health and safety regulations. "
-              "The current workspace available to the Unit and the ERRS "
-              "Department at large is adequate but lacks better furniture. Due "
-              "to this, the team has not been able to properly organize its "
-              "documents and equipment to perform their activities in the Unit."],
-        ["2", "The Unit is experiencing setbacks in the effective "
-              "implementation of its duties at the Free Port of Monrovia, due "
-              "to the proposed training that is yet to be conducted by the "
-              "National Port Authority (NPA)."]],
-  widths=[8, 92], align=["c", "l"])
 
-B("h2", text="Recommendations / Issues for Immediate Attention")
-B("para", text="The Unit recommends the following:")
-B("table",
-  caption="Recommendations and issues for immediate attention, CMU, "
-          "Quarter III 2026",
-  head=["No.", "Recommendation"],
-  rows=[["1", "The provision of PPE for chemical handlers to mitigate risks "
-              "associated with chemical exposure and enhance the overall safety "
-              "standards within the unit's operations."],
-        ["2", "Improve interdepartmental and unit coordination and "
-              "collaborations."]],
-  widths=[8, 92], align=["c", "l"])
-
-# =========================================================================
-#  PART TWO  —  ENVIRONMENTAL MONITORING AND RESEARCH UNIT
-# =========================================================================
-B("part", num="PART TWO", title="ENVIRONMENTAL MONITORING AND RESEARCH UNIT",
-  subtitle="Third Quarter Report \u2014 2026")
-
-B("h1", text="Environmental Monitoring and Research Unit (EMRU)")
-
-B("h2", text="Report Particulars")
+B("h2", text="Environmental Monitoring and Research Unit (EMRU)")
+B("h3", text="Report Particulars")
 B("table",
   caption="Environmental Monitoring and Research Unit \u2014 report particulars",
   head=["Description", "Detail"],
@@ -382,7 +854,7 @@ B("table",
   ],
   widths=[26, 74], align=["l", "l"])
 
-B("h2", text="Summary of the Unit\u2019s Mandates")
+B("h3", text="Summary of the Unit\u2019s Mandates")
 B("para", text="The Environmental Monitoring and Research Unit (EMR) operates "
   "under the Environmental Research and Radiation Safety Department (ERRS). It "
   "is mandated to conduct environmental research and routine monitoring of key "
@@ -407,7 +879,7 @@ B("para", text="During this quarter, the Environmental Monitoring and Research "
   "and strategic objectives of the Environmental Research and Radiation Safety "
   "Department (ERRS).")
 
-B("h2", text="Key Activities Carried Out During the Review Period")
+B("h3", text="Key Activities Carried Out During the Review Period")
 B("bullets", items=[
     "Analyzed environmental quality media (soil, water, & air)",
     "Monitored facilities.",
@@ -416,7 +888,7 @@ B("bullets", items=[
     "Printed out certificates",
 ])
 
-B("h2", text="Outcomes Achieved")
+B("h3", text="Outcomes Achieved")
 B("para", text="As a result of these activities, the Environmental Monitoring "
   "and Research Unit achieved the following outcomes:")
 B("bullets", items=[
@@ -435,73 +907,9 @@ B("bullets", items=[
     "Conducted six (6) labotaory analysis",
 ])
 
-B("h2", text="Challenges")
-B("para", text="Key challenges faced by the unit during the quarter include, "
-  "but are not limited to:")
-B("bullets", items=[
-    "Monitoring activities are delayed due to poor road conditions, limited "
-    "logistics, and reliance on a personal low-clearance vehicle, which "
-    "restricts access to sites, slows field operations, and poses safety and "
-    "equipment risks.",
-    "Proponent engagement remains low, with late and partially compliant report "
-    "submissions, weakening report tracking, and reducing the value of data for "
-    "timely decision-making.",
-    "Key environmental parameters (NO\u2083, Co, NH\u2084, PM2.5, and consistent "
-    "pH) are frequently missing, alongside variable compliance with national "
-    "standards and EPA benchmarks\u2014highlighting gaps in technical capacity, "
-    "supervision, and enforcement.",
-    "Assigning police personnel during site verifications is recommended to "
-    "strengthen compliance and support smooth field operations.",
-])
-B("para", text="We request that the administration address some of these "
-  "constraints.")
+B("h3", text="Detailed Summary of Undertakings During the Third Quarter 2026")
 
-B("h2", text="Lessons Learned")
-B("para", text="The delegation of tasks has strengthened accountability and "
-  "responsibility within the team, thereby improving overall performance. This "
-  "focused approach has enhanced staff morale and reinforced the mission of the "
-  "ERRS Department. Consequently, unit personnel have developed a comprehensive "
-  "work plan outlining strategic interventions to advance the EPA\u2019s growth "
-  "and development.")
-B("para", text="Nevertheless, the unit\u2019s challenges underscore the pressing "
-  "need for adequate resources and institutional support for environmental "
-  "management and analytical functions. Delays in inspections, shortages of "
-  "critical laboratory reagents and equipment, and insufficient logistical "
-  "support have constrained the unit\u2019s operational effectiveness. These "
-  "limitations compromise the timeliness and accuracy of environmental "
-  "assessments and impede the unit\u2019s capacity to address emerging "
-  "environmental issues.")
-
-B("h2", text="Recommendations")
-B("para", text="To address these challenges and enhance the unit's efficacy, "
-  "the following recommendations are proposed:")
-B("bullets", items=[
-    "Strengthen reporting compliance through clear deadlines, legal "
-    "enforcement, and structured follow-up for late submissions.",
-    "Mandate complete parameter reporting, with emphasis on NO\u2083 and "
-    "consistent pH monitoring across all proponents.",
-    "Provide technical guidance and capacity building to improve data quality "
-    "and regulatory adherence.",
-    "Enhance routine monitoring through spot checks, periodic audits, and "
-    "expanded digital reporting systems for timely, complete, and real-time "
-    "surveillance.",
-    "Escalate corrective actions by enforcing action plans and prioritizing "
-    "repeat non-compliant sites in line with EPA frameworks.",
-    "Utilize the EPA vehicle to improve field mobility, productivity, and "
-    "timely completion of activities.",
-    "Provide additional computers and software to accelerate data processing "
-    "and reporting, strengthening overall monitoring, analysis, and response "
-    "capacity.",
-])
-B("para", text="The provision of additional computers and software will improve "
-  "the timely delivery of results. With adequate resources, strategic planning, "
-  "and targeted investment, the unit can overcome current challenges, "
-  "strengthen environmental monitoring, analysis, and response, and more "
-  "effectively fulfill its mandate to protect environmental quality.")
-
-B("h2", text="Detailed Summary of Undertakings During the Third Quarter 2026")
-
-B("h3", text="Foreign Meetings, Trainings or Workshops Attended by Staff")
+B("h4", text="Foreign Meetings, Trainings or Workshops Attended by Staff")
 B("table",
   caption="Foreign meetings, trainings or workshops attended by staff of EMR",
   head=["Indicator", "Number"],
@@ -509,7 +917,7 @@ B("table",
         ["Total number of staff who attended foreign events", "4"]],
   widths=[74, 26], align=["l", "c"])
 
-B("h3", text="Domestic Meetings, Trainings or Workshops Attended by Staff")
+B("h4", text="Domestic Meetings, Trainings or Workshops Attended by Staff")
 B("table",
   caption="Domestic meetings, trainings or workshops attended by staff of EMR",
   head=["Indicator", "Number"],
@@ -517,7 +925,7 @@ B("table",
         ["Total number of staff who attended local events", "3"]],
   widths=[74, 26], align=["l", "c"])
 
-B("h3", text="Environmental Investigations and Monitoring Conducted")
+B("h4", text="Environmental Investigations and Monitoring Conducted")
 B("para", text="The Unit conducted ninety-one (91) environmental investigation "
   "and monitoring activities during the quarter. The full schedule of "
   "undertakings is set out below.")
@@ -533,7 +941,7 @@ B("figure", caption="Environmental investigations and monitoring activities by "
   "month, EMR Unit, Quarter III 2026", path=f("fig06_emr_investigations.png"),
   width=5.4)
 
-B("h3", text="Training Conducted by Staff of the ERRS Department")
+B("h4", text="Training Conducted by Staff of the ERRS Department")
 B("table",
   caption="Training conducted by staff of the ERRS Department",
   head=["S/N", "Staff / Division facilitating",
@@ -543,7 +951,7 @@ B("table",
         ["", "Total number of trainings conducted", "0"]],
   widths=[8, 32, 60], align=["c", "l", "l"], total_row=True)
 
-B("h3", text="Laboratory Accreditation Issued")
+B("h4", text="Laboratory Accreditation Issued")
 B("table",
   caption="Laboratory accreditation issued, EMR Unit, Quarter III 2026",
   head=["S/N", "Company", "Location"],
@@ -551,7 +959,7 @@ B("table",
         ["", "Total number of lab accreditation issued", "1"]],
   widths=[10, 50, 40], align=["c", "l", "l"], total_row=True)
 
-B("h3", text="Complaints Received")
+B("h4", text="Complaints Received")
 B("table",
   caption="Complaints received by the EMR Unit, Quarter III 2026",
   head=["S/N", "Proponent", "Location", "Nature of complaint"],
@@ -582,9 +990,9 @@ B("table",
 B("figure", caption="Complaints received by nature of complaint, EMR Unit, "
   "Quarter III 2026", path=f("fig08_emr_complaints.png"), width=5.6)
 
-B("h2", text="Sachet Water Third Quarter Report, July \u2013 September 2026")
+B("h3", text="Sachet Water Third Quarter Report, July \u2013 September 2026")
 
-B("h3", text="Total Applications Received and Responded To")
+B("h4", text="Total Applications Received and Responded To")
 B("table",
   caption="Sachet water applications received and responded to, "
           "July \u2013 September 2026",
@@ -597,7 +1005,7 @@ B("table",
   note="The serial number 32 appears twice in the source unit report; both "
        "entries are reproduced unchanged.")
 
-B("h3", text="Total Response Letters Picked Up")
+B("h4", text="Total Response Letters Picked Up")
 B("table",
   caption="Sachet water response letters picked up, July \u2013 September 2026",
   head=["No.", "Company name", "Location", "Comments", "Recommendations"],
@@ -606,7 +1014,7 @@ B("table",
   widths=[6, 22, 21, 22, 29], align=["c", "l", "l", "l", "l"], small=True,
   total_row=True)
 
-B("h3", text="Total Applicants That Paid")
+B("h4", text="Total Applicants That Paid")
 B("table",
   caption="Sachet water applicants that paid, July \u2013 September 2026",
   head=["No.", "Company name", "Proponent name", "Location", "Contacts"],
@@ -615,7 +1023,7 @@ B("table",
   widths=[6, 24, 20, 30, 20], align=["c", "l", "l", "l", "l"], small=True,
   total_row=True)
 
-B("h3", text="Total Certificates Printed Out")
+B("h4", text="Total Certificates Printed Out")
 B("table",
   caption="Sachet water certificates printed out, July \u2013 September 2026",
   head=["No.", "Company name", "Proponent name", "Location", "Contacts"],
@@ -624,7 +1032,7 @@ B("table",
   widths=[6, 24, 20, 30, 20], align=["c", "l", "l", "l", "l"], small=True,
   total_row=True)
 
-B("h3", text="Total Certificates Issued")
+B("h4", text="Total Certificates Issued")
 B("table",
   caption="Sachet water certificates issued, July \u2013 September 2026",
   head=["No.", "Company name", "Owner name", "Location", "Contact"],
@@ -633,7 +1041,7 @@ B("table",
   widths=[6, 24, 20, 30, 20], align=["c", "l", "l", "l", "l"], small=True,
   total_row=True)
 
-B("h3", text="Total Lab Results Received")
+B("h4", text="Total Lab Results Received")
 B("table",
   caption="Sachet water laboratory results received, July \u2013 September 2026",
   head=["No.", "Company name", "Owner\u2019s name", "Location"],
@@ -642,7 +1050,7 @@ B("table",
   widths=[7, 28, 25, 40], align=["c", "l", "l", "l"], small=True,
   total_row=True)
 
-B("h3", text="Total Site Verifications")
+B("h4", text="Total Site Verifications")
 B("table",
   caption="Sachet water site verifications, July \u2013 September 2026",
   head=["No.", "Proponent name", "Location"],
@@ -651,7 +1059,7 @@ B("table",
   widths=[10, 45, 45], align=["c", "l", "l"], total_row=True,
   note="Total reproduced exactly as stated in the source unit report.")
 
-B("h3", text="Summary of Sachet Water Activities")
+B("h4", text="Summary of Sachet Water Activities")
 B("table",
   caption="Summary of sachet water activities, EMR Unit, Quarter III 2026",
   head=["Activity", "Frequency"],
@@ -670,7 +1078,7 @@ B("figure", caption="Sachet water certification workflow, EMR Unit, "
 B("figure", caption="Sachet water certification pipeline, EMR Unit, "
   "Quarter III 2026", path=f("fig05_emr_sachet_pipeline.png"), width=6.3)
 
-B("h2", text="Laboratory Analysis Conducted During July \u2013 September 2026")
+B("h3", text="Laboratory Analysis Conducted During July \u2013 September 2026")
 B("para", text="Activities description: laboratory analysis conducted and "
   "parameters analyzed for:")
 B("table",
@@ -708,7 +1116,7 @@ B("table",
 B("figure", caption="Samples analysed per laboratory exercise, EMR Unit, "
   "Quarter III 2026", path=f("fig09_emr_lab_samples.png"), width=6.3)
 
-B("h2", text="Laboratory Accreditation \u2014 Third Quarter Report "
+B("h3", text="Laboratory Accreditation \u2014 Third Quarter Report "
               "(July \u2013 September)")
 B("table",
   caption="Laboratory accreditation record, EMR Unit, Quarter III 2026",
@@ -729,7 +1137,7 @@ B("table",
   widths=[34, 66], align=["l", "l"],
   note="All values reproduced exactly as recorded in the source unit report.")
 
-B("h3", text="Administrative Notes")
+B("h4", text="Administrative Notes")
 B("bullets", items=[
     "Application Date: Date the written application/expression of interest is "
     "officially received.",
@@ -741,8 +1149,8 @@ B("bullets", items=[
     "with the approved validity period.",
 ])
 
-B("h2", text="Third Quarter Surveillance Reports")
-B("h3", text="Summary of the Third Quarter, 2026")
+B("h3", text="Third Quarter Surveillance Reports")
+B("h4", text="Summary of the Third Quarter, 2026")
 B("bullets", items=[
     "Total number of reports received = 26",
     "Diseases or events reported = Water Quality; Soil Quality; Air Quality",
@@ -750,7 +1158,7 @@ B("bullets", items=[
     "Number of reporting site/proponents that did not report = n/a",
 ])
 
-B("h3", text="Summary of July, 2026")
+B("h4", text="Summary of July, 2026")
 B("bullets", items=[
     "Total number of reports received = 7",
     "Diseases or events reported = Water Quality; Soil Quality; Air Quality",
@@ -852,7 +1260,7 @@ B("table",
        "reported by each proponent.")
 B("landscape_off")
 
-B("h3", text="Summary of August 2026")
+B("h4", text="Summary of August 2026")
 B("bullets", items=[
     "Total number of reports received = 11",
     "Diseases or events reported = Water Quality; Soil Quality; Air Quality",
@@ -888,7 +1296,421 @@ B("table",
 B("figure", caption="Timeliness of proponent reporting to the EMR Unit, "
   "Quarter III 2026", path=f("fig07_emr_reporting_quality.png"), width=6.3)
 
-B("h2", text="Annex and Pictorials")
+
+B("h3", text="Outstanding Surveillance Returns")
+B("placeholder", title="Pending \u2014 EMRU surveillance returns for "
+  "Quarter III 2026",
+  items=["September 2026 monthly surveillance summary and reporting-quality "
+         "tables (water, soil and air) were not included in the source "
+         "submission.",
+         "Air quality timeliness and completeness tables for July and August "
+         "2026, equivalent to Tables 39, 46 and 53 of the Second Quarter "
+         "Report 2026, were not provided.",
+         "Soil quality timeliness and completeness table for August 2026 was "
+         "not provided.",
+         "Site-specific water quality results tables, equivalent to Tables "
+         "28\u201334 of the Second Quarter Report 2026, were not provided; "
+         "the source report lists the laboratory exercises and the "
+         "parameters analysed but not the measured values.",
+         "Summary of water, soil and air quality analysis reported by each "
+         "proponent for August and September 2026."])
+
+B("h2", text="Radiation Safety Unit (RSU)")
+B("h3", text="Report Particulars")
+B("table",
+  caption="Radiation Safety Unit \u2014 report particulars",
+  head=["Description", "Detail"],
+  rows=[["Report title", "Radiation Safety Unit Report (Quarter III)"],
+        ["Date", "September 28, 2026"],
+        ["Reporting period", "Quarter III (July \u2013 September 2026)"],
+        ["Reporting quarter", "Quarter III, 2026"],
+        ["Director of the Department", "Mr. Rafael S. Ngumbu, Sr."],
+        ["Contact number", "0775764953"],
+        ["Email", "rngumbu@epa.gov.lr  /  rafaelngumbu@yahoo.com"]],
+  widths=[26, 74], align=["l", "l"])
+
+B("h3", text="Unit Staff")
+B("table",
+  caption="Radiation Safety Unit staff",
+  head=["Name", "Position"],
+  rows=[["Varney Evanson Armah", "Assistant Director, RSU"],
+        ["Mildred Chuka Piah", "Radiation Safety Laboratory Supervisor"],
+        ["Amula B. Dorley", "Radiation Safety Laboratory Technician, Medical "
+                            "and Industrial (pending)"],
+        ["Abubakar Jawo", "Radiation Safety Laboratory Technician, Medical and "
+                          "Industrial (pending)"],
+        ["Korpo F. Kollie", "Support Staff"]],
+  widths=[34, 66], align=["l", "l"])
+
+B("h3", text="Summary of the Unit\u2019s Responsibilities")
+B("para", text="The Radiation Safety Unit is charged with the responsibility of "
+  "coordinating and driving every activity related to Importation, Exportation, "
+  "Possess, Use, Transfer, Disposal, and Monitoring of radiation sources within "
+  "the country. The Unit, through the Department of Environmental Research and "
+  "Radiation Safety, documents and reports Regulatory Information of Interest "
+  "to External Parties (e.g., the International Atomic Energy Agency, AFRA) as "
+  "part of the country\u2019s international obligations.")
+B("para", text="The responsibilities of the Unit are as follows:")
+B("bullets", items=[
+    "To coordinate the drafting, finalization, and validation of the "
+    "Radiation/Nuclear Law of Liberia.",
+    "Conduct Inspection of radiation sources.",
+    "To conduct a Nationwide Radiation source inventory at medical and "
+    "industrial facilities.",
+    "To document the Radiation sources inventory data for the status and "
+    "location of sources throughout the country.",
+    "To conduct basic occupational radiation safety and protection training for "
+    "operators of radiation-generating devices/sources in medical and "
+    "industrial activities involving the use of ionizing radiation.",
+    "To prepare and to issue licenses for institutions possessing "
+    "radiation-generating devices/sources.",
+    "To update Liberia\u2019s RASIMS database for reporting to the country\u2019s "
+    "Technical Officer at IAEA.",
+    "To integrate data and document information of sub-projects coordinated by "
+    "various counterparts within the Agency.",
+])
+
+B("h3", text="Outstanding Achievements During Quarter III of 2026 Under Review")
+B("numbers", items=[
+    "Attended the IAEA Fellowship on Notification and Authorization in "
+    "Ethiopia, July 1\u201331, 2026",
+    "Prepared Licenses for applicants",
+    "Prepared and sent non-compliance notices to facilities operating "
+    "radiation-emitting equipment",
+    "Attended the IAEA Fellowship on Inspection and Enforcement in Tanzania, "
+    "August 1\u201331, 2026",
+    "Participated in the Regional Training on Radiation Protection in the "
+    "Context of Non-Medical Human Imaging, Inspection Devices and Consumer "
+    "Products in Dar Es Salaam, Tanzania, from July 20\u201324, 2026",
+    "Drafted several regulatory documents (Inspection Manual, Guidelines for "
+    "operating imaging equipment, and five (05) Inspection Checklists)",
+    "Calibrated equipment of the Radiation Safety Lab (survey meters, "
+    "IdentiFinder)",
+    "Organized and held the Validation Program for the Draft Radiation Safety "
+    "Law",
+    "Resolved issues with the RAIS system with support from the IAEA",
+    "Participated in the Africa CDC/One Health Workshop on the Development of "
+    "Liberia National Laboratory Policy & Strategic Plan (2026\u20132030) "
+    "(one person)",
+    "Participated in the Advanced QuickBooks Training for Finance Staff "
+    "(one person)",
+    "Held meetings with applicants and licensees to discuss non-compliance "
+    "issues",
+    "Participated in several site verification visits organized by the ESIA",
+    "Reviewed and responded to applications for radiation licenses",
+    "Identified Health and Industrial facilities for inspection and inventory",
+    "Sent follow-up communications to facilities that have not completed the "
+    "licensing process",
+    "Prepared and followed up on the requests of the Unit",
+    "Updated a database for facilities with radiation sources",
+    "Updated the Communication Database of the Unit",
+    "Participated in several ESIA Technical Review Sittings.",
+    "Prepared the Unit\u2019s quarterly report",
+])
+
+B("h3", text="RSU Activities During Quarter III of 2026")
+
+B("h4", text="Radiation Bills Issued")
+B("table",
+  caption="Radiation bills issued, RSU, Quarter III 2026",
+  head=["No.", "Institution", "Location"],
+  rows=[["1", "BMMC", "New Liberty Gold Mine, Grand Cape Mount County, Liberia."],
+        ["2", "Jahmale Medical Solutions",
+         "AB Tolbert Road, ELWA Junction, Paynesville City"],
+        ["3", "SDA Cooper Hospital", "12th Street, Sinkor"],
+        ["4", "Capital Link", "Buchanan, Grand Bassa County"]],
+  widths=[8, 34, 58], align=["c", "l", "l"])
+
+B("h4", text="Radiation Licenses Issued")
+B("table",
+  caption="Radiation licenses issued, RSU, Quarter III 2026",
+  head=["Institution", "Type of licenses", "Number of licenses"],
+  rows=[["Bea Mountain Mining Corporation (BMMC)", "Importation Licenses", "7"],
+        ["AMI Expeditionary Health Care", "Possess and Use Licenses", "1"],
+        ["ArcelorMittal", "Possess and Use", "2"],
+        ["Total", "", "10"]],
+  widths=[46, 34, 20], align=["l", "l", "c"], total_row=True)
+B("figure", caption="Radiation licenses issued by institution and type, RSU, "
+  "Quarter III 2026", path=f("fig11_rsu_licences.png"), width=6.0)
+
+B("h4", text="National Basic Occupational Radiation Safety and Protection "
+              "Training")
+B("table",
+  caption="National basic occupational radiation safety and protection "
+          "training, RSU, Quarter III 2026",
+  head=["Institution", "Number of persons trained", "Location", "Date"],
+  rows=[["None", "\u2013", DASH, "\u2013"]],
+  widths=[34, 24, 24, 18], align=["l", "c", "l", "c"])
+
+B("h4", text="Environmental, Industrial and Medical Radiation Facilities "
+              "Inspected")
+B("table",
+  caption="Environmental, industrial and medical radiation facilities inspected "
+          "in Quarter III, 2026",
+  head=["Facility name and location", "Facility type", "Date"],
+  rows=[[DASH, DASH, DASH]],
+  widths=[50, 28, 22], align=["l", "l", "c"],
+  note="No entries were recorded against this table in the source unit report.")
+
+B("h4", text="Medical and Industrial Facilities Inventoried")
+B("table",
+  caption="Medical and industrial facilities inventoried during Quarter III, "
+          "2026",
+  head=["Facility\u2019s name and location", "Facility type", "Date"],
+  rows=[[DASH, DASH, DASH]],
+  widths=[50, 28, 22], align=["l", "l", "c"],
+  note="No entries were recorded against this table in the source unit report.")
+
+B("h4", text="Staff Trained During Quarter III 2026")
+B("table",
+  caption="Staff trained during Quarter III 2026, RSU",
+  head=["S/N", "Name of staff", "Location", "Category"],
+  rows=[["1.", "Varney E. Armah", "Ethiopia", "In-person"],
+        ["2.", "Mildred Chuka Piah", "Tanzania", "In-person"],
+        ["3.", "Abubakar Jawo", "Tanzania", "In-person"]],
+  widths=[10, 40, 25, 25], align=["c", "l", "l", "l"])
+
+B("h4", text="Summary of Major Activities")
+B("table",
+  caption="Summary of major activities, RSU, Quarter III 2026",
+  head=["Category", "2026\n(Quarter III)", "Annual target\n(2026)",
+        "Total completed", "Percentage completed (%)"],
+  rows=[
+      ["Number of Medical facilities inventoried", "0", "50", "7", DASH],
+      ["Number of industrial facilities inventoried", "0", DASH, "0", DASH],
+      ["Number of Mining Radiation Monitoring and Inventories", "0", DASH, "4",
+       DASH],
+      ["Number of operators/radiographers trained", "0", "50", "0", "0%"],
+      ["Number of trained persons under personnel monitoring", "0", "50", "0",
+       "0%"],
+      ["Number of Publications", "0", "2", "0", "0%"],
+      ["Number of Internal Training(s) Conducted", "0", "N/A", "0", "\u2013"],
+      ["Number of Bills issued", "4", "N/A", "5", "\u2013"],
+      ["Number of Radiation Importation License(s) issued", "7", "N/A", "7",
+       "\u2013"],
+      ["Number of Radiation Possess & Use License(s) issued", "3", "N/A", "3",
+       "\u2013"],
+  ],
+  widths=[40, 15, 15, 15, 15], align=["l", "c", "c", "c", "c"], small=True,
+  note="Cells shown as \u2014 were left blank in the source unit report.")
+B("figure", caption="Quarter III output against annual targets, RSU, 2026",
+  path=f("fig12_rsu_targets.png"), width=6.3)
+B("figure", caption="Regulatory output of the Radiation Safety Unit, "
+  "Quarter III 2026", path=f("fig13_rsu_instruments.png"), width=6.3)
+
+B("h2", text="Waste and Remediation Unit (WRU)")
+B("placeholder", title="Pending \u2014 WRU detailed summary of undertakings, "
+  "Quarter III 2026",
+  items=["Activities summary for the quarter (July\u2013September 2026).",
+         "Outstanding achievements table, equivalent to Table 56 of the "
+         "Second Quarter Report 2026.",
+         "Waste service providers registered \u2014 July 2026, August 2026 "
+         "and September 2026 (three tables, equivalent to Tables "
+         "57\u201359 of the Second Quarter Report 2026).",
+         "Applications responded to during the quarter, equivalent to Table "
+         "60 of the Second Quarter Report 2026.",
+         "Waste certificates issued during the quarter, equivalent to Table "
+         "61 of the Second Quarter Report 2026."])
+
+# =========================================================================
+#  6.  CHALLENGES
+# =========================================================================
+B("h1", text="Challenges")
+
+B("h2", text="Chemical Management Unit (CMU)")
+B("bullets", items=[
+    "Lack of Personal Protective Equipment (PPE): chemical handlers should "
+    "be provided with the necessary personal protective equipment to "
+    "guarantee their safety and compliance with occupational health and "
+    "safety regulations.",
+    "Inadequate workspace furniture: the current workspace available to the "
+    "Unit and the ERRS Department at large is adequate but lacks better "
+    "furniture. Due to this, the team has not been able to properly "
+    "organize its documents and equipment to perform their activities in "
+    "the Unit.",
+    "Free Port implementation setbacks: the Unit is experiencing setbacks in "
+    "the effective implementation of its duties at the Free Port of "
+    "Monrovia, due to the proposed training that is yet to be conducted by "
+    "the National Port Authority (NPA).",
+])
+
+B("h2", text="Environmental Monitoring and Research Unit (EMRU)")
+B("para", text="Key challenges faced by the unit during the quarter include, "
+  "but are not limited to:")
+B("bullets", items=[
+    "Monitoring activities are delayed due to poor road conditions, limited "
+    "logistics, and reliance on a personal low-clearance vehicle, which "
+    "restricts access to sites, slows field operations, and poses safety and "
+    "equipment risks.",
+    "Proponent engagement remains low, with late and partially compliant "
+    "report submissions, weakening report tracking, and reducing the value "
+    "of data for timely decision-making.",
+    "Key environmental parameters (NO\u2083, Co, NH\u2084, PM2.5, and "
+    "consistent pH) are frequently missing, alongside variable compliance "
+    "with national standards and EPA benchmarks\u2014highlighting gaps in "
+    "technical capacity, supervision, and enforcement.",
+    "Assigning police personnel during site verifications is recommended to "
+    "strengthen compliance and support smooth field operations.",
+])
+B("para", text="We request that the administration address some of these "
+  "constraints.")
+B("h3", text="Lessons Learned")
+B("para", text="The delegation of tasks has strengthened accountability and "
+  "responsibility within the team, thereby improving overall performance. "
+  "This focused approach has enhanced staff morale and reinforced the "
+  "mission of the ERRS Department. Consequently, unit personnel have "
+  "developed a comprehensive work plan outlining strategic interventions to "
+  "advance the EPA\u2019s growth and development.")
+B("para", text="Nevertheless, the unit\u2019s challenges underscore the "
+  "pressing need for adequate resources and institutional support for "
+  "environmental management and analytical functions. Delays in "
+  "inspections, shortages of critical laboratory reagents and equipment, "
+  "and insufficient logistical support have constrained the unit\u2019s "
+  "operational effectiveness. These limitations compromise the timeliness "
+  "and accuracy of environmental assessments and impede the unit\u2019s "
+  "capacity to address emerging environmental issues.")
+
+B("h2", text="Radiation Safety Unit (RSU)")
+B("bullets", items=[
+    "Insufficient number of vehicles for the ERRS department to conduct "
+    "inventory and inspections at facilities possessing radiation-generating "
+    "devices/sources in the counties.",
+    "Delay in the publication of the draft Regulation to support and affirm "
+    "full regulatory activities.",
+    "Inadequacy of training for RSU staff in the operation of the RADKOR "
+    "Dosimetry System for personnel dose assessment and reporting.",
+    "Insufficient training in the use of RASIMS to report on the "
+    "country\u2019s TSAs. Full establishment of regulatory control to "
+    "designate responsibilities for reporting internally (nationally).",
+    "Insufficiency in the number of competent staff within the Unit.",
+])
+
+B("h2", text="Waste and Remediation Unit (WRU)")
+B("placeholder", title="Pending \u2014 WRU challenges, Quarter III 2026",
+  items=["To be inserted on receipt of the Unit\u2019s Quarter III "
+         "submission. The Second Quarter Report 2026 recorded limited "
+         "logistics (computers, vehicles and fuel), poor internet service "
+         "and no printer, insufficient staffing, lack of scratch cards for "
+         "communication with proponents, and delays in processing "
+         "documentation from receipt to certification."])
+
+# =========================================================================
+#  7.  RECOMMENDATIONS
+# =========================================================================
+B("h1", text="Recommendations")
+
+B("h2", text="Chemical Management Unit (CMU)")
+B("para", text="The Unit recommends the following:")
+B("bullets", items=[
+    "The provision of PPE for chemical handlers to mitigate risks "
+    "associated with chemical exposure and enhance the overall safety "
+    "standards within the unit's operations.",
+    "Improve interdepartmental and unit coordination and collaborations.",
+])
+
+B("h2", text="Environmental Monitoring and Research Unit (EMRU)")
+B("para", text="To address these challenges and enhance the unit's efficacy, "
+  "the following recommendations are proposed:")
+B("bullets", items=[
+    "Strengthen reporting compliance through clear deadlines, legal "
+    "enforcement, and structured follow-up for late submissions.",
+    "Mandate complete parameter reporting, with emphasis on NO\u2083 and "
+    "consistent pH monitoring across all proponents.",
+    "Provide technical guidance and capacity building to improve data "
+    "quality and regulatory adherence.",
+    "Enhance routine monitoring through spot checks, periodic audits, and "
+    "expanded digital reporting systems for timely, complete, and real-time "
+    "surveillance.",
+    "Escalate corrective actions by enforcing action plans and prioritizing "
+    "repeat non-compliant sites in line with EPA frameworks.",
+    "Utilize the EPA vehicle to improve field mobility, productivity, and "
+    "timely completion of activities.",
+    "Provide additional computers and software to accelerate data processing "
+    "and reporting, strengthening overall monitoring, analysis, and response "
+    "capacity.",
+])
+B("para", text="The provision of additional computers and software will "
+  "improve the timely delivery of results. With adequate resources, "
+  "strategic planning, and targeted investment, the unit can overcome "
+  "current challenges, strengthen environmental monitoring, analysis, and "
+  "response, and more effectively fulfill its mandate to protect "
+  "environmental quality.")
+
+B("h2", text="Radiation Safety Unit (RSU)")
+B("para", text="Recommendations and opportunities for the next period:")
+B("bullets", items=[
+    "Acquire the support of Management to publish the draft regulation;",
+    "Sign and publish the drafted Radiation Fees Schedule (Schedule 5)",
+    "Increase national inventory coverage to about 85% for medical and "
+    "industrial practices involving the use of radiation in Liberia.",
+    "Follow up with the IAEA on the request for the operation of the OSLD "
+    "machine for dose assessment.",
+    "Provide basic occupational radiation safety training to all medical "
+    "facilities in Liberia and its proximity whose activities and practices "
+    "involve the use of ionizing radiation.",
+    "Attract more foreign training courses to enhance the skill set and "
+    "competence of RSU staff.",
+    "Recruit new radiation protection staff or transfer trained radiation "
+    "protection staff to the unit.",
+])
+
+B("h2", text="Waste and Remediation Unit (WRU)")
+B("placeholder", title="Pending \u2014 WRU recommendations, Quarter III 2026",
+  items=["To be inserted on receipt of the Unit\u2019s Quarter III "
+         "submission."])
+
+# =========================================================================
+#  8.  CONCLUSION
+# =========================================================================
+B("h1", text="Conclusion")
+B("para", text="The third quarter of 2026 marked a period of sustained "
+  "regulatory action and operational delivery for the Environmental "
+  "Research and Radiation Safety (ERRS) Department. Across its core "
+  "mandates of environmental monitoring, chemical management and radiation "
+  "safety, the reporting units demonstrated continued commitment to "
+  "safeguarding Liberia\u2019s environmental integrity and public health.")
+B("para", text="The Chemical Management Unit maintained full operational "
+  "responsiveness, issuing thirty-five (35) regulatory instruments against "
+  "a one hundred percent (100%) response rate on thirty-eight (38) "
+  "applications, and conducting six (6) chemical escort operations covering "
+  "eighty-eight (88) trucks of hazardous consignments. Two of its annual "
+  "licensing targets \u2014 chemical registration and importation, and "
+  "chemical transportation \u2014 have now been met and exceeded for 2026.")
+B("para", text="The Environmental Monitoring and Research Unit recorded its "
+  "strongest field quarter of the year, conducting ninety-one (91) "
+  "environmental investigations and analysing ninety-one (91) environmental "
+  "quality media, while managing the sachet water certification pipeline "
+  "from thirty-five (35) applications through to eleven (11) certificates "
+  "issued. Persistent challenges with delayed proponent reporting and "
+  "incomplete parameter coverage nonetheless continued to limit the "
+  "evidential value of the surveillance data.")
+B("para", text="The Radiation Safety Unit advanced its regulatory framework "
+  "by holding the Validation Programme for the Draft Radiation Safety Law, "
+  "drafting an inspection manual, operating guidelines and five (05) "
+  "inspection checklists, calibrating laboratory equipment and resolving "
+  "outstanding RAIS issues with IAEA support, while issuing four (4) bills "
+  "and ten (10) licences. Facility inventory and occupational radiation "
+  "safety training, however, recorded no output during the quarter and "
+  "remain materially behind their annual targets.")
+B("para", text="Across the Department, performance continued to be "
+  "constrained by cross-cutting systemic challenges \u2014 inadequate "
+  "logistical resources (vehicles, fuel and computers), insufficient "
+  "personal protective equipment, and the need for specialised technical "
+  "training in dosimetry, laboratory analysis and regulatory reporting "
+  "systems. Strategic investment in these areas remains imperative to "
+  "enhance the ERRS Department\u2019s operational resilience, ensure "
+  "stricter regulatory compliance, and fully realise its mandate of "
+  "protecting Liberia\u2019s environment in the quarter ahead.")
+B("placeholder", title="Pending \u2014 Waste and Remediation Unit "
+  "contribution to the Conclusion",
+  items=["A closing paragraph covering WRU performance for the quarter will "
+         "be added once the Unit\u2019s report is received."])
+
+# =========================================================================
+#  ANNEX
+# =========================================================================
+B("h1", text="Annex and Pictorials")
+
 B("h3", text="Report on Noise Pollution Investigation Conducted in the Peuto "
               "Dela Torres Compound, Oldest Congo Town, Montserrado County, "
               "Republic of Liberia")
@@ -983,221 +1805,3 @@ B("figure", caption="EPA technical team conducting night-time noise level "
 # =========================================================================
 #  PART THREE  —  RADIATION SAFETY UNIT
 # =========================================================================
-B("part", num="PART THREE", title="RADIATION SAFETY UNIT",
-  subtitle="Quarter III Report \u2014 2026")
-
-B("h1", text="Radiation Safety Unit (RSU)")
-
-B("h2", text="Report Particulars")
-B("table",
-  caption="Radiation Safety Unit \u2014 report particulars",
-  head=["Description", "Detail"],
-  rows=[["Report title", "Radiation Safety Unit Report (Quarter III)"],
-        ["Date", "September 28, 2026"],
-        ["Reporting period", "Quarter III (July \u2013 September 2026)"],
-        ["Reporting quarter", "Quarter III, 2026"],
-        ["Director of the Department", "Mr. Rafael S. Ngumbu, Sr."],
-        ["Contact number", "0775764953"],
-        ["Email", "rngumbu@epa.gov.lr  /  rafaelngumbu@yahoo.com"]],
-  widths=[26, 74], align=["l", "l"])
-
-B("h2", text="Unit Staff")
-B("table",
-  caption="Radiation Safety Unit staff",
-  head=["Name", "Position"],
-  rows=[["Varney Evanson Armah", "Assistant Director, RSU"],
-        ["Mildred Chuka Piah", "Radiation Safety Laboratory Supervisor"],
-        ["Amula B. Dorley", "Radiation Safety Laboratory Technician, Medical "
-                            "and Industrial (pending)"],
-        ["Abubakar Jawo", "Radiation Safety Laboratory Technician, Medical and "
-                          "Industrial (pending)"],
-        ["Korpo F. Kollie", "Support Staff"]],
-  widths=[34, 66], align=["l", "l"])
-
-B("h2", text="Summary of the Unit\u2019s Responsibilities")
-B("para", text="The Radiation Safety Unit is charged with the responsibility of "
-  "coordinating and driving every activity related to Importation, Exportation, "
-  "Possess, Use, Transfer, Disposal, and Monitoring of radiation sources within "
-  "the country. The Unit, through the Department of Environmental Research and "
-  "Radiation Safety, documents and reports Regulatory Information of Interest "
-  "to External Parties (e.g., the International Atomic Energy Agency, AFRA) as "
-  "part of the country\u2019s international obligations.")
-B("para", text="The responsibilities of the Unit are as follows:")
-B("bullets", items=[
-    "To coordinate the drafting, finalization, and validation of the "
-    "Radiation/Nuclear Law of Liberia.",
-    "Conduct Inspection of radiation sources.",
-    "To conduct a Nationwide Radiation source inventory at medical and "
-    "industrial facilities.",
-    "To document the Radiation sources inventory data for the status and "
-    "location of sources throughout the country.",
-    "To conduct basic occupational radiation safety and protection training for "
-    "operators of radiation-generating devices/sources in medical and "
-    "industrial activities involving the use of ionizing radiation.",
-    "To prepare and to issue licenses for institutions possessing "
-    "radiation-generating devices/sources.",
-    "To update Liberia\u2019s RASIMS database for reporting to the country\u2019s "
-    "Technical Officer at IAEA.",
-    "To integrate data and document information of sub-projects coordinated by "
-    "various counterparts within the Agency.",
-])
-
-B("h2", text="Outstanding Achievements During Quarter III of 2026 Under Review")
-B("numbers", items=[
-    "Attended the IAEA Fellowship on Notification and Authorization in "
-    "Ethiopia, July 1\u201331, 2026",
-    "Prepared Licenses for applicants",
-    "Prepared and sent non-compliance notices to facilities operating "
-    "radiation-emitting equipment",
-    "Attended the IAEA Fellowship on Inspection and Enforcement in Tanzania, "
-    "August 1\u201331, 2026",
-    "Participated in the Regional Training on Radiation Protection in the "
-    "Context of Non-Medical Human Imaging, Inspection Devices and Consumer "
-    "Products in Dar Es Salaam, Tanzania, from July 20\u201324, 2026",
-    "Drafted several regulatory documents (Inspection Manual, Guidelines for "
-    "operating imaging equipment, and five (05) Inspection Checklists)",
-    "Calibrated equipment of the Radiation Safety Lab (survey meters, "
-    "IdentiFinder)",
-    "Organized and held the Validation Program for the Draft Radiation Safety "
-    "Law",
-    "Resolved issues with the RAIS system with support from the IAEA",
-    "Participated in the Africa CDC/One Health Workshop on the Development of "
-    "Liberia National Laboratory Policy & Strategic Plan (2026\u20132030) "
-    "(one person)",
-    "Participated in the Advanced QuickBooks Training for Finance Staff "
-    "(one person)",
-    "Held meetings with applicants and licensees to discuss non-compliance "
-    "issues",
-    "Participated in several site verification visits organized by the ESIA",
-    "Reviewed and responded to applications for radiation licenses",
-    "Identified Health and Industrial facilities for inspection and inventory",
-    "Sent follow-up communications to facilities that have not completed the "
-    "licensing process",
-    "Prepared and followed up on the requests of the Unit",
-    "Updated a database for facilities with radiation sources",
-    "Updated the Communication Database of the Unit",
-    "Participated in several ESIA Technical Review Sittings.",
-    "Prepared the Unit\u2019s quarterly report",
-])
-
-B("h2", text="Opportunities for Next Month")
-B("bullets", items=[
-    "Acquire the support of Management to publish the draft regulation;",
-    "Sign and publish the drafted Radiation Fees Schedule (Schedule 5)",
-    "Increase national inventory coverage to about 85% for medical and "
-    "industrial practices involving the use of radiation in Liberia.",
-    "Follow up with the IAEA on the request for the operation of the OSLD "
-    "machine for dose assessment.",
-    "Provide basic occupational radiation safety training to all medical "
-    "facilities in Liberia and its proximity whose activities and practices "
-    "involve the use of ionizing radiation.",
-    "Attract more foreign training courses to enhance the skill set and "
-    "competence of RSU staff.",
-    "Recruit new radiation protection staff or transfer trained radiation "
-    "protection staff to the unit.",
-])
-
-B("h2", text="Challenges")
-B("bullets", items=[
-    "Insufficient number of vehicles for the ERRS department to conduct "
-    "inventory and inspections at facilities possessing radiation-generating "
-    "devices/sources in the counties.",
-    "Delay in the publication of the draft Regulation to support and affirm "
-    "full regulatory activities.",
-    "Inadequacy of training for RSU staff in the operation of the RADKOR "
-    "Dosimetry System for personnel dose assessment and reporting.",
-    "Insufficient training in the use of RASIMS to report on the country\u2019s "
-    "TSAs. Full establishment of regulatory control to designate "
-    "responsibilities for reporting internally (nationally).",
-    "Insufficiency in the number of competent staff within the Unit.",
-])
-
-B("h2", text="RSU Activities During Quarter III of 2026")
-
-B("h3", text="Radiation Bills Issued")
-B("table",
-  caption="Radiation bills issued, RSU, Quarter III 2026",
-  head=["No.", "Institution", "Location"],
-  rows=[["1", "BMMC", "New Liberty Gold Mine, Grand Cape Mount County, Liberia."],
-        ["2", "Jahmale Medical Solutions",
-         "AB Tolbert Road, ELWA Junction, Paynesville City"],
-        ["3", "SDA Cooper Hospital", "12th Street, Sinkor"],
-        ["4", "Capital Link", "Buchanan, Grand Bassa County"]],
-  widths=[8, 34, 58], align=["c", "l", "l"])
-
-B("h3", text="Radiation Licenses Issued")
-B("table",
-  caption="Radiation licenses issued, RSU, Quarter III 2026",
-  head=["Institution", "Type of licenses", "Number of licenses"],
-  rows=[["Bea Mountain Mining Corporation (BMMC)", "Importation Licenses", "7"],
-        ["AMI Expeditionary Health Care", "Possess and Use Licenses", "1"],
-        ["ArcelorMittal", "Possess and Use", "2"],
-        ["Total", "", "10"]],
-  widths=[46, 34, 20], align=["l", "l", "c"], total_row=True)
-B("figure", caption="Radiation licenses issued by institution and type, RSU, "
-  "Quarter III 2026", path=f("fig11_rsu_licences.png"), width=6.0)
-
-B("h3", text="National Basic Occupational Radiation Safety and Protection "
-              "Training")
-B("table",
-  caption="National basic occupational radiation safety and protection "
-          "training, RSU, Quarter III 2026",
-  head=["Institution", "Number of persons trained", "Location", "Date"],
-  rows=[["None", "\u2013", DASH, "\u2013"]],
-  widths=[34, 24, 24, 18], align=["l", "c", "l", "c"])
-
-B("h3", text="Environmental, Industrial and Medical Radiation Facilities "
-              "Inspected")
-B("table",
-  caption="Environmental, industrial and medical radiation facilities inspected "
-          "in Quarter III, 2026",
-  head=["Facility name and location", "Facility type", "Date"],
-  rows=[[DASH, DASH, DASH]],
-  widths=[50, 28, 22], align=["l", "l", "c"],
-  note="No entries were recorded against this table in the source unit report.")
-
-B("h3", text="Medical and Industrial Facilities Inventoried")
-B("table",
-  caption="Medical and industrial facilities inventoried during Quarter III, "
-          "2026",
-  head=["Facility\u2019s name and location", "Facility type", "Date"],
-  rows=[[DASH, DASH, DASH]],
-  widths=[50, 28, 22], align=["l", "l", "c"],
-  note="No entries were recorded against this table in the source unit report.")
-
-B("h3", text="Staff Trained During Quarter III 2026")
-B("table",
-  caption="Staff trained during Quarter III 2026, RSU",
-  head=["S/N", "Name of staff", "Location", "Category"],
-  rows=[["1.", "Varney E. Armah", "Ethiopia", "In-person"],
-        ["2.", "Mildred Chuka Piah", "Tanzania", "In-person"],
-        ["3.", "Abubakar Jawo", "Tanzania", "In-person"]],
-  widths=[10, 40, 25, 25], align=["c", "l", "l", "l"])
-
-B("h3", text="Summary of Major Activities")
-B("table",
-  caption="Summary of major activities, RSU, Quarter III 2026",
-  head=["Category", "2026\n(Quarter III)", "Annual target\n(2026)",
-        "Total completed", "Percentage completed (%)"],
-  rows=[
-      ["Number of Medical facilities inventoried", "0", "50", "7", DASH],
-      ["Number of industrial facilities inventoried", "0", DASH, "0", DASH],
-      ["Number of Mining Radiation Monitoring and Inventories", "0", DASH, "4",
-       DASH],
-      ["Number of operators/radiographers trained", "0", "50", "0", "0%"],
-      ["Number of trained persons under personnel monitoring", "0", "50", "0",
-       "0%"],
-      ["Number of Publications", "0", "2", "0", "0%"],
-      ["Number of Internal Training(s) Conducted", "0", "N/A", "0", "\u2013"],
-      ["Number of Bills issued", "4", "N/A", "5", "\u2013"],
-      ["Number of Radiation Importation License(s) issued", "7", "N/A", "7",
-       "\u2013"],
-      ["Number of Radiation Possess & Use License(s) issued", "3", "N/A", "3",
-       "\u2013"],
-  ],
-  widths=[40, 15, 15, 15, 15], align=["l", "c", "c", "c", "c"], small=True,
-  note="Cells shown as \u2014 were left blank in the source unit report.")
-B("figure", caption="Quarter III output against annual targets, RSU, 2026",
-  path=f("fig12_rsu_targets.png"), width=6.3)
-B("figure", caption="Regulatory output of the Radiation Safety Unit, "
-  "Quarter III 2026", path=f("fig13_rsu_instruments.png"), width=6.3)

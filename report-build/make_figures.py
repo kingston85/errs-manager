@@ -358,3 +358,149 @@ barh(
 print("figures written to", OUT)
 for f in sorted(os.listdir(OUT)):
     print("  ", f)
+
+# =====================================================================
+#  Q2-TEMPLATE FIGURES (progress tracking chapter)
+# =====================================================================
+
+# Figure A: 9M 2026 KPI achievement against annual targets
+kpi_labels = [
+    "Chemical registration &\nimportation licences",
+    "Chemical transportation\nlicences",
+    "Review of proponent\nmonitoring reports",
+    "Fumigation licences",
+    "Laboratory accreditations",
+    "Effluent discharge\nlicences",
+    "Radiation source\ninventory",
+    "Waste management\nlicences (WRU)",
+    "Nationwide chemical\ninventory",
+    "Chemical disposal\nlicences",
+    "Radiation / radiography\ntraining",
+]
+kpi_pct = [115.0, 150.0, 87.0, 80.0, 58.3, 43.3, 22.0, 22.0, 1.7, 0.0, 0.0]
+kpi_pending = [False] * 7 + [True] + [False] * 3
+
+fig, ax = plt.subplots(figsize=(7.4, 5.0))
+y = list(range(len(kpi_labels)))
+cols = []
+for p, pend in zip(kpi_pct, kpi_pending):
+    if pend:
+        cols.append("#B9C2CB")
+    elif p >= 100:
+        cols.append(GREEN)
+    elif p >= 50:
+        cols.append(GREEN_L)
+    elif p >= 25:
+        cols.append(GOLD)
+    else:
+        cols.append(RUST)
+bars = ax.barh(y, kpi_pct, 0.62, color=cols, edgecolor="white", linewidth=0.6)
+ax.axvline(100, color="#8C3B3B", linestyle="--", linewidth=1.4, zorder=4)
+ax.text(101.5, len(kpi_labels) - 0.3, "Annual target  100%", color="#8C3B3B",
+        fontsize=9, fontweight="bold", va="center")
+for b, p, pend in zip(bars, kpi_pct, kpi_pending):
+    lab = "{:.1f}%".format(p) + ("  (Q3 pending)" if pend else "")
+    ax.text(b.get_width() + 2, b.get_y() + b.get_height() / 2, lab,
+            va="center", fontsize=9, fontweight="bold", color="#333333")
+ax.set_yticks(y)
+ax.set_yticklabels(kpi_labels)
+ax.invert_yaxis()
+ax.set_xlim(0, 178)
+ax.set_xlabel("Cumulative achievement against 2026 annual target (%)")
+ax.spines["top"].set_visible(False)
+ax.spines["right"].set_visible(False)
+ax.xaxis.grid(True, color="#E3E6EA", linewidth=0.8)
+ax.set_axisbelow(True)
+fig.savefig(os.path.join(OUT, "figA_kpi_progress.png"))
+plt.close(fig)
+
+# Figure B: breakdown of CMU regulatory instruments, Q3
+inst_lbl = ["Chemical release / clearances", "Chemical importation licences",
+            "Effluent discharge licences", "Chemical registration licences",
+            "Annual transportation licences", "Fumigation licences"]
+inst_val = [19, 5, 5, 3, 2, 1]
+fig, ax = plt.subplots(figsize=(7.6, 4.4))
+wedges, _, autotexts = ax.pie(
+    inst_val, startangle=90, counterclock=False,
+    colors=[GREEN, GREEN_L, BLUE, GOLD, RUST, "#7A6A9B"],
+    autopct=lambda p: "{:.1f}%".format(p), pctdistance=0.70,
+    wedgeprops=dict(edgecolor="white", linewidth=1.6),
+    textprops=dict(color="white", fontsize=10, fontweight="bold"))
+ax.legend(wedges, ["{}  ({})".format(l, v) for l, v in zip(inst_lbl, inst_val)],
+          loc="center left", bbox_to_anchor=(0.98, 0.5), frameon=False,
+          fontsize=9.5)
+ax.set_aspect("equal")
+fig.savefig(os.path.join(OUT, "figB_cmu_instruments_pie.png"))
+plt.close(fig)
+
+# Figure C: EMRU operational activity summary, Q3
+emru_lbl = ["Environmental\ninvestigations", "Environmental media\nanalysed",
+            "Sachet water\napplications", "Monitoring reports\nreviewed",
+            "Lab results\nreceived", "Certificates\nissued",
+            "Laboratory\naccreditations"]
+emru_val = [91, 91, 35, 26, 19, 11, 1]
+fig, ax = plt.subplots(figsize=(7.4, 3.9))
+bars = ax.bar(range(len(emru_lbl)), emru_val, 0.62,
+              color=[GREEN, GREEN, GREEN_L, BLUE, BLUE, GOLD, RUST],
+              edgecolor="white", linewidth=0.6)
+for b, v in zip(bars, emru_val):
+    ax.text(b.get_x() + b.get_width() / 2, b.get_height() + 1.8, v,
+            ha="center", va="bottom", fontsize=10, fontweight="bold",
+            color="#333333")
+ax.set_xticks(range(len(emru_lbl)))
+ax.set_xticklabels(emru_lbl, fontsize=9)
+ax.set_ylabel("Count")
+ax.set_ylim(0, 105)
+_finish(ax)
+fig.savefig(os.path.join(OUT, "figC_emru_activity.png"))
+plt.close(fig)
+
+# Figure D: EMRU quarter-on-quarter trend
+cats_q = ["Environmental\ninvestigations", "Sachet water\napplications",
+          "Certificates\nprinted", "Lab results\nprocessed",
+          "Monitoring reports\nreviewed"]
+q1 = [51, 84, 75, 53, 34]
+q2 = [66, 31, 36, 36, 27]
+q3 = [91, 35, 11, 19, 26]
+fig, ax = plt.subplots(figsize=(7.4, 4.0))
+x = range(len(cats_q))
+w = 0.26
+b1 = ax.bar([i - w for i in x], q1, w, label="Quarter I", color="#9FB8AC")
+b2 = ax.bar(list(x), q2, w, label="Quarter II", color=GREEN_L)
+b3 = ax.bar([i + w for i in x], q3, w, label="Quarter III", color=GREEN)
+for bars in (b1, b2, b3):
+    for b in bars:
+        ax.text(b.get_x() + b.get_width() / 2, b.get_height() + 1.5,
+                int(b.get_height()), ha="center", va="bottom", fontsize=8.6,
+                fontweight="bold", color="#333333")
+ax.set_xticks(list(x))
+ax.set_xticklabels(cats_q, fontsize=9)
+ax.set_ylabel("Count")
+ax.set_ylim(0, 100)
+ax.legend(frameon=False, fontsize=9.5, ncol=3, loc="upper right")
+_finish(ax)
+fig.savefig(os.path.join(OUT, "figD_emru_quarters.png"))
+plt.close(fig)
+
+# Figure E: field investigations and assessments by unit, Q3
+fig, ax = plt.subplots(figsize=(7.0, 3.4))
+unit_lbl = ["EMRU\nenvironmental\ninvestigations", "CMU\nchemical escort\noperations",
+            "RSU\nfacility inspections\n& inventories", "WRU\nfacility\nassessments"]
+unit_val = [91, 6, 0, 0]
+cols = [GREEN, GREEN_L, GOLD, "#B9C2CB"]
+bars = ax.bar(range(4), unit_val, 0.58, color=cols, edgecolor="white",
+              linewidth=0.6)
+labels = ["91", "6", "0", "Pending"]
+for b, lab in zip(bars, labels):
+    ax.text(b.get_x() + b.get_width() / 2, b.get_height() + 1.8, lab,
+            ha="center", va="bottom", fontsize=10, fontweight="bold",
+            color="#333333")
+ax.set_xticks(range(4))
+ax.set_xticklabels(unit_lbl, fontsize=9)
+ax.set_ylabel("Activities conducted")
+ax.set_ylim(0, 105)
+_finish(ax)
+fig.savefig(os.path.join(OUT, "figE_field_by_unit.png"))
+plt.close(fig)
+
+print("Q2-template figures added.")

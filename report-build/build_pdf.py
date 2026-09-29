@@ -79,6 +79,11 @@ ST = {
             textColor=GREEN, spaceBefore=14, spaceAfter=6),
     "h3": S("h3", fontName=FONT_B, fontSize=10.8, leading=14.5,
             textColor=GREEN_L, spaceBefore=11, spaceAfter=4),
+    "h4": S("h4", fontName=FONT_B, fontSize=9.9, leading=13.4,
+            textColor=INK, spaceBefore=9, spaceAfter=3),
+    "phtitle": S("phtitle", fontName=FONT_B, fontSize=9.8, leading=13.4,
+                 textColor=colors.HexColor("#8A6D1F")),
+    "phitem": S("phitem", fontSize=9.3, leading=13, textColor=BODY),
     "cap": S("cap", fontName=FONT_B, fontSize=8.9, leading=12.2,
              textColor=GREEN, spaceBefore=2, spaceAfter=4),
     "figcap": S("figcap", fontName=FONT_B, fontSize=8.9, leading=12.2,
@@ -115,6 +120,9 @@ ST = {
                   alignment=TA_CENTER, textColor=GREEN),
     "covsub": S("covsub", fontName=FONT_B, fontSize=14.5, leading=20,
                 alignment=TA_CENTER, textColor=GOLD),
+    "covkey": S("covkey", fontName=FONT_B, fontSize=10, leading=14,
+                textColor=GREEN),
+    "covval": S("covval", fontSize=10, leading=14, textColor=BODY),
     "covmeta": S("covmeta", fontSize=10.6, leading=16, alignment=TA_CENTER,
                  textColor=BODY),
     "part_num": S("part_num", fontName=FONT_B, fontSize=13, leading=18,
@@ -148,8 +156,9 @@ def esc(t):
 tbl_no = [0]
 fig_no = [0]
 TABLES, FIGURES = [], []
-h1_no, h2_no, h3_no = [0], [0], [0]
+h1_no, h2_no, h3_no, h4_no = [0], [0], [0], [0]
 _bk = [0]
+_olvl = [-1]
 
 
 def bookmark(label):
@@ -167,8 +176,10 @@ class Anchor(Flowable):
 
     def draw(self):
         self.canv.bookmarkPage(self.key)
+        lvl = min(max(0, self.level - 1), _olvl[0] + 1)
+        _olvl[0] = lvl
         self.canv.addOutlineEntry(self.text.replace("<br/>", " "),
-                                  self.key, max(0, self.level), False)
+                                  self.key, lvl, False)
 
 
 
@@ -177,14 +188,17 @@ def _frame_deco(canvas, doc, pw, ph, first=False, plain=False):
     canvas.saveState()
     if not plain:
         # header rule + running title
-        canvas.setFont(FONT, 7.6)
+        canvas.setFont(FONT_B, 7.2)
+        canvas.setFillColor(GREEN)
+        canvas.drawCentredString(pw / 2.0, ph - 12.4 * mm,
+                                 C.META["running_top"])
+        canvas.setFont(FONT, 7.2)
         canvas.setFillColor(MUTED)
-        canvas.drawString(MARGIN_L, ph - 14 * mm, C.META["running_title"])
-        canvas.drawRightString(pw - MARGIN_R, ph - 14 * mm,
-                               C.META["subtitle"])
+        canvas.drawCentredString(pw / 2.0, ph - 15.8 * mm,
+                                 C.META["running_title"])
         canvas.setStrokeColor(RULE)
         canvas.setLineWidth(0.7)
-        canvas.line(MARGIN_L, ph - 16 * mm, pw - MARGIN_R, ph - 16 * mm)
+        canvas.line(MARGIN_L, ph - 17.6 * mm, pw - MARGIN_R, ph - 17.6 * mm)
         # footer
         canvas.setStrokeColor(RULE)
         canvas.line(MARGIN_L, 14 * mm, pw - MARGIN_R, 14 * mm)
@@ -322,6 +336,32 @@ def build_figure(b):
     return [KeepTogether([Spacer(1, 4), img, cap])]
 
 
+def build_placeholder(b):
+    rows = [[Paragraph("PENDING \u2014 " + esc(b["title"]).upper()
+                       if not b["title"].upper().startswith("PENDING")
+                       else esc(b["title"]).upper(), ST["phtitle"])]]
+    items = []
+    for it in b.get("items", []):
+        items.append(Paragraph("<bullet>&bull;</bullet>&nbsp;" + esc(it),
+                               ParagraphStyle("phi", parent=ST["phitem"],
+                                              leftIndent=12, bulletIndent=2,
+                                              spaceAfter=3)))
+    if items:
+        rows.append([items])
+    t = Table(rows, colWidths=[CW], hAlign="LEFT")
+    t.setStyle(TableStyle([
+        ("BACKGROUND", (0, 0), (-1, -1), colors.HexColor("#FDF7E3")),
+        ("BOX", (0, 0), (-1, -1), 0.8, colors.HexColor("#C9A227")),
+        ("LINEBEFORE", (0, 0), (0, -1), 3.2, colors.HexColor("#C9A227")),
+        ("TOPPADDING", (0, 0), (-1, -1), 7),
+        ("BOTTOMPADDING", (0, 0), (-1, -1), 7),
+        ("LEFTPADDING", (0, 0), (-1, -1), 11),
+        ("RIGHTPADDING", (0, 0), (-1, -1), 9),
+        ("VALIGN", (0, 0), (-1, -1), "TOP"),
+    ]))
+    return [Spacer(1, 4), KeepTogether(t), Spacer(1, 12)]
+
+
 def cover_flow():
     out = [Spacer(1, 6 * mm)]
     logo = C.META["logo"]
@@ -333,34 +373,37 @@ def cover_flow():
         im.hAlign = "CENTER"
         out.append(im)
     out += [
-        Spacer(1, 6 * mm),
+        Spacer(1, 5 * mm),
         Paragraph(C.META["agency"], ST["cov1"]),
         Paragraph(C.META["agency2"], ST["cov1"]),
         Paragraph(esc(C.META["address"]), ST["cov2"]),
         Spacer(1, 10 * mm),
         HRule(CW, 1.4, GOLD, 0),
         Spacer(1, 8 * mm),
-        Paragraph(C.META["department"], ST["cov1"]),
-        Spacer(1, 14 * mm),
-        Paragraph(C.META["title"], ST["covtitle"]),
-        Spacer(1, 4 * mm),
-        Paragraph(C.META["subtitle"], ST["covsub"]),
-        Spacer(1, 3 * mm),
-        Paragraph(C.META["period"], ST["covmeta"]),
-        Spacer(1, 12 * mm),
-        HRule(CW, 0.9, RULE, 0),
+        Paragraph(C.META["dept_line1"], ST["covtitle"]),
+        Paragraph(C.META["dept_line2"], ST["covtitle"]),
         Spacer(1, 6 * mm),
-        Paragraph("<b>Constituent unit reports</b>", ST["covmeta"]),
+        Paragraph(C.META["title"], ST["covsub"]),
         Spacer(1, 2 * mm),
-        Paragraph(C.META["units"], ST["covmeta"]),
-        Spacer(1, 10 * mm),
-        Paragraph("<b>Submitted to</b>", ST["covmeta"]),
-        Paragraph(C.META["submitted_to"], ST["covmeta"]),
-        Spacer(1, 14 * mm),
+        Paragraph(C.META["period_line"], ST["covmeta"]),
+        Spacer(1, 9 * mm),
         HRule(CW, 1.4, GOLD, 0),
-        Spacer(1, 4 * mm),
-        Paragraph("Monrovia, Liberia  \u00b7  September 2026", ST["cov2"]),
+        Spacer(1, 8 * mm),
     ]
+    rows = [[Paragraph("<b>%s</b>" % esc(k), ST["covkey"]),
+             Paragraph(esc(v), ST["covval"])]
+            for k, v in C.META["cover_meta"]]
+    t = Table(rows, colWidths=[46 * mm, CW - 46 * mm], hAlign="CENTER")
+    t.setStyle(TableStyle([
+        ("VALIGN", (0, 0), (-1, -1), "TOP"),
+        ("TOPPADDING", (0, 0), (-1, -1), 3.4),
+        ("BOTTOMPADDING", (0, 0), (-1, -1), 3.4),
+        ("LEFTPADDING", (0, 0), (-1, -1), 0),
+        ("LINEBELOW", (0, 0), (-1, -2), 0.3, colors.HexColor("#E4E8EC")),
+    ]))
+    out.append(t)
+    out += [Spacer(1, 8 * mm), HRule(CW, 0.9, RULE, 0), Spacer(1, 3 * mm),
+            Paragraph("Monrovia, Liberia", ST["cov2"])]
     return out
 
 
@@ -428,7 +471,7 @@ def main():
                 story.append(Spacer(1, 4))
             else:
                 h1_no[0] += 1
-                h2_no[0] = h3_no[0] = 0
+                h2_no[0] = h3_no[0] = h4_no[0] = 0
                 label = "%d.  %s" % (h1_no[0], b["text"])
                 key = bookmark(label)
                 story.append(Anchor(1, esc(label), key))
@@ -437,7 +480,7 @@ def main():
                 story.append(Spacer(1, 4))
         elif k == "h2":
             h2_no[0] += 1
-            h3_no[0] = 0
+            h3_no[0] = h4_no[0] = 0
             label = "%d.%d  %s" % (h1_no[0], h2_no[0], b["text"])
             key = bookmark(label)
             story.append(CondPageBreak(34 * mm))
@@ -449,12 +492,25 @@ def main():
                 story.append(Paragraph(esc(b["text"]), ST["h3"]))
             else:
                 h3_no[0] += 1
+                h4_no[0] = 0
                 label = "%d.%d.%d  %s" % (h1_no[0], h2_no[0], h3_no[0],
                                           b["text"])
                 key = bookmark(label)
                 story.append(CondPageBreak(30 * mm))
                 story.append(Anchor(3, esc(label), key))
                 story.append(Paragraph(esc(label), ST["h3"]))
+        elif k == "h4":
+            if b.get("unnumbered"):
+                story.append(CondPageBreak(24 * mm))
+                story.append(Paragraph(esc(b["text"]), ST["h4"]))
+            else:
+                h4_no[0] += 1
+                label = "%d.%d.%d.%d  %s" % (h1_no[0], h2_no[0], h3_no[0],
+                                             h4_no[0], b["text"])
+                story.append(CondPageBreak(28 * mm))
+                story.append(Paragraph(esc(label), ST["h4"]))
+        elif k == "placeholder":
+            story += build_placeholder(b)
         elif k == "para":
             story.append(Paragraph(esc(b["text"]),
                                    ST.get(b.get("style", "body"), ST["body"])))
