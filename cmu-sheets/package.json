@@ -1,0 +1,13 @@
+{
+  "name": "cmu-sheets",
+  "version": "1.0.0",
+  "description": "CMU Database 2026 — interactive Google-Sheets-style web system for the EPA Liberia ERRS Chemical Management Unit, built from CMU_DATABASE Original.xlsx",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "build:data": "python3 tools/build_data.py",
+    "check": "node tools/smoke.js"
+  },
+  "engines": { "node": ">=16" },
+  "license": "ISC"
+}

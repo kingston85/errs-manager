@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CMU Database 2026 — EPA Liberia · ERRS Chemical Management Unit</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%A7%AA%3C/text%3E%3C/svg%3E">
+<link rel="stylesheet" href="/css/app.css">
+</head>
+<body>
+  <header id="topbar">
+    <div class="brand" title="EPA Liberia · ERRS · Chemical Management Unit">
+      <span class="brand-mark">🧪</span>
+      <div class="brand-text">
+        <b>CMU Database</b> <span class="brand-year">2026</span>
+        <small>EPA Liberia · ERRS · Chemical Management Unit</small>
+      </div>
+    </div>
+    <button class="tb-btn" id="btnHome" title="Main Menu (go to the home screen)">🏠 Main Menu</button>
+    <div class="searchwrap">
+      <span class="search-ic">🔎</span>
+      <input id="globalSearch" placeholder="Find / print a record — company, licence no., B/L, bill, receipt… (Ctrl+K)" autocomplete="off">
+    </div>
+    <div class="top-actions">
+      <button class="tb-btn primary" id="btnNew" title="Create a new record">＋ New</button>
+      <button class="tb-btn" id="btnDashboard" title="Dashboard">📊</button>
+      <button class="tb-btn" id="btnManual" title="User Manual">📘</button>
+      <span id="syncBadge" class="sync saved" title="Changes are saved to the server automatically">✓ All changes saved</span>
+      <div id="userChip" class="userchip"></div>
+    </div>
+  </header>
+
+  <main id="main"><div class="boot">Loading the CMU database…</div></main>
+
+  <div id="statusbar"></div>
+  <nav id="tabbar" aria-label="Workbook sheets"></nav>
+
+  <div id="ctxRoot"></div>
+  <div id="modalRoot"></div>
+  <div id="toastRoot"></div>
+
+  <script src="/jslib/cmu.js"></script>
+  <script src="/js/store.js"></script>
+  <script src="/js/grid.js"></script>
+  <script src="/js/forms.js"></script>
+  <script src="/js/print.js"></script>
+  <script src="/js/panels.js"></script>
+  <script src="/js/app.js"></script>
+</body>
+</html>
