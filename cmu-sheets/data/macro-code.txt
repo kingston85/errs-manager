@@ -1,0 +1,2298 @@
+' ====================================================================
+' ORIGINAL VBA / MACRO CODE from "CMU_DATABASE Original.xlsx" › Macro Setup
+' (kept for reference – the CMU Sheets web app replaces all of this code)
+' ====================================================================
+
+Option Explicit
+Public CMU_User As String
+Public CMU_Role As String
+Public UI_HotBtn As Object
+#If VBA7 Then
+Private Declare PtrSafe Function UI_GetKeyState Lib "user32" Alias "GetKeyState" (ByVal nVirtKey As Long) As Integer
+#Else
+Private Declare Function UI_GetKeyState Lib "user32" Alias "GetKeyState" (ByVal nVirtKey As Long) As Integer
+#End If
+Private Const CMU_LOCKPWD As String = "CMU#ERRS-2026"
+Private Const CLR_FIRST As Long = 13
+Private Const CLR_LAST As Long = 32
+Rem ==== ERRS CMU DATABASE 2026 - FORM ENGINE (paste into a standard Module) ====
+
+Private Function GetCfg(ByVal s As String, tbl As String, idCol As String, pre As String, mp As String, hasCo As Boolean) As Boolean
+    GetCfg = True: hasCo = True: idCol = "Record ID"
+    Select Case s
+        Case "Company Form"
+            tbl = "tblCompanies": idCol = "Company ID": pre = "CMU-": hasCo = False
+            mp = "C6=Company Name|C7=Sector / Activity|C8=Location|C9=Other Names Recorded"
+        Case "Licence Form"
+            tbl = "tblLicences": pre = "LIC-"
+            mp = "C7=Licence Category|C8=Licence / Certificate Type|C9=Location|C10=Application Date|C11=Response Date|C12=Reference Code|C13=Licence / Certificate No.|C14=Date Issued|C15=Expiry Date|C16=Remarks"
+        Case "Clearance Form"
+            tbl = "tblClearances": pre = "CLR-"
+            mp = "C7=Chemical as Recorded|C8=Chemical (Standard)|C9=Qty as Recorded|C10=Unit|C11=B/L / Invoice / AWB No.|C12=Clearance Ref. No.|C13=Clearance Date|C14=Remarks"
+        Case "Bill Form"
+            tbl = "tblBills": idCol = "Bill ID": pre = "BIL-"
+            mp = "C7=Activity|C8=Location|C9=Purpose / Licence Billed|C10=Chemical|C11=Amount Billed (USD)|C12=Bill Date|C13=Bill Ref. No.|C14=Contact Person|C15=Contact Title"
+        Case "Payment Form"
+            tbl = "tblPayments": pre = "PAY-"
+            mp = "C7=Purpose / Services|C8=Amount (USD)|C9=Payment Date|C10=Receipt No.|C11=Remarks|C12=Bill No."
+        Case Else
+            GetCfg = False
+    End Select
+End Function
+
+Private Function GetLO(ByVal tbl As String) As ListObject
+    Dim ws As Worksheet, t As ListObject
+    For Each ws In ThisWorkbook.Worksheets
+        For Each t In ws.ListObjects
+            If t.Name = tbl Then Set GetLO = t: Exit Function
+        Next t
+    Next ws
+End Function
+
+Private Function ColIdx(lo As ListObject, ByVal nm As String) As Long
+    Dim c As ListColumn
+    For Each c In lo.ListColumns
+        If c.Name = nm Then ColIdx = c.Index: Exit Function
+    Next c
+End Function
+
+Private Function NextID(lo As ListObject, ByVal idCol As String, ByVal pre As String) As String
+    Dim c As Range, n As Long, mx As Long
+    If lo.ListRows.Count > 0 Then
+        For Each c In lo.ListColumns(idCol).DataBodyRange.Cells
+            If Left$(CStr(c.Value), Len(pre)) = pre Then
+                n = Val(Mid$(CStr(c.Value), Len(pre) + 1))
+                If n > mx Then mx = n
+            End If
+        Next c
+    End If
+    NextID = pre & Format(mx + 1, "000")
+End Function
+
+Private Function FindIdx(lo As ListObject, ByVal idCol As String, ByVal id As String) As Long
+    Dim r As Variant
+    If lo.ListRows.Count = 0 Or id = "" Then Exit Function
+    r = Application.Match(id, lo.ListColumns(idCol).DataBodyRange, 0)
+    If Not IsError(r) Then FindIdx = CLng(r)
+End Function
+
+Private Function CompanyID(ByVal nm As String) As String
+    Dim lo As ListObject, r As Variant
+    Set lo = GetLO("tblCompanies")
+    r = Application.Match(nm, lo.ListColumns("Company Name").DataBodyRange, 0)
+    If Not IsError(r) Then CompanyID = CStr(lo.ListColumns("Company ID").DataBodyRange.Cells(r, 1).Value)
+End Function
+
+Private Function FormOK(sh As Worksheet) As Boolean
+    If InStr(1, CStr(sh.Range("C4").Value), "Ready", vbTextCompare) > 0 Then
+        FormOK = True
+    Else
+        MsgBox "The form is not complete:" & vbCrLf & vbCrLf & Replace(CStr(sh.Range("C4").Value), ChrW(10006), ""), vbExclamation, "CMU Database"
+    End If
+End Function
+
+Private Function WarningsOK(sh As Worksheet) As Boolean
+    Dim c As Range, msg As String
+    For Each c In sh.Range("D6:D20").Cells
+        If InStr(1, CStr(c.Text), ChrW(9888)) > 0 Then msg = msg & "- " & sh.Cells(c.Row, 2).Value & ": " & Replace(c.Text, ChrW(9888), "") & vbCrLf
+    Next c
+    If msg = "" Then
+        WarningsOK = True
+    Else
+        WarningsOK = (MsgBox("Please check:" & vbCrLf & vbCrLf & msg & vbCrLf & "Save anyway?", vbYesNo + vbQuestion, "CMU Database") = vbYes)
+    End If
+End Function
+
+Private Sub WriteRow(lo As ListObject, ByVal idx As Long, sh As Worksheet, ByVal mp As String, ByVal hasCo As Boolean, ByVal isNew As Boolean)
+    Dim p As Variant, kv() As String, cell As Range, first As Range, j As Long
+    For Each p In Split(mp, "|")
+        kv = Split(p, "=")
+        Set cell = lo.DataBodyRange.Cells(idx, ColIdx(lo, kv(1)))
+        If CStr(sh.Range(kv(0)).Value) = "" Then cell.ClearContents Else cell.Value = sh.Range(kv(0)).Value
+    Next p
+    If hasCo Then
+        lo.DataBodyRange.Cells(idx, ColIdx(lo, "Company ID")).Value = CompanyID(sh.Range("C6").Value)
+        If ColIdx(lo, "Name as Recorded") > 0 Then lo.DataBodyRange.Cells(idx, ColIdx(lo, "Name as Recorded")).Value = sh.Range("C6").Value
+    End If
+    If ColIdx(lo, "Source") > 0 Then
+        Set cell = lo.DataBodyRange.Cells(idx, ColIdx(lo, "Source"))
+        If isNew Then
+            cell.Value = "Form entry " & Format(Now, "dd-mmm-yyyy hh:nn") & " (" & Application.UserName & ")"
+        Else
+            cell.Value = CStr(cell.Value) & " | Updated " & Format(Now, "dd-mmm-yyyy hh:nn")
+        End If
+    End If
+    If isNew And ColIdx(lo, "Record Group") > 0 Then lo.DataBodyRange.Cells(idx, ColIdx(lo, "Record Group")).Value = "Form entry"
+    Rem copy calculated formulas (Company Name, Status, kg, totals) into the row where missing
+    If idx > 1 Then
+        For j = 1 To lo.ListColumns.Count
+            Set cell = lo.DataBodyRange.Cells(idx, j)
+            Set first = lo.DataBodyRange.Cells(1, j)
+            If Not cell.HasFormula And CStr(cell.Value) = "" And first.HasFormula Then
+                If InStr(first.Formula, "!") = 0 Then cell.Formula = first.Formula
+            End If
+        Next j
+    End If
+End Sub
+
+Private Sub ClearInputs(sh As Worksheet, ByVal mp As String)
+    Dim p As Variant
+    sh.Range("C5").ClearContents: If sh.Name = "Licence Form" Then Lic_ClearChems sh
+    sh.Range("C6").ClearContents
+    For Each p In Split(mp, "|")
+        sh.Range(Split(p, "=")(0)).ClearContents
+    Next p
+    sh.Range("C6").Select
+End Sub
+
+Public Sub Form_Save()
+    If Not CMU_CanEdit() Then Exit Sub
+    Dim sh As Worksheet, tbl As String, idCol As String, pre As String, mp As String, hasCo As Boolean
+    Dim lo As ListObject, newID As String, idx As Long
+    Set sh = ActiveSheet
+    If sh.Name = "Clearance Form" Then Clr_Save: Exit Sub
+    If sh.Name = "Bill Form" Then Bil_Save: Exit Sub
+    If Not GetCfg(sh.Name, tbl, idCol, pre, mp, hasCo) Then Exit Sub
+    If CStr(sh.Range("C5").Value) <> "" Then
+        MsgBox "The ID box (C5) is filled in. Use Update Record to change an existing record, or clear the ID to save a new one.", vbInformation, "CMU Database"
+        Exit Sub
+    End If
+    If Not FormOK(sh) Then Exit Sub
+    If Not WarningsOK(sh) Then Exit Sub
+    Set lo = GetLO(tbl): If Not Lic_ChemsOK(sh) Then Exit Sub
+    newID = NextID(lo, idCol, pre)
+    Application.ScreenUpdating = False
+    idx = lo.ListRows.Add(AlwaysInsert:=True).Index
+    lo.DataBodyRange.Cells(idx, ColIdx(lo, idCol)).Value = newID
+    WriteRow lo, idx, sh, mp, hasCo, True: Lic_SaveChems sh, newID
+    ClearInputs sh, mp
+    Application.ScreenUpdating = True
+    MsgBox "Saved as " & newID & " in " & lo.Parent.Name & ".", vbInformation, "CMU Database"
+End Sub
+
+Public Sub Form_Find()
+    Dim sh As Worksheet, tbl As String, idCol As String, pre As String, mp As String, hasCo As Boolean
+    Dim lo As ListObject, idx As Long, id As String, p As Variant, kv() As String, src As Range, linked As Boolean
+    Set sh = ActiveSheet
+    If sh.Name = "Clearance Form" Then Clr_Find: Exit Sub
+    If sh.Name = "Bill Form" Then Bil_Find: Exit Sub
+    If Not GetCfg(sh.Name, tbl, idCol, pre, mp, hasCo) Then Exit Sub
+    id = Trim$(CStr(sh.Range("C5").Value))
+    If id = "" Then id = Trim$(InputBox("Enter the " & idCol & " to find (e.g. " & pre & "001):", "Find record"))
+    If id = "" Then Exit Sub
+    id = UCase$(id)
+    Set lo = GetLO(tbl)
+    idx = FindIdx(lo, idCol, id)
+    If idx = 0 Then
+        MsgBox id & " was not found in " & lo.Parent.Name & ".", vbExclamation, "CMU Database"
+        Exit Sub
+    End If
+    ClearInputs sh, mp
+    sh.Range("C5").Value = id: If sh.Name = "Licence Form" Then Lic_LoadChems sh, id
+    For Each p In Split(mp, "|")
+        kv = Split(p, "=")
+        Set src = lo.DataBodyRange.Cells(idx, ColIdx(lo, kv(1)))
+        sh.Range(kv(0)).Value = src.Value
+        If src.HasFormula And InStr(src.Formula, "!") > 0 Then linked = True
+    Next p
+    If hasCo Then sh.Range("C6").Value = lo.DataBodyRange.Cells(idx, ColIdx(lo, "Company Name")).Value
+    If linked Then
+        MsgBox "Loaded " & id & ". Some fields are linked to Sheet1/Sheet2. Updating will replace those links with the values on the form.", vbInformation, "CMU Database"
+    Else
+        MsgBox "Loaded " & id & ". Edit the fields, then click Update Record.", vbInformation, "CMU Database"
+    End If
+End Sub
+
+Public Sub Form_Update()
+    If Not CMU_CanEdit() Then Exit Sub
+    Dim sh As Worksheet, tbl As String, idCol As String, pre As String, mp As String, hasCo As Boolean
+    Dim lo As ListObject, idx As Long, id As String
+    Set sh = ActiveSheet
+    If sh.Name = "Clearance Form" Then Clr_Update: Exit Sub
+    If sh.Name = "Bill Form" Then Bil_Update: Exit Sub
+    If Not GetCfg(sh.Name, tbl, idCol, pre, mp, hasCo) Then Exit Sub
+    id = UCase$(Trim$(CStr(sh.Range("C5").Value)))
+    If id = "" Then
+        MsgBox "Type the ID in C5 and click Find Record first.", vbInformation, "CMU Database"
+        Exit Sub
+    End If
+    Set lo = GetLO(tbl)
+    idx = FindIdx(lo, idCol, id): If Not Lic_ChemsOK(sh) Then Exit Sub
+    If idx = 0 Then
+        MsgBox id & " was not found.", vbExclamation, "CMU Database"
+        Exit Sub
+    End If
+    If Not FormOK(sh) Then Exit Sub
+    If MsgBox("Update " & id & " with the values on this form?", vbYesNo + vbQuestion, "CMU Database") <> vbYes Then Exit Sub
+    WriteRow lo, idx, sh, mp, hasCo, False: Lic_SaveChems sh, id
+    MsgBox id & " updated.", vbInformation, "CMU Database"
+End Sub
+
+Public Sub Form_Delete()
+    If Not CMU_CanEdit() Then Exit Sub
+    Dim sh As Worksheet, tbl As String, idCol As String, pre As String, mp As String, hasCo As Boolean
+    Dim lo As ListObject, idx As Long, id As String, n As Long, t As Variant
+    Set sh = ActiveSheet
+    If sh.Name = "Clearance Form" Then Clr_Delete: Exit Sub
+    If sh.Name = "Bill Form" Then Bil_Delete: Exit Sub
+    If Not GetCfg(sh.Name, tbl, idCol, pre, mp, hasCo) Then Exit Sub
+    id = UCase$(Trim$(CStr(sh.Range("C5").Value)))
+    If id = "" Then id = UCase$(Trim$(InputBox("Enter the " & idCol & " to delete:", "Delete record")))
+    If id = "" Then Exit Sub
+    Set lo = GetLO(tbl)
+    idx = FindIdx(lo, idCol, id)
+    If idx = 0 Then
+        MsgBox id & " was not found.", vbExclamation, "CMU Database"
+        Exit Sub
+    End If
+    If tbl = "tblCompanies" Then
+        For Each t In Array("tblLicences", "tblClearances", "tblBills", "tblPayments", "tblCorrespondence")
+            n = n + Application.WorksheetFunction.CountIf(GetLO(CStr(t)).ListColumns("Company ID").DataBodyRange, id)
+        Next t
+        If n > 0 Then
+            MsgBox "Cannot delete " & id & ": it is used by " & n & " licence/clearance/bill/payment record(s).", vbCritical, "CMU Database"
+            Exit Sub
+        End If
+    End If
+    If MsgBox("Permanently delete " & id & " from " & lo.Parent.Name & "?" & vbCrLf & "This cannot be undone.", vbYesNo + vbCritical, "CMU Database") <> vbYes Then Exit Sub
+    lo.ListRows(idx).Delete: If tbl = "tblLicences" Then Lic_DeleteChems id: Eff_Delete id
+    ClearInputs sh, mp
+    MsgBox id & " deleted.", vbInformation, "CMU Database"
+End Sub
+
+Public Sub Form_Clear()
+    Dim sh As Worksheet, tbl As String, idCol As String, pre As String, mp As String, hasCo As Boolean
+    Set sh = ActiveSheet
+    If sh.Name = "Clearance Form" Then Clr_Clear: Exit Sub
+    If sh.Name = "Bill Form" Then Bil_Clear: Exit Sub
+    If GetCfg(sh.Name, tbl, idCol, pre, mp, hasCo) Then ClearInputs sh, mp
+End Sub
+
+Public Sub Form_OpenRegister()
+    Dim sh As Worksheet, tbl As String, idCol As String, pre As String, mp As String, hasCo As Boolean, lo As ListObject
+    Set sh = ActiveSheet
+    If Not GetCfg(sh.Name, tbl, idCol, pre, mp, hasCo) Then Exit Sub
+    Set lo = GetLO(tbl)
+    lo.Parent.Activate
+    If lo.ListRows.Count > 0 Then lo.ListRows(lo.ListRows.Count).Range.Cells(1, 1).Select
+End Sub
+
+Public Sub Form_PrintPage()
+    Dim sh As Worksheet, id As String, target As String, cat As String, c As Range, pick As String
+    Set sh = ActiveSheet
+    id = UCase$(Trim$(CStr(sh.Range("C5").Value)))
+    Select Case sh.Name
+        Case "Licence Form"
+            cat = CStr(sh.Range("C7").Value)
+            If InStr(1, cat, "(CIL)", vbTextCompare) > 0 Then
+                target = "Print CIL"
+            ElseIf InStr(1, cat, "(CRL)", vbTextCompare) > 0 Or cat = "" Then
+                target = "Print CRL"
+            ElseIf InStr(1, CStr(sh.Range("C8").Value), "Retention", vbTextCompare) > 0 Then
+                target = "Print EDL RP"
+            ElseIf InStr(1, cat, "(EDL)", vbTextCompare) > 0 Or InStr(1, cat, "Effluent", vbTextCompare) > 0 Then
+                target = "Print EDL"
+            Else
+                MsgBox "Print pages exist for Chemical Registration (CRL), Chemical Importation (CIL) and Effluent Discharge (EDL) licences only." & vbCrLf & "This record is: " & cat, vbInformation, "CMU Database"
+                Exit Sub
+            End If
+            pick = id
+        Case "Clearance Form"
+            target = "Print Clearance"
+            If id <> "" Then
+                For Each c In ThisWorkbook.Worksheets("Lists").Range("R5:R404").Cells
+                    If Left$(CStr(c.Value), Len(id) + 1) = id & " " Then pick = CStr(c.Value): Exit For
+                Next c
+                If pick = "" Then pick = id
+            End If
+        Case "Bill Form"
+            target = "Print Bill"
+            If id <> "" Then
+                For Each c In ThisWorkbook.Worksheets("Lists").Range("Y5:Y404").Cells
+                    If Left$(CStr(c.Value), Len(id) + 1) = id & " " Then pick = CStr(c.Value): Exit For
+                Next c
+            End If
+        Case Else
+            Exit Sub
+    End Select
+    With ThisWorkbook.Worksheets(target)
+        If pick <> "" Then
+            On Error Resume Next
+            .Range("J4").Value = pick
+            On Error GoTo 0
+        End If
+        .Activate
+        .Range("J4").Select
+    End With
+    If id = "" Then MsgBox "No record loaded on the form, so the print page opened with its last selection." & vbCrLf & "Tip: Find a record (or save it) first, then click this button to print that record.", vbInformation, "CMU Database"
+End Sub
+
+Public Sub Go_Menu()
+    ThisWorkbook.Worksheets("Main Menu").Activate
+    ActiveSheet.Range("A1").Select
+End Sub
+
+Public Sub Nav_Go()
+    Dim target As String
+    On Error Resume Next
+    target = ActiveSheet.Shapes(Application.Caller).AlternativeText
+    On Error GoTo 0
+    If target = "" Then Exit Sub
+    If ThisWorkbook.Worksheets(target).Visible = xlSheetVisible Then ThisWorkbook.Worksheets(target).Activate Else MsgBox "Your account does not have access to the " & target & " sheet.", vbExclamation, "CMU Database"
+End Sub
+
+Public Sub Setup_Buttons()
+    Dim f As Variant, sh As Worksheet, s As Shape
+    For Each f In Array("Company Form", "Licence Form", "Clearance Form", "Bill Form", "Payment Form")
+        Set sh = ThisWorkbook.Worksheets(f)
+        sh.Unprotect
+        For Each s In sh.Shapes
+            Select Case s.Name
+                Case "btnSave": s.OnAction = "Form_Save"
+                Case "btnFind": s.OnAction = "Form_Find"
+                Case "btnUpdate": s.OnAction = "Form_Update"
+                Case "btnDelete": s.OnAction = "Form_Delete"
+                Case "btnClear": s.OnAction = "Form_Clear"
+                Case "btnRegister": s.OnAction = "Form_OpenRegister"
+                Case "btnPrintPage": s.OnAction = "Form_PrintPage"
+                Case "btnMakeBill": s.OnAction = "Bill_FromRecord"
+                Case "btnMenu": s.OnAction = "Go_Menu"
+            End Select
+        Next s
+        sh.Protect DrawingObjects:=True, Contents:=True, UserInterfaceOnly:=True
+        sh.EnableSelection = xlUnlockedCells
+    Next f
+    For Each s In ThisWorkbook.Worksheets("Main Menu").Shapes
+        If Left$(s.Name, 4) = "nav_" Then s.OnAction = "Nav_Go"
+        If s.Name = "btnNewBill" Then s.OnAction = "Show_BillForm"
+        If s.Name = "nav_F1" Then s.OnAction = "Show_CompanyForm"
+        If s.Name = "nav_F5" Then s.OnAction = "Show_PayForm"
+        If s.Name = "btnFindAny" Then s.OnAction = "Show_FindForm"
+        If s.Name = "btnUsers" Then s.OnAction = "Show_UsersForm"
+        If s.Name = "btnMyPwd" Then s.OnAction = "Show_MyPwdForm"
+        If s.Name = "btnLogout" Then s.OnAction = "CMU_Logout"
+    Next s
+    For Each s In ThisWorkbook.Worksheets("Login").Shapes
+        If s.Name = "btnSignIn" Then s.OnAction = "Show_LoginForm"
+    Next s
+    Rem Main Menu button on every sheet
+    Dim w As Worksheet
+    For Each w In ThisWorkbook.Worksheets
+        If Not w.ProtectDrawingObjects Then
+            For Each s In w.Shapes
+                If s.Name = "btnMenu" Then s.OnAction = "Go_Menu"
+            Next s
+        End If
+    Next w
+    Setup_PrintButtons
+    MsgBox "Buttons connected and forms protected. The database is ready to use.", vbInformation, "CMU Database"
+End Sub
+
+Rem ==== MULTI-CHEMICAL CLEARANCE FORM (Clearance Form sheet) ====
+Rem Clearance No. (CLN-###) is automatic and groups all chemical lines of one clearance.
+
+Private Sub Clr_Prot(sh As Worksheet)
+    On Error Resume Next
+    sh.Protect DrawingObjects:=True, Contents:=True, UserInterfaceOnly:=True
+    sh.EnableSelection = xlUnlockedCells
+End Sub
+
+Private Function Clr_Map(ByVal r As Long) As String
+    Clr_Map = "C" & r & "=Chemical as Recorded|D" & r & "=Chemical (Standard)|E" & r & "=Qty as Recorded|F" & r & "=Unit|C5=Clearance No.|C7=Clearance Date|C8=Clearance Ref. No.|G" & r & "=B/L / Invoice / AWB No.|C10=Remarks|C11=ETA"
+End Function
+
+Private Function Clr_Loaded(sh As Worksheet) As Long
+    Clr_Loaded = Application.WorksheetFunction.CountA(sh.Range("H" & CLR_FIRST & ":H" & CLR_LAST))
+End Function
+
+Private Sub Clr_ClearForm(sh As Worksheet)
+    Clr_Prot sh
+    sh.Range("C5:C11").ClearContents
+    sh.Range("C" & CLR_FIRST & ":G" & CLR_LAST).ClearContents
+    sh.Range("H" & CLR_FIRST & ":H" & CLR_LAST).ClearContents
+    sh.Range("C6").Select
+End Sub
+
+Private Sub Clr_FillNames(sh As Worksheet)
+    Dim r As Long
+    Clr_Prot sh
+    For r = CLR_FIRST To CLR_LAST
+        If Trim$(CStr(sh.Range("C" & r).Value)) = "" And Trim$(CStr(sh.Range("D" & r).Value)) <> "" Then sh.Range("C" & r).Value = sh.Range("D" & r).Value
+        If Trim$(CStr(sh.Range("C" & r).Value)) <> "" And Trim$(CStr(sh.Range("G" & r).Value)) = "" Then sh.Range("G" & r).Value = sh.Range("C9").Value
+    Next r
+    Application.Calculate
+End Sub
+
+Private Function Clr_HasLine(sh As Worksheet, ByVal r As Long) As Boolean
+    Clr_HasLine = (Trim$(CStr(sh.Range("C" & r).Value)) <> "")
+End Function
+
+Private Function Clr_WarnOK(sh As Worksheet) As Boolean
+    Dim c As Range, msg As String
+    For Each c In sh.Range("D6:D10").Cells
+        If InStr(1, CStr(c.Text), ChrW(9888)) > 0 Then msg = msg & "- " & sh.Cells(c.Row, 2).Value & ": " & Replace(c.Text, ChrW(9888), "") & vbCrLf
+    Next c
+    If msg = "" Then
+        Clr_WarnOK = True
+    Else
+        Clr_WarnOK = (MsgBox("Please check:" & vbCrLf & vbCrLf & msg & vbCrLf & "Save anyway?", vbYesNo + vbQuestion, "CMU Database") = vbYes)
+    End If
+End Function
+
+Public Sub Clr_Save()
+    If Not CMU_CanEdit() Then Exit Sub
+    Dim sh As Worksheet, lo As ListObject, r As Long, idx As Long, id As String, n As Long, firstID As String, cln As String
+    Set sh = ActiveSheet
+    If Clr_Loaded(sh) > 0 Or CStr(sh.Range("C5").Value) <> "" Then
+        MsgBox "A Clearance No. is already in C5. Click Update to save changes to that clearance, or Clear Form to start a new one.", vbInformation, "CMU Database"
+        Exit Sub
+    End If
+    Clr_FillNames sh
+    If Not FormOK(sh) Then Exit Sub
+    If Not Clr_WarnOK(sh) Then Exit Sub
+    Set lo = GetLO("tblClearances")
+    cln = NextID(lo, "Clearance No.", "CLN-")
+    Application.ScreenUpdating = False
+    sh.Range("C5").Value = cln
+    For r = CLR_FIRST To CLR_LAST
+        If Clr_HasLine(sh, r) Then
+            id = NextID(lo, "Record ID", "CLR-")
+            idx = lo.ListRows.Add(AlwaysInsert:=True).Index
+            lo.DataBodyRange.Cells(idx, ColIdx(lo, "Record ID")).Value = id
+            WriteRow lo, idx, sh, Clr_Map(r), True, True
+            If firstID = "" Then firstID = id
+            n = n + 1
+        End If
+    Next r
+    Application.ScreenUpdating = True
+    MsgBox "Clearance " & cln & " saved: " & n & " chemical line(s) (" & firstID & " to " & id & ").", vbInformation, "CMU Database"
+    Clr_ClearForm sh
+End Sub
+
+Private Function Clr_Collect(lo As ListObject, ByVal colName As String, ByVal key As String, hit() As Long) As Long
+    Dim i As Long, c As Long, n As Long
+    c = ColIdx(lo, colName)
+    For i = 1 To lo.ListRows.Count
+        If StrComp(Trim$(CStr(lo.DataBodyRange.Cells(i, c).Value)), key, vbTextCompare) = 0 Then n = n + 1: hit(n) = i
+    Next i
+    Clr_Collect = n
+End Function
+
+Public Sub Clr_Find()
+    Dim sh As Worksheet, lo As ListObject, key As String, i As Long, r As Long, n As Long, total As Long
+    Dim hit() As Long, idx As Long, linked As Boolean, c As Range, cln As String
+    Set sh = ActiveSheet
+    key = Trim$(CStr(sh.Range("C5").Value))
+    If key = "" Then key = Trim$(InputBox("Enter the Clearance No. (e.g. CLN-005), EPA Ref. No., or a record ID (e.g. CLR-001):", "Find clearance"))
+    If key = "" Then Exit Sub
+    Set lo = GetLO("tblClearances")
+    If lo.ListRows.Count = 0 Then Exit Sub
+    ReDim hit(1 To lo.ListRows.Count)
+    total = Clr_Collect(lo, "Clearance No.", key, hit)
+    If total = 0 Then total = Clr_Collect(lo, "Clearance Ref. No.", key, hit)
+    If total = 0 Then total = Clr_Collect(lo, "Record ID", key, hit)
+    If total = 0 Then
+        MsgBox key & " was not found as a Clearance No., EPA Ref. No. or Record ID.", vbExclamation, "CMU Database"
+        Exit Sub
+    End If
+    cln = CStr(lo.DataBodyRange.Cells(hit(1), ColIdx(lo, "Clearance No.")).Value)
+    If cln <> "" Then total = Clr_Collect(lo, "Clearance No.", cln, hit)
+    Clr_ClearForm sh
+    Application.ScreenUpdating = False
+    idx = hit(1)
+    sh.Range("C5").Value = cln
+    sh.Range("C6").Value = lo.DataBodyRange.Cells(idx, ColIdx(lo, "Company Name")).Value
+    sh.Range("C7").Value = lo.DataBodyRange.Cells(idx, ColIdx(lo, "Clearance Date")).Value
+    sh.Range("C8").Value = lo.DataBodyRange.Cells(idx, ColIdx(lo, "Clearance Ref. No.")).Value
+    sh.Range("C9").Value = lo.DataBodyRange.Cells(idx, ColIdx(lo, "B/L / Invoice / AWB No.")).Value
+    sh.Range("C10").Value = lo.DataBodyRange.Cells(idx, ColIdx(lo, "Remarks")).Value
+    sh.Range("C11").Value = lo.DataBodyRange.Cells(idx, ColIdx(lo, "ETA")).Value
+    For i = 1 To total
+        If i > CLR_LAST - CLR_FIRST + 1 Then Exit For
+        idx = hit(i): r = CLR_FIRST + i - 1
+        sh.Range("C" & r).Value = lo.DataBodyRange.Cells(idx, ColIdx(lo, "Chemical as Recorded")).Value
+        sh.Range("D" & r).Value = lo.DataBodyRange.Cells(idx, ColIdx(lo, "Chemical (Standard)")).Value
+        sh.Range("E" & r).Value = lo.DataBodyRange.Cells(idx, ColIdx(lo, "Qty as Recorded")).Value
+        sh.Range("F" & r).Value = lo.DataBodyRange.Cells(idx, ColIdx(lo, "Unit")).Value
+        sh.Range("G" & r).Value = lo.DataBodyRange.Cells(idx, ColIdx(lo, "B/L / Invoice / AWB No.")).Value
+        sh.Range("H" & r).Value = lo.DataBodyRange.Cells(idx, ColIdx(lo, "Record ID")).Value
+        For Each c In lo.DataBodyRange.Rows(idx).Cells
+            If c.HasFormula And InStr(c.Formula, "!") > 0 Then linked = True
+        Next c
+        n = n + 1
+    Next i
+    Application.ScreenUpdating = True
+    If total > n Then MsgBox "This clearance has " & total & " lines; only the first " & n & " were loaded.", vbExclamation, "CMU Database"
+    If linked Then
+        MsgBox "Loaded " & cln & " (" & n & " line(s)). Some fields are linked to Sheet1/Sheet2; Update will replace those links with the form values.", vbInformation, "CMU Database"
+    Else
+        MsgBox "Loaded " & cln & " (" & n & " chemical line(s)). Edit, add or clear lines, then click Update.", vbInformation, "CMU Database"
+    End If
+End Sub
+
+Public Sub Clr_Update()
+    If Not CMU_CanEdit() Then Exit Sub
+    Dim sh As Worksheet, lo As ListObject, r As Long, idx As Long, id As String
+    Dim nU As Long, nA As Long, nD As Long, delIDs As String, d As Variant
+    Set sh = ActiveSheet
+    If Clr_Loaded(sh) = 0 Or CStr(sh.Range("C5").Value) = "" Then
+        MsgBox "Type the Clearance No. in C5 and click Find Record first.", vbInformation, "CMU Database"
+        Exit Sub
+    End If
+    Clr_FillNames sh
+    If Not FormOK(sh) Then Exit Sub
+    For r = CLR_FIRST To CLR_LAST
+        If CStr(sh.Range("H" & r).Value) <> "" And Not Clr_HasLine(sh, r) Then nD = nD + 1
+    Next r
+    If MsgBox("Update clearance " & sh.Range("C5").Value & "?" & IIf(nD > 0, vbCrLf & nD & " cleared line(s) will be DELETED from the register.", ""), vbYesNo + vbQuestion, "CMU Database") <> vbYes Then Exit Sub
+    Set lo = GetLO("tblClearances")
+    Application.ScreenUpdating = False
+    nD = 0
+    For r = CLR_FIRST To CLR_LAST
+        id = CStr(sh.Range("H" & r).Value)
+        If Clr_HasLine(sh, r) Then
+            If id <> "" Then
+                idx = FindIdx(lo, "Record ID", id)
+                If idx > 0 Then WriteRow lo, idx, sh, Clr_Map(r), True, False: nU = nU + 1
+            Else
+                id = NextID(lo, "Record ID", "CLR-")
+                idx = lo.ListRows.Add(AlwaysInsert:=True).Index
+                lo.DataBodyRange.Cells(idx, ColIdx(lo, "Record ID")).Value = id
+                WriteRow lo, idx, sh, Clr_Map(r), True, True
+                sh.Range("H" & r).Value = id
+                nA = nA + 1
+            End If
+        ElseIf id <> "" Then
+            delIDs = delIDs & id & "|"
+            sh.Range("C" & r & ":G" & r).ClearContents
+            sh.Range("H" & r).ClearContents
+        End If
+    Next r
+    If delIDs <> "" Then
+        For Each d In Split(Left$(delIDs, Len(delIDs) - 1), "|")
+            idx = FindIdx(lo, "Record ID", CStr(d))
+            If idx > 0 Then lo.ListRows(idx).Delete: nD = nD + 1
+        Next d
+    End If
+    Application.ScreenUpdating = True
+    MsgBox "Clearance " & sh.Range("C5").Value & " updated: " & nU & " changed, " & nA & " added, " & nD & " deleted.", vbInformation, "CMU Database"
+End Sub
+
+Public Sub Clr_Delete()
+    If Not CMU_CanEdit() Then Exit Sub
+    Dim sh As Worksheet, lo As ListObject, r As Long, idx As Long, n As Long
+    Set sh = ActiveSheet
+    If Clr_Loaded(sh) = 0 Then
+        MsgBox "Find the clearance first (type the Clearance No. in C5 and click Find Record).", vbInformation, "CMU Database"
+        Exit Sub
+    End If
+    If MsgBox("Permanently delete clearance " & sh.Range("C5").Value & " and its " & Clr_Loaded(sh) & " chemical line(s)?" & vbCrLf & "This cannot be undone.", vbYesNo + vbCritical, "CMU Database") <> vbYes Then Exit Sub
+    Set lo = GetLO("tblClearances")
+    For r = CLR_FIRST To CLR_LAST
+        If CStr(sh.Range("H" & r).Value) <> "" Then
+            idx = FindIdx(lo, "Record ID", CStr(sh.Range("H" & r).Value))
+            If idx > 0 Then lo.ListRows(idx).Delete: n = n + 1
+        End If
+    Next r
+    Clr_ClearForm sh
+    MsgBox n & " line(s) deleted.", vbInformation, "CMU Database"
+End Sub
+
+Public Sub Clr_Clear()
+    Clr_ClearForm ActiveSheet
+End Sub
+Rem ==== PRINT PAGES (Print CRL / Print CIL / Print Bill) ====
+
+Public Function AmountInWords(ByVal amt As Double) As String
+    Dim d As Double, c As Long, s As String
+    d = Int(Round(amt, 2)): c = CLng(Round((Round(amt, 2) - d) * 100, 0))
+    If d = 0 Then s = "ZERO" Else s = Trim$(WordsGroup(d))
+    If c > 0 Then s = s & " AND " & Format(c, "00") & "/100"
+    AmountInWords = UCase$(s)
+End Function
+
+Private Function WordsGroup(ByVal n As Double) As String
+    Dim units As Variant, scl As Variant, i As Long, chunk As Long, s As String
+    scl = Array("", " THOUSAND", " MILLION", " BILLION")
+    i = 0
+    Do While n > 0 And i <= 3
+        chunk = CLng(n - Int(n / 1000) * 1000)
+        If chunk > 0 Then s = Words999(chunk) & scl(i) & IIf(s = "", "", " " & s)
+        n = Int(n / 1000): i = i + 1
+    Loop
+    WordsGroup = s
+End Function
+
+Private Function Words999(ByVal n As Long) As String
+    Dim ones As Variant, tens As Variant, s As String
+    ones = Array("", "ONE", "TWO", "THREE", "FOUR", "FIVE", "SIX", "SEVEN", "EIGHT", "NINE", "TEN", "ELEVEN", "TWELVE", "THIRTEEN", "FOURTEEN", "FIFTEEN", "SIXTEEN", "SEVENTEEN", "EIGHTEEN", "NINETEEN")
+    tens = Array("", "", "TWENTY", "THIRTY", "FORTY", "FIFTY", "SIXTY", "SEVENTY", "EIGHTY", "NINETY")
+    If n >= 100 Then s = ones(n \ 100) & " HUNDRED": n = n Mod 100: If n > 0 Then s = s & " "
+    If n >= 20 Then
+        s = s & tens(n \ 10)
+        If n Mod 10 > 0 Then s = s & "-" & ones(n Mod 10)
+    ElseIf n > 0 Then
+        s = s & ones(n)
+    End If
+    Words999 = s
+End Function
+
+Private Function Prn_Table(sh As Worksheet, t0 As Long, t1 As Long) As Boolean
+    Select Case sh.Name
+        Case "Print CRL": t0 = 22: t1 = 81: Prn_Table = True
+        Case "Print CIL": t0 = 22: t1 = 61: Prn_Table = True
+        Case "Print EDL": t0 = 26: t1 = 46: Prn_Table = True
+        Case "Print EDL RP": t0 = 20: t1 = 146: Prn_Table = True
+        Case "Print Clearance": t0 = 18: t1 = 37: Prn_Table = True
+        Case "Print Bill": t0 = 23: t1 = 34: Prn_Table = True
+    End Select
+End Function
+
+Private Sub Prn_Rows(sh As Worksheet, ByVal hideEmpty As Boolean)
+    Dim t0 As Long, t1 As Long, r As Long
+    If Not Prn_Table(sh, t0, t1) Then Exit Sub
+    Application.ScreenUpdating = False
+    For r = t0 + 1 To t1
+        If hideEmpty Then
+            If sh.Name = "Print Bill" Then
+                sh.Rows(r).Hidden = (CStr(sh.Range("C" & r).Value) = "" And CStr(sh.Range("M" & r).Value) <> "T" And CStr(sh.Range("B" & r).Value) = "")
+            Else
+                sh.Rows(r).Hidden = IIf(sh.Name = "Print EDL RP", CStr(sh.Range("L" & r).Value) = "H", CStr(sh.Range(IIf(sh.Name = "Print Clearance", "B", "C") & r).Value) = "")
+            End If
+            If sh.Name = "Print Clearance" And Not sh.Rows(r).Hidden Then sh.Rows(r).AutoFit
+        Else
+            sh.Rows(r).Hidden = False
+        End If
+    Next r
+    Application.ScreenUpdating = True
+End Sub
+
+Private Sub Prn_Logos(sh As Worksheet, ByVal printing As Boolean)
+    Dim s As Shape, show As Boolean
+    show = True
+    If printing And sh.Name = "Print Bill" Then show = (CStr(sh.Range("J8").Value) = "Yes")
+    If printing And sh.Name = "Print Clearance" Then show = (CStr(sh.Range("J7").Value) = "Yes"): If printing And (sh.Name = "Print CRL" Or sh.Name = "Print CIL" Or sh.Name = "Print EDL" Or sh.Name = "Print EDL RP") Then show = (CStr(sh.Range("J3").Value) <> "No")
+    For Each s In sh.Shapes
+        If Left$(s.Name, 4) = "logo" Then s.Visible = IIf(show, msoTrue, msoFalse)
+    Next s
+End Sub
+
+Private Sub BoldPhrase(ByVal c As Range, ByVal ph As String)
+    Dim p As Long
+    If c.HasFormula Or ph = "" Then Exit Sub
+    p = InStr(1, CStr(c.Value), ph, vbTextCompare)
+    If p > 0 Then c.Characters(p, Len(ph)).Font.Bold = True
+End Sub
+
+Private Sub BoldInRange(ByVal rng As Range, ByVal phrases As String)
+    Dim c As Range, ph As Variant
+    For Each c In rng.Cells
+        If Not c.HasFormula And CStr(c.Value) <> "" Then
+            For Each ph In Split(phrases, "|")
+                BoldPhrase c, CStr(ph)
+            Next ph
+        End If
+    Next c
+End Sub
+
+Rem Bold wording as in the original Word documents
+Private Sub Prn_Bold(sh As Worksheet, ByVal printing As Boolean)
+    Static billF As String
+    Static clrF As String
+    Dim c As Range, t As String, p As Long, q As Long
+    Select Case sh.Name
+        Case "Print CRL"
+            BoldInRange sh.Range("B8:F20"), "Chemical Registration License|Industrial Chemicals,"
+            BoldInRange sh.Range("C82:F92"), "does not|violation|declared and registered"
+        Case "Print CIL"
+            BoldInRange sh.Range("B8:F20"), "Chemical Importation License"
+            BoldInRange sh.Range("C62:F78"), "not exceed|written notification|complies|Notify the Agency within 24 hours|Notify|Undertake adequate safety and security measures|chemicals specified|authorized custom entry points|expires immediately|Any violation|penalty"
+        Case "Print Clearance"
+            Set c = sh.Range("B15")
+            If printing Then
+                clrF = c.Formula
+                t = CStr(c.Value)
+                c.Value = t
+                c.Font.Bold = False
+                p = Len("This is to testify that ") + 1
+                q = InStr(p, t, " is in the process")
+                If q > p Then c.Characters(p, q - p).Font.Bold = True
+            ElseIf clrF <> "" Then
+                c.Formula = clrF
+                c.Font.Bold = False
+                clrF = ""
+            End If
+        Case "Print Bill"
+            Set c = sh.Range("B21")
+            If printing Then
+                billF = c.Formula
+                t = CStr(c.Value)
+                c.Value = t
+                c.Font.Bold = False
+                p = InStr(1, t, "UNITED STATES DOLLARS-")
+                q = InStr(p + 1, t, ")")
+                If p > 0 And q > p Then c.Characters(p, q - p + 1).Font.Bold = True
+                p = InStr(1, t, "payable at the ")
+                If p > 0 Then c.Characters(p + 15, Len(t) - p - 14).Font.Bold = True
+            ElseIf billF <> "" Then
+                c.Formula = billF
+                c.Font.Bold = False
+                billF = ""
+            End If
+    End Select
+End Sub
+
+Rem resize wrapped paragraph rows on the bill letter (merged cells do not auto-fit)
+Private Sub Prn_FitRows(sh As Worksheet)
+    Dim r As Variant, t As String, p As Variant, n As Long
+    If sh.Name <> "Print Bill" Then Exit Sub
+    For Each r In Array(19, 21, 36, 38)
+        t = CStr(sh.Range("B" & r).Value)
+        n = 0
+        For Each p In Split(t, vbLf)
+            n = n + Application.WorksheetFunction.Max(1, -Int(-Len(CStr(p)) / 88))
+        Next p
+        If t = "" Then n = 1
+        sh.Rows(r).RowHeight = n * 15.5 + 3
+    Next r
+End Sub
+
+Private Function Prn_OK(sh As Worksheet) As Boolean
+    Dim msg As String
+    msg = CStr(sh.Range("J5").Value)
+    If InStr(1, msg, ChrW(9888)) > 0 Then
+        Prn_OK = (MsgBox("Check before printing:" & vbCrLf & vbCrLf & Replace(msg, ChrW(9888), "") & vbCrLf & vbCrLf & "Continue anyway?", vbYesNo + vbQuestion, "CMU Database") = vbYes)
+    Else
+        Prn_OK = True
+    End If
+End Function
+
+Public Sub Print_Preview()
+    Dim sh As Worksheet
+    Set sh = ActiveSheet
+    If Not Prn_OK(sh) Then Exit Sub
+    Prn_Rows sh, True: Prn_Logos sh, True: Prn_Bold sh, True: Prn_FitRows sh
+    sh.PrintPreview
+    Prn_Rows sh, False: Prn_Logos sh, False: Prn_Bold sh, False
+End Sub
+
+Public Sub Print_Now()
+    Dim sh As Worksheet
+    Set sh = ActiveSheet
+    If Not Prn_OK(sh) Then Exit Sub
+    If MsgBox("Send this document to the printer?", vbYesNo + vbQuestion, "CMU Database") <> vbYes Then Exit Sub
+    Prn_Rows sh, True: Prn_Logos sh, True: Prn_Bold sh, True: Prn_FitRows sh
+    sh.PrintOut Copies:=1
+    Prn_Rows sh, False: Prn_Logos sh, False: Prn_Bold sh, False
+End Sub
+
+Public Sub Print_PDF()
+    Dim sh As Worksheet, nm As String, f As String, ch As Variant
+    Set sh = ActiveSheet
+    If Not Prn_OK(sh) Then Exit Sub
+    If sh.Name = "Print Bill" Then
+        nm = "Bill " & sh.Range("K4").Value & " " & sh.Range("J12").Value
+    ElseIf sh.Name = "Print Clearance" Then
+        nm = "Clearance " & sh.Range("K4").Value & " " & sh.Range("J8").Value
+    Else
+        nm = sh.Name & " " & sh.Range("J7").Value & " " & sh.Range("J8").Value
+    End If
+    For Each ch In Array("/", "\", ":", "*", "?", """", "<", ">", "|")
+        nm = Replace(nm, ch, "-")
+    Next ch
+    f = ThisWorkbook.Path & Application.PathSeparator & Trim$(nm) & ".pdf"
+    Prn_Rows sh, True: Prn_Logos sh, True: Prn_Bold sh, True: Prn_FitRows sh
+    sh.ExportAsFixedFormat Type:=xlTypePDF, Filename:=f, Quality:=xlQualityStandard, IgnorePrintAreas:=False, OpenAfterPublish:=True
+    Prn_Rows sh, False: Prn_Logos sh, False: Prn_Bold sh, False
+    MsgBox "Saved: " & f, vbInformation, "CMU Database"
+End Sub
+
+Public Sub Setup_PrintButtons()
+    Dim f As Variant, s As Shape
+    For Each f In Array("Print CRL", "Print CIL", "Print Bill", "Print Clearance", "Print EDL", "Print EDL RP")
+        For Each s In ThisWorkbook.Worksheets(f).Shapes
+            On Error Resume Next
+            If Left$(s.Name, 3) = "btn" Or Left$(s.Name, 4) = "hdr_" Then s.DrawingObject.PrintObject = False
+            On Error GoTo 0
+            Select Case s.Name
+                Case "btnPrintPreview": s.OnAction = "Print_Preview"
+                Case "btnPrint": s.OnAction = "Print_Now"
+                Case "btnPDF": s.OnAction = "Print_PDF"
+                Case "btnWord": s.OnAction = "Print_Word"
+                Case "btnMakeBill": s.OnAction = "Bill_FromRecord"
+                Case "btnMenu": s.OnAction = "Go_Menu"
+            End Select
+        Next s
+    Next f
+End Sub
+
+Rem ==== MULTI-SERVICE BILL FORM (Bill Form sheet) ====
+Private Function Bil_Map(ByVal r As Long) As String
+    Bil_Map = "C" & r & "=Purpose / Licence Billed|D" & r & "=Chemical|E" & r & "=Amount Billed (USD)|C5=Bill No.|C7=Bill Date|C8=Bill Type|C9=Bill Ref. No.|C10=Contact Person|C11=Contact Title|C12=Location|C13=Activity|C14=Linked Record"
+End Function
+
+Private Function Bil_Loaded(sh As Worksheet) As Long
+    Bil_Loaded = Application.WorksheetFunction.CountA(sh.Range("G17:G26"))
+End Function
+
+Private Sub Bil_ClearForm(sh As Worksheet)
+    Clr_Prot sh
+    sh.Range("C5:C14").ClearContents
+    sh.Range("C17:E26").ClearContents
+    sh.Range("G17:G26").ClearContents
+    If ActiveSheet.Name = sh.Name Then sh.Range("C6").Select
+End Sub
+
+Private Function Bil_WarnOK(sh As Worksheet) As Boolean
+    Dim c As Range, msg As String
+    For Each c In sh.Range("D6:D13").Cells
+        If InStr(1, CStr(c.Text), ChrW(9888)) > 0 Then msg = msg & "- " & sh.Cells(c.Row, 2).Value & ": " & Replace(c.Text, ChrW(9888), "") & vbCrLf
+    Next c
+    If msg = "" Then
+        Bil_WarnOK = True
+    Else
+        Bil_WarnOK = (MsgBox("Please check:" & vbCrLf & vbCrLf & msg & vbCrLf & "Save anyway?", vbYesNo + vbQuestion, "CMU Database") = vbYes)
+    End If
+End Function
+
+Private Sub Bil_Defaults(sh As Worksheet)
+    Dim lo As ListObject, r As Variant
+    Clr_Prot sh
+    If CStr(sh.Range("C8").Value) = "" And CStr(sh.Range("C17").Value) <> "" Then sh.Range("C8").Value = Type_For(CStr(sh.Range("C17").Value))
+    If CStr(sh.Range("C12").Value) = "" And CStr(sh.Range("C6").Value) <> "" Then
+        Set lo = GetLO("tblCompanies")
+        r = Application.Match(sh.Range("C6").Value, lo.ListColumns("Company Name").DataBodyRange, 0)
+        If Not IsError(r) Then sh.Range("C12").Value = lo.ListColumns("Location").DataBodyRange.Cells(r, 1).Value
+    End If
+    Application.Calculate
+End Sub
+
+Rem Bill Type used when a service is billed without a chosen type
+Public Function Type_For(ByVal svc As String) As String
+    Dim ls As ListObject, r As Variant, g As String
+    Set ls = GetLO("tblServices")
+    r = Application.Match(svc, ls.ListColumns("Service").DataBodyRange, 0)
+    If Not IsError(r) Then g = CStr(ls.ListColumns("Bill Group").DataBodyRange.Cells(r, 1).Value)
+    Select Case g
+        Case "Licence": Type_For = "Licence – New Application"
+        Case "Clearance": Type_For = "Chemical Clearance"
+        Case "Fumigation": Type_For = "Fumigation"
+        Case "Transportation": Type_For = "Chemical Transportation"
+        Case Else: Type_For = "Penalty / Other"
+    End Select
+End Function
+
+Private Function Group_OfType(ByVal bt As String) As String
+    Dim lt As ListObject, r As Variant
+    Set lt = GetLO("tblBillTypes")
+    r = Application.Match(bt, lt.ListColumns("Bill Type").DataBodyRange, 0)
+    If Not IsError(r) Then Group_OfType = CStr(lt.ListColumns("Bill Group").DataBodyRange.Cells(r, 1).Value)
+End Function
+
+Public Function CMU_CodeVersion() As String
+    CMU_CodeVersion = "2026.09.26-R"
+End Function
+
+Public Sub Bil_Save()
+    If Not CMU_CanEdit() Then Exit Sub
+    Dim sh As Worksheet, lo As ListObject, r As Long, idx As Long, id As String, n As Long, bn As String
+    Set sh = ActiveSheet
+    If Bil_Loaded(sh) > 0 Or CStr(sh.Range("C5").Value) <> "" Then
+        MsgBox "A Bill No. is already in C5. Click Update to save changes to that bill, or Clear Form to start a new one.", vbInformation, "CMU Database"
+        Exit Sub
+    End If
+    If Not FormOK(sh) Then Exit Sub
+    If CStr(sh.Range("C9").Value) <> "" Then
+        If Application.WorksheetFunction.CountIf(GetLO("tblBills").ListColumns("Bill Ref. No.").DataBodyRange, sh.Range("C9").Value) > 0 Then
+            MsgBox "Bill Ref. No. " & sh.Range("C9").Value & " is already used on another bill. Each bill needs its own reference number.", vbCritical, "CMU Database"
+            Exit Sub
+        End If
+    End If
+    If Not Bil_WarnOK(sh) Then Exit Sub
+    Bil_Defaults sh
+    Set lo = GetLO("tblBills")
+    bn = NextID(lo, "Bill No.", "BN-" & Year(Date) & "-")
+    Application.ScreenUpdating = False
+    sh.Range("C5").Value = bn
+    For r = 17 To 26
+        If Trim$(CStr(sh.Range("C" & r).Value)) <> "" Then
+            id = NextID(lo, "Bill ID", "BIL-")
+            idx = lo.ListRows.Add(AlwaysInsert:=True).Index
+            lo.DataBodyRange.Cells(idx, ColIdx(lo, "Bill ID")).Value = id
+            WriteRow lo, idx, sh, Bil_Map(r), True, True
+            n = n + 1
+        End If
+    Next r
+    Application.ScreenUpdating = True
+    If MsgBox("Bill " & bn & " saved: " & n & " service line(s), total US$" & Format(Application.Sum(sh.Range("E17:E26")), "#,##0.00") & "." & vbCrLf & vbCrLf & "Open the bill letter now?", vbYesNo + vbInformation, "CMU Database") = vbYes Then
+        Form_PrintPage
+    End If
+    Bil_ClearForm sh
+End Sub
+
+Public Sub Bil_Find()
+    Dim sh As Worksheet, lo As ListObject, key As String, i As Long, r As Long, n As Long, total As Long
+    Dim hit() As Long, idx As Long, bn As String
+    Set sh = ActiveSheet
+    key = Trim$(CStr(sh.Range("C5").Value))
+    If key = "" Then key = Trim$(InputBox("Enter the Bill No. (e.g. BN-005), Bill Ref. No., or a line ID (e.g. BIL-001):", "Find bill"))
+    If key = "" Then Exit Sub
+    Set lo = GetLO("tblBills")
+    If lo.ListRows.Count = 0 Then Exit Sub
+    ReDim hit(1 To lo.ListRows.Count)
+    total = Clr_Collect(lo, "Bill No.", key, hit)
+    If total = 0 Then total = Clr_Collect(lo, "Bill Ref. No.", key, hit)
+    If total = 0 Then total = Clr_Collect(lo, "Bill ID", key, hit)
+    If total = 0 Then
+        MsgBox key & " was not found as a Bill No., Bill Ref. No. or line ID.", vbExclamation, "CMU Database"
+        Exit Sub
+    End If
+    bn = CStr(lo.DataBodyRange.Cells(hit(1), ColIdx(lo, "Bill No.")).Value)
+    If bn <> "" Then total = Clr_Collect(lo, "Bill No.", bn, hit)
+    Bil_ClearForm sh
+    Application.ScreenUpdating = False
+    idx = hit(1)
+    sh.Range("C5").Value = bn
+    sh.Range("C6").Value = lo.DataBodyRange.Cells(idx, ColIdx(lo, "Company Name")).Value
+    sh.Range("C7").Value = lo.DataBodyRange.Cells(idx, ColIdx(lo, "Bill Date")).Value
+    sh.Range("C8").Value = lo.DataBodyRange.Cells(idx, ColIdx(lo, "Bill Type")).Value
+    sh.Range("C9").Value = lo.DataBodyRange.Cells(idx, ColIdx(lo, "Bill Ref. No.")).Value
+    sh.Range("C10").Value = lo.DataBodyRange.Cells(idx, ColIdx(lo, "Contact Person")).Value
+    sh.Range("C11").Value = lo.DataBodyRange.Cells(idx, ColIdx(lo, "Contact Title")).Value
+    sh.Range("C12").Value = lo.DataBodyRange.Cells(idx, ColIdx(lo, "Location")).Value
+    sh.Range("C13").Value = lo.DataBodyRange.Cells(idx, ColIdx(lo, "Activity")).Value
+    sh.Range("C14").Value = lo.DataBodyRange.Cells(idx, ColIdx(lo, "Linked Record")).Value
+    For i = 1 To total
+        If i > 10 Then Exit For
+        idx = hit(i): r = 16 + i
+        sh.Range("C" & r).Value = lo.DataBodyRange.Cells(idx, ColIdx(lo, "Purpose / Licence Billed")).Value
+        sh.Range("D" & r).Value = lo.DataBodyRange.Cells(idx, ColIdx(lo, "Chemical")).Value
+        sh.Range("E" & r).Value = lo.DataBodyRange.Cells(idx, ColIdx(lo, "Amount Billed (USD)")).Value
+        sh.Range("G" & r).Value = lo.DataBodyRange.Cells(idx, ColIdx(lo, "Bill ID")).Value
+        n = n + 1
+    Next i
+    Application.ScreenUpdating = True
+    If total > n Then MsgBox "This bill has " & total & " lines; only the first 10 were loaded.", vbExclamation, "CMU Database"
+    MsgBox "Loaded " & bn & " (" & n & " service line(s)). Edit, add or clear lines, then click Update.", vbInformation, "CMU Database"
+End Sub
+
+Public Sub Bil_Update()
+    If Not CMU_CanEdit() Then Exit Sub
+    Dim sh As Worksheet, lo As ListObject, r As Long, idx As Long, id As String
+    Dim nU As Long, nA As Long, nD As Long, delIDs As String, d As Variant
+    Set sh = ActiveSheet
+    If Bil_Loaded(sh) = 0 Or CStr(sh.Range("C5").Value) = "" Then
+        MsgBox "Type the Bill No. in C5 and click Find Record first.", vbInformation, "CMU Database"
+        Exit Sub
+    End If
+    If Not FormOK(sh) Then Exit Sub
+    For r = 17 To 26
+        If CStr(sh.Range("G" & r).Value) <> "" And Trim$(CStr(sh.Range("C" & r).Value)) = "" Then nD = nD + 1
+    Next r
+    If MsgBox("Update bill " & sh.Range("C5").Value & "?" & IIf(nD > 0, vbCrLf & nD & " cleared line(s) will be DELETED.", ""), vbYesNo + vbQuestion, "CMU Database") <> vbYes Then Exit Sub
+    Bil_Defaults sh
+    Set lo = GetLO("tblBills")
+    Application.ScreenUpdating = False
+    nD = 0
+    For r = 17 To 26
+        id = CStr(sh.Range("G" & r).Value)
+        If Trim$(CStr(sh.Range("C" & r).Value)) <> "" Then
+            If id <> "" Then
+                idx = FindIdx(lo, "Bill ID", id)
+                If idx > 0 Then WriteRow lo, idx, sh, Bil_Map(r), True, False: nU = nU + 1
+            Else
+                id = NextID(lo, "Bill ID", "BIL-")
+                idx = lo.ListRows.Add(AlwaysInsert:=True).Index
+                lo.DataBodyRange.Cells(idx, ColIdx(lo, "Bill ID")).Value = id
+                WriteRow lo, idx, sh, Bil_Map(r), True, True
+                sh.Range("G" & r).Value = id
+                nA = nA + 1
+            End If
+        ElseIf id <> "" Then
+            delIDs = delIDs & id & "|"
+            sh.Range("C" & r & ":E" & r).ClearContents
+            sh.Range("G" & r).ClearContents
+        End If
+    Next r
+    If delIDs <> "" Then
+        For Each d In Split(Left$(delIDs, Len(delIDs) - 1), "|")
+            idx = FindIdx(lo, "Bill ID", CStr(d))
+            If idx > 0 Then lo.ListRows(idx).Delete: nD = nD + 1
+        Next d
+    End If
+    Application.ScreenUpdating = True
+    MsgBox "Bill " & sh.Range("C5").Value & " updated: " & nU & " changed, " & nA & " added, " & nD & " deleted.", vbInformation, "CMU Database"
+End Sub
+
+Public Sub Bil_Delete()
+    If Not CMU_CanEdit() Then Exit Sub
+    Dim sh As Worksheet, lo As ListObject, r As Long, idx As Long, n As Long, paid As Double
+    Set sh = ActiveSheet
+    If Bil_Loaded(sh) = 0 Then
+        MsgBox "Find the bill first (type the Bill No. in C5 and click Find Record).", vbInformation, "CMU Database"
+        Exit Sub
+    End If
+    paid = Application.WorksheetFunction.SumIfs(GetLO("tblPayments").ListColumns("Amount (USD)").DataBodyRange, GetLO("tblPayments").ListColumns("Bill No.").DataBodyRange, sh.Range("C5").Value)
+    If MsgBox("Permanently delete bill " & sh.Range("C5").Value & " and its " & Bil_Loaded(sh) & " line(s)?" & IIf(paid > 0, vbCrLf & "WARNING: US$" & Format(paid, "#,##0.00") & " in payments is linked to this bill.", "") & vbCrLf & "This cannot be undone.", vbYesNo + vbCritical, "CMU Database") <> vbYes Then Exit Sub
+    Set lo = GetLO("tblBills")
+    For r = 17 To 26
+        If CStr(sh.Range("G" & r).Value) <> "" Then
+            idx = FindIdx(lo, "Bill ID", CStr(sh.Range("G" & r).Value))
+            If idx > 0 Then lo.ListRows(idx).Delete: n = n + 1
+        End If
+    Next r
+    Bil_ClearForm sh
+    MsgBox n & " line(s) deleted.", vbInformation, "CMU Database"
+End Sub
+
+Public Sub Bil_Clear()
+    Bil_ClearForm ActiveSheet
+End Sub
+Rem ==== END BILL FORM ====
+Rem ==== CREATE BILL FROM RECORD (licence / clearance -> Bill Form) ====
+Private Function Svc_For(ByVal cat As String, ByVal typ As String) As String
+    If InStr(1, cat, "(CRL)", vbTextCompare) > 0 Then
+        Svc_For = "Annual Chemical Registration License"
+    ElseIf InStr(1, cat, "(CIL)", vbTextCompare) > 0 Then
+        Svc_For = "Chemical Importation License"
+    ElseIf InStr(1, cat, "Dewatering", vbTextCompare) > 0 Then
+        Svc_For = "Underground Mine Dewatering and Retention License"
+    ElseIf InStr(1, cat, "(EDL)", vbTextCompare) > 0 Then
+        Svc_For = "Annual Effluent Discharge License"
+    ElseIf InStr(1, cat, "Fumigation", vbTextCompare) > 0 Then
+        If InStr(1, typ, "Accreditation", vbTextCompare) > 0 Then Svc_For = "Fumigation Service Provider Accreditation" Else Svc_For = "Fumigation Certificate"
+    ElseIf InStr(1, cat, "Transport", vbTextCompare) > 0 Then
+        Svc_For = "Chemical Transportation License"
+    Else
+        Svc_For = "Other Service"
+    End If
+End Function
+
+Private Function Fee_For(ByVal svc As String) As Variant
+    Dim lf As ListObject, r As Variant
+    Fee_For = Empty
+    Set lf = GetLO("tblServices")
+    r = Application.Match(svc, lf.ListColumns("Service").DataBodyRange, 0)
+    If Not IsError(r) Then
+        If IsNumeric(lf.ListColumns("Suggested Fee (USD)").DataBodyRange.Cells(r, 1).Value) And CStr(lf.ListColumns("Suggested Fee (USD)").DataBodyRange.Cells(r, 1).Value) <> "" Then Fee_For = lf.ListColumns("Suggested Fee (USD)").DataBodyRange.Cells(r, 1).Value
+    End If
+End Function
+
+Public Sub Bill_FromRecord()
+    If Not CMU_CanEdit() Then Exit Sub
+    Dim sh As Worksheet, id As String
+    Set sh = ActiveSheet
+    Select Case sh.Name
+        Case "Licence Form", "Clearance Form": id = UCase$(Trim$(CStr(sh.Range("C5").Value)))
+        Case "Print CRL", "Print CIL", "Print EDL", "Print EDL RP": id = UCase$(Trim$(CStr(sh.Range("J4").Value)))
+        Case "Print Clearance": id = UCase$(Trim$(CStr(sh.Range("K4").Value)))
+        Case Else: Exit Sub
+    End Select
+    If id = "" Then
+        MsgBox "Save the record (or Find it) first, then click Create Bill.", vbInformation, "CMU Database"
+        Exit Sub
+    End If
+    Bill_FromID id
+End Sub
+
+Public Sub Bill_FromID(ByVal id As String)
+    Dim bf As Worksheet, lo As ListObject, lb As ListObject, lc As ListObject
+    Dim co As String, svc As String, det As String, loc As String, bl As String, lic As String
+    Dim idx As Long, i As Long, r As Long, n As Long, fee As Variant, v As Variant, cr As Variant
+    id = UCase$(Trim$(id))
+    If Left$(id, 4) = "LIC-" Then
+        Set lo = GetLO("tblLicences")
+        idx = FindIdx(lo, "Record ID", id)
+        If idx = 0 Then MsgBox id & " was not found.", vbExclamation, "CMU Database": Exit Sub
+        co = CStr(lo.DataBodyRange.Cells(idx, ColIdx(lo, "Company Name")).Value)
+        loc = CStr(lo.DataBodyRange.Cells(idx, ColIdx(lo, "Location")).Value)
+        svc = Svc_For(CStr(lo.DataBodyRange.Cells(idx, ColIdx(lo, "Licence Category")).Value), CStr(lo.DataBodyRange.Cells(idx, ColIdx(lo, "Licence / Certificate Type")).Value))
+        lic = CStr(lo.DataBodyRange.Cells(idx, ColIdx(lo, "Licence / Certificate No.")).Value)
+        If lic <> "" Then det = "Licence No. " & lic
+    ElseIf Left$(id, 4) = "CLN-" Then
+        Set lo = GetLO("tblClearances")
+        For i = 1 To lo.ListRows.Count
+            If UCase$(CStr(lo.DataBodyRange.Cells(i, ColIdx(lo, "Clearance No.")).Value)) = id Then
+                n = n + 1
+                If co = "" Then co = CStr(lo.DataBodyRange.Cells(i, ColIdx(lo, "Company Name")).Value)
+                v = CStr(lo.DataBodyRange.Cells(i, ColIdx(lo, "B/L / Invoice / AWB No.")).Value)
+                If v <> "" And InStr(1, ", " & bl & ",", ", " & v & ",") = 0 Then bl = IIf(bl = "", v, bl & ", " & v)
+            End If
+        Next i
+        If n = 0 Then MsgBox id & " was not found.", vbExclamation, "CMU Database": Exit Sub
+        svc = "Chemical Clearance"
+        det = n & " chemical line(s)" & IIf(bl = "", "", " under B/L " & bl)
+        Set lc = GetLO("tblCompanies")
+        cr = Application.Match(co, lc.ListColumns("Company Name").DataBodyRange, 0)
+        If Not IsError(cr) Then loc = CStr(lc.ListColumns("Location").DataBodyRange.Cells(cr, 1).Value)
+    Else
+        MsgBox "Bills can be created from a licence (LIC-###) or a clearance (CLN-###).", vbInformation, "CMU Database"
+        Exit Sub
+    End If
+    Set lb = GetLO("tblBills")
+    If lb.ListRows.Count > 0 Then
+        If Application.WorksheetFunction.CountIf(lb.ListColumns("Linked Record").DataBodyRange, "*" & id & "*") > 0 Then
+            If MsgBox(id & " has already been billed. Create another bill line for it?", vbYesNo + vbQuestion, "CMU Database") <> vbYes Then Exit Sub
+        End If
+    End If
+    Set bf = ThisWorkbook.Worksheets("Bill Form")
+    Clr_Prot bf
+    If CStr(bf.Range("C5").Value) = "" And CStr(bf.Range("C6").Value) = co And Application.WorksheetFunction.CountA(bf.Range("C17:C26")) > 0 Then
+        If MsgBox("A new bill for " & co & " is already open on the Bill Form." & vbCrLf & "Add " & id & " to that bill?" & vbCrLf & vbCrLf & "(No = start a new bill)", vbYesNo + vbQuestion, "CMU Database") <> vbYes Then Bil_ClearForm bf
+    Else
+        Bil_ClearForm bf
+    End If
+    For r = 17 To 26
+        If Trim$(CStr(bf.Range("C" & r).Value)) = "" Then Exit For
+    Next r
+    If r > 26 Then MsgBox "The bill already has 10 lines.", vbExclamation, "CMU Database": Exit Sub
+    bf.Range("C6").Value = co
+    If CStr(bf.Range("C8").Value) = "" Then bf.Range("C8").Value = Type_For(svc)
+    If Group_OfType(CStr(bf.Range("C8").Value)) <> Group_OfType(Type_For(svc)) Then
+        MsgBox svc & " cannot go on a " & bf.Range("C8").Value & " bill. Save or clear that bill first, then click Create Bill again.", vbExclamation, "CMU Database"
+        Exit Sub
+    End If
+    If CStr(bf.Range("C7").Value) = "" Then bf.Range("C7").Value = Date
+    If CStr(bf.Range("C12").Value) = "" And loc <> "" Then bf.Range("C12").Value = loc
+    bf.Range("C" & r).Value = svc
+    bf.Range("D" & r).Value = det
+    fee = Fee_For(svc)
+    If Not IsEmpty(fee) Then bf.Range("E" & r).Value = fee
+    bf.Range("C14").Value = IIf(CStr(bf.Range("C14").Value) = "", id, bf.Range("C14").Value & ", " & id)
+    bf.Activate
+    bf.Range("E" & r).Select
+    MsgBox "Bill line prepared for " & co & " (" & svc & ")." & vbCrLf & vbCrLf & "Check or type the amount in E" & r & ", add the Bill Ref. No., then click Save New." & vbCrLf & "To bill several licences together, go back and click Create Bill on the next record before saving.", vbInformation, "CMU Database"
+End Sub
+Rem ==== END CREATE BILL ====
+Rem ==== NEW BILL WIZARD (Main Menu > Create New Bill) ====
+Public Sub Bill_New()
+    If Not CMU_CanEdit() Then Exit Sub
+    Dim ans As String, k As Long, svc As Variant, lt As String, typ As String, rec As String
+    Dim bf As Worksheet, r As Long, fee As Variant, i As Long, renew As VbMsgBoxResult
+    ans = InputBox("What kind of bill?" & vbCrLf & vbCrLf & _
+        "1  -  Chemical Registration License (CRL)" & vbCrLf & _
+        "2  -  Chemical Importation License (CIL)" & vbCrLf & _
+        "3  -  CRL + CIL together" & vbCrLf & _
+        "4  -  Effluent Discharge License (EDL)" & vbCrLf & _
+        "5  -  Effluent Discharge & Dewatering License" & vbCrLf & _
+        "6  -  Fumigation Certificate" & vbCrLf & _
+        "7  -  Chemical Clearance" & vbCrLf & _
+        "8  -  Chemical Transportation License" & vbCrLf & _
+        "9  -  Others (penalty, accreditation, combined...)" & vbCrLf & vbCrLf & _
+        "Type the number and click OK:", "Create New Bill")
+    ans = Trim$(ans)
+    If ans = "" Then Exit Sub
+    If Not IsNumeric(ans) Then MsgBox "Please type a number from 1 to 9.", vbExclamation, "CMU Database": Exit Sub
+    k = CLng(ans)
+    Select Case k
+        Case 1: svc = Array("Annual Chemical Registration License"): lt = "Licence – New Application": typ = "CRL"
+        Case 2: svc = Array("Chemical Importation License"): lt = "Licence – New Application": typ = "CIL"
+        Case 3: svc = Array("Annual Chemical Registration License", "Chemical Importation License"): lt = "Licence – New Application": typ = "CRL + CIL"
+        Case 4: svc = Array("Annual Effluent Discharge License"): lt = "Licence – New Application": typ = "EDL"
+        Case 5: svc = Array("Effluent Discharge and Dewatering License"): lt = "Licence – New Application": typ = "Effluent & Dewatering"
+        Case 6: svc = Array("Fumigation Certificate"): lt = "Fumigation": typ = "Fumigation"
+        Case 7: svc = Array("Chemical Clearance"): lt = "Chemical Clearance": typ = "Chemical Clearance"
+        Case 8: svc = Array("Chemical Transportation License"): lt = "Chemical Transportation": typ = "Chemical Transportation"
+        Case 9: svc = Array("Penalty / Fine"): lt = "Penalty / Other": typ = "Other"
+        Case Else: MsgBox "Please type a number from 1 to 9.", vbExclamation, "CMU Database": Exit Sub
+    End Select
+    If k = 1 Or k = 2 Or k = 3 Or k = 4 Or k = 5 Or k = 8 Then
+        renew = MsgBox("Is this a RENEWAL?" & vbCrLf & vbCrLf & "Yes = renewal letter" & vbCrLf & "No = new application letter", vbYesNoCancel + vbQuestion, "Create New Bill - " & typ)
+        If renew = vbCancel Then Exit Sub
+        If renew = vbYes And k <> 8 Then lt = "Licence – Renewal"
+    End If
+    Rem optional: bill an existing licence / clearance record
+    If k <= 2 Or k = 4 Or k = 5 Or k = 7 Then
+        rec = UCase$(Trim$(InputBox("Optional: enter the saved " & IIf(k = 7, "Clearance No. (CLN-###)", "Licence Record ID (LIC-###)") & " to link and fill the company automatically." & vbCrLf & vbCrLf & "Leave blank to choose the company yourself.", "Create New Bill - " & typ)))
+    End If
+    If rec <> "" Then
+        If (Left$(rec, 4) = "LIC-" Or Left$(rec, 4) = "CLN-") Then
+            Set bf = ThisWorkbook.Worksheets("Bill Form")
+            Clr_Prot bf
+            Bil_ClearForm bf
+            Bill_FromID rec
+            bf.Range("C8").Value = lt
+            Exit Sub
+        Else
+            MsgBox rec & " is not a LIC- or CLN- number. Continuing without a link.", vbInformation, "CMU Database"
+        End If
+    End If
+    Set bf = ThisWorkbook.Worksheets("Bill Form")
+    Clr_Prot bf
+    Bil_ClearForm bf
+    bf.Range("C7").Value = Date
+    bf.Range("C8").Value = lt
+    r = 17
+    For i = LBound(svc) To UBound(svc)
+        If CStr(svc(i)) <> "" Then
+            bf.Range("C" & r).Value = svc(i)
+            fee = Fee_For(CStr(svc(i)))
+            If Not IsEmpty(fee) Then bf.Range("E" & r).Value = fee
+            r = r + 1
+        End If
+    Next i
+    If k = 8 Then bf.Range("D17").Value = "for a total of ___ trucks"
+    bf.Activate
+    bf.Range("C6").Select
+    MsgBox "New " & typ & " bill started on the Bill Form." & vbCrLf & vbCrLf & _
+        "1. Choose the Company (C6)" & vbCrLf & _
+        "2. Check / type the amount(s) in column E" & IIf(k = 9, " and pick the service(s) in column C", "") & vbCrLf & _
+        "3. Add the Bill Ref. No. and contact person" & vbCrLf & _
+        "4. Click Save New - you will be offered the bill letter to print.", vbInformation, "CMU Database"
+End Sub
+Rem ==== END NEW BILL ====
+Rem ==== POP-UP USERFORMS (built by Build_UserForms from Macro Setup column C) ====
+Public Sub Show_BillForm()
+    If Not CMU_CanEdit() Then Exit Sub
+    ShowUF "UF_Bill", "Bill_New", ""
+End Sub
+
+Public Sub Show_PayForm()
+    If Not CMU_CanEdit() Then Exit Sub
+    ShowUF "UF_Pay", "", "Payment Form"
+End Sub
+
+Public Sub Show_CompanyForm()
+    If Not CMU_CanEdit() Then Exit Sub
+    ShowUF "UF_Company", "", "Company Form"
+End Sub
+
+Public Sub Show_FindForm()
+    ShowUF "UF_Find", "", ""
+End Sub
+
+Private Sub ShowUF(ByVal nm As String, ByVal fallbackMacro As String, ByVal fallbackSheet As String)
+    Dim f As Object
+    On Error Resume Next
+    Set f = VBA.UserForms.Add(nm)
+    If Err.Number <> 0 Or f Is Nothing Then
+        Err.Clear
+        On Error GoTo 0
+        MsgBox "The pop-up form " & nm & " is not installed yet." & vbCrLf & "Run the macro Build_UserForms once (see the steps on the Macro Setup sheet).", vbInformation, "CMU Database"
+        If fallbackMacro <> "" Then Application.Run fallbackMacro
+        If fallbackSheet <> "" Then ThisWorkbook.Worksheets(fallbackSheet).Activate
+        Exit Sub
+    End If
+    On Error GoTo 0
+    f.Show
+End Sub
+
+Private Function FormCode(ByVal nm As String) As String
+    Dim v As Variant, i As Long, inside As Boolean, s As String, t As String
+    v = ThisWorkbook.Worksheets("Macro Setup").Range("C1:C3000").Value
+    For i = 1 To UBound(v, 1)
+        t = CStr(v(i, 1))
+        If Not inside Then
+            If t = "#FORM " & nm Then inside = True
+        ElseIf t = "#END " & nm Then
+            Exit For
+        ElseIf t = "#COMMON" Then
+            s = s & FormCode("UF_COMMON")
+        Else
+            s = s & t & vbLf
+        End If
+    Next i
+    FormCode = s
+End Function
+
+Private Function AddCtl(comp As Object, ByVal prog As String, ByVal nm As String, ByVal l As Single, ByVal t As Single, ByVal w As Single, ByVal h As Single, Optional ByVal cap As String = "") As Object
+    Dim c As Object
+    If nm = "" Then
+        Set c = comp.Designer.Controls.Add(prog)
+    Else
+        Set c = comp.Designer.Controls.Add(prog, nm)
+    End If
+    c.Left = l: c.Top = t: c.Width = w: c.Height = h
+    If cap <> "" Then
+        On Error Resume Next
+        c.Caption = cap
+        On Error GoTo 0
+    End If
+    Set AddCtl = c
+End Function
+
+Private Function NewForm(vbp As Object, ByVal nm As String, ByVal cap As String, ByVal w As Single, ByVal h As Single) As Object
+    Dim comp As Object
+    On Error Resume Next
+    Set comp = vbp.VBComponents(nm)
+    If Not comp Is Nothing Then vbp.VBComponents.Remove comp
+    Set comp = Nothing
+    On Error GoTo 0
+    Set comp = vbp.VBComponents.Add(3)
+    comp.Name = nm
+    comp.Properties("Caption") = cap
+    comp.Properties("Width") = w
+    comp.Properties("Height") = h
+    Set NewForm = comp
+End Function
+
+Private Sub SetCode(comp As Object, ByVal nm As String)
+    With comp.CodeModule
+        If .CountOfLines > 0 Then .DeleteLines 1, .CountOfLines
+        .AddFromString FormCode(nm)
+    End With
+End Sub
+
+Rem ==== UI THEME (runtime helpers used by the pop-up forms) ====
+Public Function UI_CapsOn() As Boolean
+    On Error Resume Next
+    UI_CapsOn = ((UI_GetKeyState(20) And 1) <> 0)
+End Function
+
+Public Sub UI_Unhover()
+    On Error Resume Next
+    If Not UI_HotBtn Is Nothing Then UI_HotBtn.Cool
+    Set UI_HotBtn = Nothing
+End Sub
+
+Public Sub UI_Paint(ByVal b As Object, ByVal hot As Boolean)
+    On Error Resume Next
+    If Not b.Enabled Then
+        b.BackColor = RGB(214, 218, 224)
+        b.ForeColor = RGB(140, 146, 155)
+        Exit Sub
+    End If
+    b.ForeColor = RGB(255, 255, 255)
+    Select Case CStr(b.Tag)
+        Case "P": b.BackColor = IIf(hot, RGB(104, 158, 68), RGB(84, 130, 53))
+        Case "D": b.BackColor = IIf(hot, RGB(222, 58, 58), RGB(192, 0, 0))
+        Case "B": b.BackColor = IIf(hot, RGB(70, 140, 205), RGB(47, 117, 181))
+        Case "F"
+            b.BackColor = IIf(hot, RGB(208, 219, 233), RGB(228, 234, 242))
+            b.ForeColor = RGB(31, 78, 120)
+        Case "FA": b.BackColor = RGB(31, 78, 120)
+        Case Else: b.BackColor = IIf(hot, RGB(98, 108, 120), RGB(128, 138, 150))
+    End Select
+End Sub
+
+Public Sub UI_Enable(ByVal b As Object, ByVal onOff As Boolean)
+    On Error Resume Next
+    If b.Enabled <> onOff Then b.Enabled = onOff
+    UI_Paint b, False
+End Sub
+
+Public Sub UI_Status(ByVal f As Object, ByVal msg As String, Optional ByVal kind As String = "i")
+    Dim bg As Long, fg As Long
+    On Error Resume Next
+    Select Case kind
+        Case "ok": bg = RGB(226, 239, 218): fg = RGB(56, 87, 35)
+        Case "w": bg = RGB(255, 242, 204): fg = RGB(128, 96, 0)
+        Case "e": bg = RGB(252, 228, 228): fg = RGB(156, 0, 6)
+        Case Else: bg = RGB(232, 236, 241): fg = RGB(68, 84, 106)
+    End Select
+    f.Controls("lblStatusBg").BackColor = bg
+    f.Controls("lblStatus").ForeColor = fg
+    f.Controls("lblStatus").Caption = msg
+End Sub
+
+Public Sub UI_Mark(ByVal c As Object, ByVal ok As Boolean)
+    On Error Resume Next
+    If ok Then
+        If c.Enabled Then c.BackColor = RGB(255, 255, 255)
+        c.BorderColor = RGB(190, 196, 205)
+    Else
+        c.BackColor = RGB(253, 237, 237)
+        c.BorderColor = RGB(200, 40, 40)
+    End If
+End Sub
+
+Public Function UI_Score(ByVal p As String) As Long
+    Dim s As Long
+    If Len(p) < 6 Then Exit Function
+    s = 1
+    If Len(p) >= 10 Then s = s + 1
+    If p Like "*[A-Z]*" And p Like "*[a-z]*" Then s = s + 1
+    If p Like "*[0-9]*" Then s = s + 1
+    If p Like "*[!A-Za-z0-9]*" Then s = s + 1
+    If s > 4 Then s = 4
+    UI_Score = s
+End Function
+
+Public Sub UI_Strength(ByVal bar As Object, ByVal txt As Object, ByVal p As String, ByVal fullW As Single)
+    Dim f As Single, col As Long, cap As String
+    On Error Resume Next
+    If Len(p) = 0 Then
+        bar.Visible = False
+        txt.Caption = ""
+        Exit Sub
+    End If
+    Select Case UI_Score(p)
+        Case 0: f = 0.15: col = RGB(192, 0, 0): cap = "Too short  -  at least 6 characters"
+        Case 1: f = 0.35: col = RGB(237, 125, 49): cap = "Weak  -  add capitals, numbers or symbols"
+        Case 2: f = 0.6: col = RGB(191, 143, 0): cap = "Fair"
+        Case 3: f = 0.8: col = RGB(112, 173, 71): cap = "Good"
+        Case Else: f = 1: col = RGB(56, 142, 60): cap = "Strong"
+    End Select
+    bar.Width = fullW * f
+    bar.BackColor = col
+    bar.Visible = True
+    txt.ForeColor = col
+    txt.Caption = "Strength:  " & cap
+End Sub
+
+Public Function UI_Norm(ByVal s As String) As String
+    Dim i As Long, ch As String, t As String, w As Variant, out As String
+    s = LCase$(s)
+    For i = 1 To Len(s)
+        ch = Mid$(s, i, 1)
+        If ch Like "[a-z0-9]" Then t = t & ch Else t = t & " "
+    Next i
+    For Each w In Split(t, " ")
+        Select Case CStr(w)
+            Case "", "inc", "ltd", "llc", "limited", "corp", "corporation", "company", "co", "the", "liberia", "lib", "and", "group", "plc", "sa"
+            Case Else: out = out & CStr(w)
+        End Select
+    Next w
+    UI_Norm = out
+End Function
+
+Rem ==== UI THEME (design-time builders) ====
+Private Sub UI_Font(ByVal c As Object, ByVal sz As Single, ByVal b As Boolean, ByVal col As Long)
+    On Error Resume Next
+    c.Font.Name = "Segoe UI"
+    c.Font.Size = sz
+    c.Font.Bold = b
+    c.ForeColor = col
+End Sub
+
+Private Function UI_IW(comp As Object) As Single
+    UI_IW = comp.Properties("Width").Value - 6
+    On Error Resume Next
+    UI_IW = comp.Designer.InsideWidth
+End Function
+
+Private Function UI_IH(comp As Object) As Single
+    UI_IH = comp.Properties("Height").Value - 30
+    On Error Resume Next
+    UI_IH = comp.Designer.InsideHeight
+End Function
+
+Private Function UI_Box(comp As Object, ByVal nm As String, ByVal l As Single, ByVal t As Single, ByVal w As Single, ByVal h As Single, ByVal col As Long, Optional ByVal border As Boolean = False) As Object
+    Dim c As Object
+    Set c = AddCtl(comp, "Forms.Label.1", nm, l, t, w, h)
+    c.Caption = ""
+    c.BackStyle = 1
+    c.BackColor = col
+    If border Then
+        c.BorderStyle = 1
+        c.BorderColor = RGB(214, 219, 226)
+    End If
+    Set UI_Box = c
+End Function
+
+Private Function UI_Txt(comp As Object, ByVal nm As String, ByVal cap As String, ByVal l As Single, ByVal t As Single, ByVal w As Single, ByVal h As Single, ByVal sz As Single, ByVal b As Boolean, ByVal col As Long) As Object
+    Dim c As Object
+    Set c = AddCtl(comp, "Forms.Label.1", nm, l, t, w, h, cap)
+    If cap = "" Then c.Caption = ""
+    c.BackStyle = 0
+    UI_Font c, sz, b, col
+    Set UI_Txt = c
+End Function
+
+Private Function UI_Cap(comp As Object, ByVal txt As String, ByVal l As Single, ByVal t As Single, Optional ByVal req As Boolean = False, Optional ByVal nm As String = "") As Object
+    Dim c As Object, a As Object, x As Single
+    Set c = UI_Txt(comp, nm, txt, l, t, 220, 13, 8.5, True, RGB(68, 84, 106))
+    On Error Resume Next
+    c.WordWrap = False
+    c.AutoSize = True
+    On Error GoTo 0
+    If req Then
+        x = c.Left + c.Width + 1
+        If c.Width >= 219 Then x = l + Len(txt) * 5 + 2
+        Set a = UI_Txt(comp, "", "*", x, t - 1, 10, 13, 9.5, True, RGB(200, 30, 30))
+    End If
+    Set UI_Cap = c
+End Function
+
+Private Function UI_In(comp As Object, ByVal prog As String, ByVal nm As String, ByVal l As Single, ByVal t As Single, ByVal w As Single, Optional ByVal h As Single = 20) As Object
+    Dim c As Object
+    Set c = AddCtl(comp, prog, nm, l, t, w, h)
+    UI_Font c, 10, False, RGB(33, 37, 41)
+    On Error Resume Next
+    c.BackColor = RGB(255, 255, 255)
+    c.SpecialEffect = 0
+    c.BorderStyle = 1
+    c.BorderColor = RGB(190, 196, 205)
+    On Error GoTo 0
+    Set UI_In = c
+End Function
+
+Private Function UI_Btn(comp As Object, ByVal nm As String, ByVal cap As String, ByVal l As Single, ByVal t As Single, ByVal w As Single, ByVal h As Single, ByVal kind As String) As Object
+    Dim c As Object
+    Set c = AddCtl(comp, "Forms.CommandButton.1", nm, l, t, w, h, cap)
+    c.Tag = kind
+    UI_Font c, 9.5, True, RGB(255, 255, 255)
+    On Error Resume Next
+    c.TakeFocusOnClick = False
+    On Error GoTo 0
+    UI_Paint c, False
+    Set UI_Btn = c
+End Function
+
+Private Function UI_New(vbp As Object, ByVal nm As String, ByVal title As String, ByVal subTitle As String, ByVal w As Single, ByVal h As Single) As Object
+    Dim comp As Object, iw As Single, ih As Single
+    Set comp = NewForm(vbp, nm, "CMU Database  -  " & title, w, h)
+    On Error Resume Next
+    comp.Properties("BackColor") = RGB(243, 245, 248)
+    comp.Properties("StartUpPosition") = 1
+    On Error GoTo 0
+    iw = UI_IW(comp): ih = UI_IH(comp)
+    UI_Box comp, "lblBand", 0, 0, iw, 58, RGB(31, 78, 120)
+    UI_Box comp, "lblAccent", 0, 58, iw, 3, RGB(84, 130, 53)
+    UI_Txt comp, "lblBrand", "EPA LIBERIA    |    ERRS - CMU DATABASE", 18, 8, iw - 36, 12, 7.5, True, RGB(155, 194, 230)
+    UI_Txt comp, "lblTitle", title, 18, 19, iw - 36, 22, 14, True, RGB(255, 255, 255)
+    UI_Txt comp, "lblSub", subTitle, 18, 40, iw - 36, 14, 8.5, False, RGB(221, 235, 247)
+    UI_Box comp, "lblStatusLine", 0, ih - 21, iw, 1, RGB(210, 215, 222)
+    UI_Box comp, "lblStatusBg", 0, ih - 20, iw, 20, RGB(232, 236, 241)
+    UI_Txt comp, "lblStatus", "Ready", 14, ih - 16, iw - 28, 14, 8.5, False, RGB(68, 84, 106)
+    Set UI_New = comp
+End Function
+
+Private Sub UI_Footer(comp As Object, ByVal okName As String, ByVal okCap As String, ByVal okW As Single, ByVal cancelName As String, ByVal cancelCap As String)
+    Dim iw As Single, ih As Single, c As Object
+    iw = UI_IW(comp): ih = UI_IH(comp)
+    Set c = UI_Btn(comp, cancelName, cancelCap, iw - 112, ih - 62, 96, 30, "S")
+    c.Cancel = True
+    If okName <> "" Then
+        Set c = UI_Btn(comp, okName, okCap, iw - 120 - okW, ih - 62, okW, 30, "P")
+        c.Default = True
+    End If
+End Sub
+
+Private Sub UI_BuildClass(vbp As Object)
+    Dim comp As Object
+    On Error Resume Next
+    Set comp = vbp.VBComponents("CMU_UIBtn")
+    On Error GoTo 0
+    If comp Is Nothing Then
+        Set comp = vbp.VBComponents.Add(2)
+        comp.Name = "CMU_UIBtn"
+    End If
+    SetCode comp, "CMU_UIBtn"
+End Sub
+
+Private Function UI_Project() As Object
+    Dim vbp As Object, n As Long
+    On Error Resume Next
+    Set vbp = ThisWorkbook.VBProject
+    n = vbp.VBComponents.Count
+    If Err.Number <> 0 Or vbp Is Nothing Then
+        On Error GoTo 0
+        MsgBox "Excel is blocking this step." & vbCrLf & vbCrLf & "Go to File > Options > Trust Center > Trust Center Settings > Macro Settings and tick 'Trust access to the VBA project object model'. Then run this macro again.", vbExclamation, "CMU Database"
+        Exit Function
+    End If
+    Set UI_Project = vbp
+End Function
+
+Public Sub Build_UserForms()
+    Dim vbp As Object, f As Object, c As Object, i As Long
+    Dim iw As Single, ih As Single, x As Single, y As Single, fw As Single, hw As Single, ax As Single, tw As Single, w1 As Single
+    Set vbp = UI_Project()
+    If vbp Is Nothing Then Exit Sub
+    Application.ScreenUpdating = False
+    UI_BuildClass vbp
+
+    Rem --- CREATE NEW BILL ---
+    Set f = UI_New(vbp, "UF_Bill", "Create New Bill", "Choose the bill type and the company, then add up to 5 services.", 660, 560)
+    iw = UI_IW(f): ih = UI_IH(f)
+    UI_Box f, "", 16, 74, 190, 180, RGB(255, 255, 255), True
+    UI_Txt f, "", "BILL TYPE", 28, 82, 166, 12, 8, True, RGB(31, 78, 120)
+    UI_In f, "Forms.ListBox.1", "lstType", 28, 98, 166, 110
+    UI_Txt f, "lblHint", "", 28, 214, 166, 36, 8, False, RGB(68, 84, 106)
+    x = 232: fw = iw - x - 30: hw = (fw - 12) / 2
+    UI_Box f, "", 218, 74, iw - 234, 180, RGB(255, 255, 255), True
+    UI_Cap f, "Company", x, 84, True
+    UI_In f, "Forms.ComboBox.1", "cboCompany", x, 98, fw
+    UI_Txt f, "lblCoInfo", "", x, 121, fw, 26, 8, False, RGB(47, 117, 181)
+    UI_Cap f, "Bill date", x, 150, True
+    UI_In f, "Forms.TextBox.1", "txtDate", x, 164, 120
+    UI_Cap f, "Bill Ref. No.", x + 132, 150
+    UI_In f, "Forms.TextBox.1", "txtRef", x + 132, 164, fw - 132
+    UI_Cap f, "Contact person", x, 194
+    UI_In f, "Forms.TextBox.1", "txtContact", x, 208, hw
+    UI_Cap f, "Position / Title", x + hw + 12, 194
+    UI_In f, "Forms.TextBox.1", "txtTitle", x + hw + 12, 208, hw
+    ax = iw - 150
+    UI_Box f, "", 16, 266, iw - 32, 160, RGB(255, 255, 255), True
+    UI_Box f, "", 16, 266, iw - 32, 20, RGB(221, 228, 237)
+    UI_Txt f, "", "#", 26, 270, 14, 12, 8, True, RGB(68, 84, 106)
+    UI_Txt f, "", "SERVICE", 44, 270, 200, 12, 8, True, RGB(68, 84, 106)
+    UI_Txt f, "", "DETAILS  (chemicals, trucks, B/L No. ...)", 258, 270, ax - 266, 12, 8, True, RGB(68, 84, 106)
+    UI_Txt f, "", "AMOUNT (US$)", ax, 270, 118, 12, 8, True, RGB(68, 84, 106)
+    For i = 1 To 5
+        y = 292 + (i - 1) * 26
+        UI_Txt f, "", CStr(i), 27, y + 4, 14, 12, 9, True, RGB(128, 138, 150)
+        UI_In f, "Forms.ComboBox.1", "cboSvc" & i, 44, y, 206
+        UI_In f, "Forms.TextBox.1", "txtDet" & i, 258, y, ax - 266
+        UI_In f, "Forms.TextBox.1", "txtAmt" & i, ax, y, 118
+    Next i
+    Set c = UI_Txt(f, "lblWords", "", 16, 438, iw - 250, 28, 8, False, RGB(89, 89, 89))
+    c.Font.Italic = True
+    Set c = UI_Txt(f, "lblTotal", "US$ 0.00", iw - 226, 434, 210, 24, 15, True, RGB(31, 78, 120))
+    c.TextAlign = 3
+    UI_Footer f, "cmdSave", "Save Bill", 130, "cmdCancel", "Cancel"
+    SetCode f, "UF_Bill"
+
+    Rem --- RECORD PAYMENT ---
+    Set f = UI_New(vbp, "UF_Pay", "Record Payment", "Record a payment or receipt against an existing bill.", 520, 430)
+    iw = UI_IW(f): ih = UI_IH(f): fw = iw - 36
+    UI_Cap f, "Bill being paid", 18, 72, True
+    UI_In f, "Forms.ComboBox.1", "cboBill", 18, 86, fw
+    UI_Box f, "", 18, 116, fw, 70, RGB(255, 255, 255), True
+    UI_Txt f, "lblCo", "No bill selected", 30, 122, fw - 24, 16, 10, True, RGB(31, 78, 120)
+    tw = (fw - 24) / 3
+    For i = 0 To 2
+        UI_Txt f, "", Array("BILLED", "PAID", "BALANCE")(i), 30 + i * tw, 142, tw - 8, 11, 7.5, True, RGB(128, 138, 150)
+        UI_Txt f, Array("lblBilled", "lblPaid", "lblBal")(i), "-", 30 + i * tw, 154, tw - 8, 24, 14, True, RGB(33, 37, 41)
+    Next i
+    UI_Cap f, "Amount paid (US$)", 18, 198, True
+    UI_In f, "Forms.TextBox.1", "txtAmt", 18, 212, 150
+    Set c = UI_Btn(f, "cmdFull", "Pay full balance", 174, 212, 110, 20, "B")
+    c.Font.Size = 8.5
+    UI_Cap f, "Payment date", 302, 198, True
+    UI_In f, "Forms.TextBox.1", "txtDate", 302, 212, iw - 320
+    UI_Cap f, "Receipt No.", 18, 242
+    UI_In f, "Forms.TextBox.1", "txtReceipt", 18, 256, 266
+    UI_Cap f, "Remarks", 18, 286
+    UI_In f, "Forms.TextBox.1", "txtRemarks", 18, 300, fw
+    UI_Footer f, "cmdSave", "Save Payment", 130, "cmdCancel", "Cancel"
+    SetCode f, "UF_Pay"
+
+    Rem --- REGISTER COMPANY ---
+    Set f = UI_New(vbp, "UF_Company", "Register Company", "Add a new company to the register. Duplicates are checked as you type.", 480, 322)
+    iw = UI_IW(f): ih = UI_IH(f): fw = iw - 36: hw = (fw - 12) / 2
+    UI_Cap f, "Company name", 18, 72, True
+    UI_In f, "Forms.TextBox.1", "txtName", 18, 86, fw
+    UI_Box f, "lblCheckBg", 18, 110, fw, 18, RGB(232, 236, 241)
+    UI_Txt f, "lblCheck", "", 26, 112, fw - 16, 14, 8.5, True, RGB(68, 84, 106)
+    UI_Cap f, "Sector / Activity", 18, 138
+    UI_In f, "Forms.ComboBox.1", "cboSector", 18, 152, hw
+    UI_Cap f, "Location", 18 + hw + 12, 138
+    UI_In f, "Forms.TextBox.1", "txtLoc", 18 + hw + 12, 152, hw
+    UI_Cap f, "Other names recorded", 18, 182
+    UI_In f, "Forms.TextBox.1", "txtOther", 18, 196, fw
+    UI_Footer f, "cmdSave", "Save Company", 130, "cmdCancel", "Cancel"
+    SetCode f, "UF_Company"
+
+    Rem --- FIND / PRINT ---
+    Set f = UI_New(vbp, "UF_Find", "Find / Print a Record", "Search companies, licences, clearances, bills and payments  -  results appear as you type.", 720, 504)
+    iw = UI_IW(f): ih = UI_IH(f): fw = iw - 36
+    UI_Cap f, "Search", 18, 70
+    Set c = UI_In(f, "Forms.TextBox.1", "txtQ", 18, 84, fw, 24)
+    c.Font.Size = 11
+    x = 18
+    For i = 0 To 5
+        w1 = Array(56, 84, 76, 84, 60, 76)(i)
+        Set c = UI_Btn(f, "tab" & i, Array("All", "Companies", "Licences", "Clearances", "Bills", "Payments")(i), x, 116, w1, 22, IIf(i = 0, "FA", "F"))
+        c.Font.Size = 9
+        x = x + w1 + 6
+    Next i
+    UI_Box f, "", 18, 146, fw, 20, RGB(221, 228, 237)
+    x = 22
+    For i = 0 To 4
+        w1 = Array(72, 82, 222, 192, 80)(i)
+        UI_Txt f, "", Array("TYPE", "ID", "COMPANY", "REFERENCE / DETAILS", "DATE")(i), x, 150, w1 - 4, 12, 8, True, RGB(68, 84, 106)
+        x = x + w1
+    Next i
+    Set c = UI_In(f, "Forms.ListBox.1", "lstRes", 18, 166, fw, 232)
+    c.Font.Size = 9.5
+    UI_Txt f, "", "Tip:  double-click a result to open it   |   Down arrow moves into the list   |   Esc closes", 18, ih - 53, iw - 400, 24, 8, False, RGB(128, 138, 150)
+    Set c = UI_Btn(f, "cmdClose", "Close", iw - 112, ih - 62, 96, 30, "S")
+    c.Cancel = True
+    UI_Btn f, "cmdPrint", "Print Page", iw - 230, ih - 62, 110, 30, "B"
+    UI_Btn f, "cmdOpen", "Open Record", iw - 348, ih - 62, 110, 30, "P"
+    SetCode f, "UF_Find"
+
+    Application.ScreenUpdating = True
+    MsgBox "The pop-up forms were rebuilt with the new design:" & vbCrLf & "Create New Bill, Record Payment, Register Company and Find / Print." & vbCrLf & vbCrLf & "Next run Build_LoginForms, then Setup_Buttons, then save the file.", vbInformation, "CMU Database"
+End Sub
+Rem ==== END POP-UP USERFORMS ====
+Rem ==== SAVE AS WORD (print pages -> editable .docx) ====
+Private Function Prn_FileName(sh As Worksheet) As String
+    Dim nm As String, ch As Variant
+    If sh.Name = "Print Bill" Then
+        nm = "Bill " & sh.Range("K4").Value & " " & sh.Range("J12").Value
+    ElseIf sh.Name = "Print Clearance" Then
+        nm = "Clearance " & sh.Range("K4").Value & " " & sh.Range("J8").Value
+    Else
+        nm = sh.Name & " " & sh.Range("J7").Value & " " & sh.Range("J8").Value
+    End If
+    For Each ch In Array("/", "\", ":", "*", "?", """", "<", ">", "|")
+        nm = Replace(nm, ch, "-")
+    Next ch
+    Prn_FileName = Trim$(nm)
+End Function
+
+Public Sub Print_Word()
+    Rem Saves the print page as PDF first (exact layout, logos, bold text), then lets Word convert that PDF into an editable .docx
+    Dim sh As Worksheet, wd As Object, doc As Object, f As String, tmp As String, created As Boolean
+    Set sh = ActiveSheet
+    If Not Prn_OK(sh) Then Exit Sub
+    f = ThisWorkbook.Path & Application.PathSeparator & Prn_FileName(sh) & ".docx"
+    tmp = Environ$("TEMP") & Application.PathSeparator & "CMU_" & Format(Now, "yyyymmddhhnnss") & ".pdf"
+    Application.ScreenUpdating = False
+    Prn_Rows sh, True: Prn_Logos sh, True: Prn_Bold sh, True: Prn_FitRows sh
+    sh.ExportAsFixedFormat Type:=xlTypePDF, Filename:=tmp, Quality:=xlQualityStandard, IgnorePrintAreas:=False, OpenAfterPublish:=False
+    Prn_Rows sh, False: Prn_Logos sh, False: Prn_Bold sh, False
+    Application.ScreenUpdating = True
+    On Error Resume Next
+    Set wd = GetObject(, "Word.Application")
+    If wd Is Nothing Then Set wd = CreateObject("Word.Application"): created = True
+    On Error GoTo 0
+    If wd Is Nothing Then MsgBox "Microsoft Word could not be started on this computer.", vbCritical, "CMU Database": Exit Sub
+    wd.DisplayAlerts = 0
+    On Error Resume Next
+    Set doc = wd.Documents.Open(Filename:=tmp, ConfirmConversions:=False, ReadOnly:=False, AddToRecentFiles:=False)
+    If doc Is Nothing Then
+        On Error GoTo 0
+        MsgBox "Word could not open the page. Make sure Word 2013 or newer is installed.", vbCritical, "CMU Database"
+        Exit Sub
+    End If
+    Err.Clear
+    doc.SaveAs2 Filename:=f, FileFormat:=16
+    If Err.Number <> 0 Then
+        Err.Clear
+        MsgBox "The document opened in Word but could not be saved to:" & vbCrLf & f & vbCrLf & "Use File > Save As in Word.", vbExclamation, "CMU Database"
+    Else
+        MsgBox "Saved as Word: " & f & vbCrLf & vbCrLf & "It is open in Word - you can edit it before printing.", vbInformation, "CMU Database"
+    End If
+    Kill tmp
+    On Error GoTo 0
+    wd.DisplayAlerts = -1
+    wd.Visible = True
+    wd.Activate
+End Sub
+Rem ==== END SAVE AS WORD ====
+Rem ==== USER LOGIN (Login sheet, Users sheet = very hidden) ====
+
+Public Function CMU_Hash(ByVal salt As String, ByVal pwd As String) As String
+    Dim s As String, i As Long, j As Long, h1 As Double, h2 As Double, c As Long, out As String
+    s = salt & "|CMU-ERRS|" & pwd
+    h1 = 5381: h2 = 52711
+    For j = 1 To 64
+        For i = 1 To Len(s)
+            c = AscW(Mid$(s, i, 1)) And &HFFFF&
+            h1 = h1 * 33 + c + j: h1 = h1 - Int(h1 / 4294967291#) * 4294967291#
+            h2 = h2 * 31 + c * 7 + j: h2 = h2 - Int(h2 / 4294967279#) * 4294967279#
+        Next i
+    Next j
+    out = Right$("0000000000" & CStr(h1), 10) & Right$("0000000000" & CStr(h2), 10)
+    CMU_Hash = out
+End Function
+
+Private Function UserRow(ByVal un As String) As Long
+    Dim lo As ListObject, i As Long
+    Set lo = GetLO("tblUsers")
+    For i = 1 To lo.ListRows.Count
+        If LCase$(Trim$(CStr(lo.DataBodyRange.Cells(i, 1).Value))) = LCase$(Trim$(un)) Then UserRow = i: Exit Function
+    Next i
+End Function
+
+Public Function CMU_CheckLogin(ByVal un As String, ByVal pwd As String) As String
+    Dim lo As ListObject, r As Long
+    Set lo = GetLO("tblUsers")
+    r = UserRow(un)
+    If r = 0 Then CMU_CheckLogin = "Unknown username.": Exit Function
+    If UCase$(CStr(lo.DataBodyRange.Cells(r, 4).Value)) <> "YES" Then CMU_CheckLogin = "This account is disabled. Ask the administrator.": Exit Function
+    If CStr(lo.DataBodyRange.Cells(r, 6).Value) = "" Then
+        If LCase$(un) = "admin" And pwd = "admin123" Then
+            CMU_CheckLogin = "FIRST"
+        Else
+            CMU_CheckLogin = "Wrong password."
+        End If
+    ElseIf CMU_Hash(CStr(lo.DataBodyRange.Cells(r, 5).Value), pwd) <> CStr(lo.DataBodyRange.Cells(r, 6).Value) Then
+        CMU_CheckLogin = "Wrong password."
+    Else
+        CMU_CheckLogin = "OK"
+    End If
+End Function
+
+Public Sub CMU_SetPassword(ByVal un As String, ByVal pwd As String)
+    Dim lo As ListObject, r As Long, salt As String
+    Set lo = GetLO("tblUsers")
+    r = UserRow(un)
+    If r = 0 Then Exit Sub
+    Randomize
+    salt = Format(Now, "yymmddhhnnss") & CStr(Int(Rnd * 1000000))
+    lo.DataBodyRange.Cells(r, 5).Value = "'" & salt
+    lo.DataBodyRange.Cells(r, 6).Value = "'" & CMU_Hash(salt, pwd)
+End Sub
+
+Public Sub CMU_AfterLogin(ByVal un As String)
+    Dim lo As ListObject, r As Long, ws As Worksheet
+    Set lo = GetLO("tblUsers")
+    r = UserRow(un)
+    CMU_User = CStr(lo.DataBodyRange.Cells(r, 1).Value)
+    CMU_Role = CStr(lo.DataBodyRange.Cells(r, 3).Value)
+    lo.DataBodyRange.Cells(r, 8).Value = Now
+    Application.ScreenUpdating = False
+    On Error Resume Next
+    ThisWorkbook.Unprotect CMU_LOCKPWD
+    On Error GoTo 0
+    ThisWorkbook.Worksheets("Users").Range("J1").Value = CMU_Role
+    For Each ws In ThisWorkbook.Worksheets
+        If ws.Name <> "Users" Then ws.Visible = xlSheetVisible
+    Next ws
+    If CMU_Role <> "Admin" Then
+        For Each ws In ThisWorkbook.Worksheets
+            If ws.Name = "Macro Setup" Or ws.Name = "Lists" Or ws.Name = "Fee Schedule" Then ws.Visible = xlSheetHidden
+        Next ws
+    End If
+    ThisWorkbook.Worksheets("Main Menu").Range("F3").Value = "Signed in: " & lo.DataBodyRange.Cells(r, 2).Value & " (" & CMU_Role & ")"
+    ThisWorkbook.Worksheets("Main Menu").Activate
+    ThisWorkbook.Worksheets("Login").Visible = xlSheetHidden
+    Application.ScreenUpdating = True
+    CMU_ApplyRights
+End Sub
+
+Public Sub CMU_LockAll()
+    Dim ws As Worksheet
+    Application.ScreenUpdating = False
+    On Error Resume Next
+    ThisWorkbook.Unprotect CMU_LOCKPWD
+    ThisWorkbook.Worksheets("Users").Range("J1").Value = ""
+    On Error GoTo 0
+    With ThisWorkbook.Worksheets("Login")
+        .Visible = xlSheetVisible
+        .Activate
+    End With
+    For Each ws In ThisWorkbook.Worksheets
+        If ws.Name <> "Login" Then
+            If ws.Name = "Users" Then ws.Visible = xlSheetVeryHidden Else ws.Visible = xlSheetVeryHidden
+        End If
+    Next ws
+    CMU_User = "": CMU_Role = ""
+    On Error Resume Next
+    ThisWorkbook.Worksheets("Main Menu").Range("F3").Value = "Not signed in"
+    On Error GoTo 0
+    Application.ScreenUpdating = True
+End Sub
+
+Public Sub CMU_Logout()
+    If MsgBox("Log out of the CMU Database?", vbYesNo + vbQuestion, "CMU Database") <> vbYes Then Exit Sub
+    CMU_LockAll
+    ThisWorkbook.Save
+End Sub
+
+Public Sub Show_LoginForm()
+    ShowUF "UF_Login", "", ""
+End Sub
+
+Public Sub Show_UsersForm()
+    If SessRole() <> "Admin" Then MsgBox "Only an Admin can manage users.", vbExclamation, "CMU Database": Exit Sub
+    ShowUF "UF_Users", "", ""
+End Sub
+
+Public Sub Show_MyPwdForm()
+    If CMU_User = "" Then MsgBox "Please sign in first.", vbExclamation, "CMU Database": Exit Sub
+    ShowUF "UF_MyPwd", "", ""
+End Sub
+
+Public Sub Build_LoginForms()
+    Dim vbp As Object, f As Object, c As Object, i As Long
+    Dim iw As Single, ih As Single, fw As Single, hw As Single, qw As Single, x As Single, x2 As Single, w1 As Single
+    Set vbp = UI_Project()
+    If vbp Is Nothing Then Exit Sub
+    Application.ScreenUpdating = False
+    UI_BuildClass vbp
+
+    Rem --- SIGN IN ---
+    Set f = UI_New(vbp, "UF_Login", "Sign In", "Enter your username and password to continue.", 360, 350)
+    iw = UI_IW(f): ih = UI_IH(f): fw = iw - 68
+    UI_Box f, "", 18, 74, iw - 36, 170, RGB(255, 255, 255), True
+    UI_Cap f, "Username", 34, 86, False, "capUser"
+    UI_In f, "Forms.TextBox.1", "txtUser", 34, 100, fw, 22
+    UI_Cap f, "Password", 34, 130, False, "capPwd"
+    Set c = UI_In(f, "Forms.TextBox.1", "txtPwd", 34, 144, fw, 22)
+    c.PasswordChar = "*"
+    UI_Txt f, "lblCaps", "Caps Lock is ON", 34, 168, fw, 12, 8, True, RGB(191, 143, 0)
+    UI_Cap f, "New password", 34, 86, False, "capNew1"
+    Set c = UI_In(f, "Forms.TextBox.1", "txtNew1", 34, 100, fw, 22)
+    c.PasswordChar = "*"
+    UI_Box f, "lblStrBg", 34, 124, fw, 4, RGB(225, 229, 235)
+    UI_Box f, "lblStrBar", 34, 124, fw, 4, RGB(192, 0, 0)
+    UI_Txt f, "lblStrTxt", "", 34, 129, fw, 12, 7.5, True, RGB(128, 138, 150)
+    UI_Cap f, "Confirm new password", 34, 144, False, "capNew2"
+    Set c = UI_In(f, "Forms.TextBox.1", "txtNew2", 34, 158, fw, 22)
+    c.PasswordChar = "*"
+    UI_Txt f, "lblMsg", "", 34, 186, fw, 28, 8.5, True, RGB(192, 0, 0)
+    UI_Footer f, "cmdOK", "Sign In", 120, "cmdCancel", "Cancel"
+    SetCode f, "UF_Login"
+
+    Rem --- CHANGE MY PASSWORD ---
+    Set f = UI_New(vbp, "UF_MyPwd", "Change My Password", "", 360, 352)
+    iw = UI_IW(f): ih = UI_IH(f): fw = iw - 68
+    UI_Box f, "", 18, 74, iw - 36, 172, RGB(255, 255, 255), True
+    UI_Cap f, "Current password", 34, 84, True
+    Set c = UI_In(f, "Forms.TextBox.1", "txtOld", 34, 98, fw, 22)
+    c.PasswordChar = "*"
+    UI_Cap f, "New password", 34, 126, True
+    Set c = UI_In(f, "Forms.TextBox.1", "txtNew", 34, 140, fw, 22)
+    c.PasswordChar = "*"
+    UI_Box f, "lblStrBg", 34, 164, fw, 4, RGB(225, 229, 235)
+    Set c = UI_Box(f, "lblStrBar", 34, 164, fw, 4, RGB(192, 0, 0))
+    c.Visible = False
+    UI_Txt f, "lblStrTxt", "", 34, 169, fw, 12, 7.5, True, RGB(128, 138, 150)
+    UI_Cap f, "Confirm new password", 34, 184, True
+    Set c = UI_In(f, "Forms.TextBox.1", "txtNew2", 34, 198, fw, 22)
+    c.PasswordChar = "*"
+    UI_Txt f, "lblMsg", "", 34, 224, fw, 14, 8.5, True, RGB(192, 0, 0)
+    UI_Footer f, "cmdOK", "Save Password", 130, "cmdCancel", "Cancel"
+    SetCode f, "UF_MyPwd"
+
+    Rem --- USERS & PASSWORDS ---
+    Set f = UI_New(vbp, "UF_Users", "Users & Passwords", "Admin only  -  add staff, set roles and reset passwords.", 580, 460)
+    iw = UI_IW(f): ih = UI_IH(f): fw = iw - 36
+    UI_Txt f, "", "USER ACCOUNTS", 18, 69, 200, 12, 8, True, RGB(31, 78, 120)
+    UI_Box f, "", 18, 84, fw, 18, RGB(221, 228, 237)
+    x = 22
+    For i = 0 To 4
+        w1 = Array(92, 172, 72, 52, 120)(i)
+        UI_Txt f, "", Array("USERNAME", "FULL NAME", "ROLE", "ACTIVE", "LAST SIGN-IN")(i), x, 87, w1 - 4, 12, 8, True, RGB(68, 84, 106)
+        x = x + w1
+    Next i
+    Set c = UI_In(f, "Forms.ListBox.1", "lstU", 18, 102, fw, 112)
+    c.Font.Size = 9.5
+    UI_Box f, "", 18, 224, fw, 128, RGB(255, 255, 255), True
+    UI_Txt f, "lblEditHdr", "NEW USER", 30, 230, fw - 24, 12, 8, True, RGB(31, 78, 120)
+    hw = (fw - 36) / 2: x2 = 30 + hw + 12: qw = (hw - 8) / 2
+    UI_Cap f, "Username", 30, 246, True
+    UI_In f, "Forms.TextBox.1", "txtUser", 30, 260, hw
+    UI_Cap f, "Full name", x2, 246
+    UI_In f, "Forms.TextBox.1", "txtName", x2, 260, hw
+    UI_Cap f, "Role", 30, 286, True
+    UI_In f, "Forms.ComboBox.1", "cboRole", 30, 300, qw
+    UI_Cap f, "Active", 30 + qw + 8, 286
+    UI_In f, "Forms.ComboBox.1", "cboActive", 30 + qw + 8, 300, qw
+    UI_Cap f, "Password", x2, 286
+    Set c = UI_In(f, "Forms.TextBox.1", "txtPwd", x2, 300, hw)
+    c.PasswordChar = "*"
+    UI_Box f, "lblStrBg", x2, 322, hw, 4, RGB(225, 229, 235)
+    Set c = UI_Box(f, "lblStrBar", x2, 322, hw, 4, RGB(192, 0, 0))
+    c.Visible = False
+    UI_Txt f, "lblStrTxt", "", x2, 327, hw, 12, 7.5, True, RGB(128, 138, 150)
+    UI_Txt f, "lblRoleInfo", "", 30, 324, hw, 24, 7.5, False, RGB(128, 138, 150)
+    UI_Btn f, "cmdNew", "New User", 18, ih - 62, 96, 30, "B"
+    Set c = UI_Btn(f, "cmdSave", "Save User", 122, ih - 62, 104, 30, "P")
+    c.Default = True
+    UI_Btn f, "cmdDel", "Delete", 234, ih - 62, 84, 30, "D"
+    Set c = UI_Btn(f, "cmdClose", "Close", iw - 112, ih - 62, 96, 30, "S")
+    c.Cancel = True
+    SetCode f, "UF_Users"
+
+    Application.ScreenUpdating = True
+    MsgBox "Sign-in forms rebuilt with the new design." & vbCrLf & vbCrLf & "First sign-in: username  admin   password  admin123" & vbCrLf & "You will be asked to choose a new password straight away.", vbInformation, "CMU Database"
+End Sub
+Rem ==== END USER LOGIN ====
+Rem ==== ACCESS RIGHTS (Viewer = read-only) ====
+Public Function SessRole() As String
+    On Error Resume Next
+    SessRole = CStr(ThisWorkbook.Worksheets("Users").Range("J1").Value)
+    If SessRole = "" Then SessRole = CMU_Role
+End Function
+
+Public Function CMU_CanEdit() As Boolean
+    Dim r As String
+    r = SessRole()
+    If r = "" Then
+        MsgBox "Please sign in first.", vbExclamation, "CMU Database"
+        CMU_CanEdit = False
+    ElseIf r = "Viewer" Then
+        MsgBox "Your account is VIEW ONLY." & vbCrLf & vbCrLf & "You can search, view and print records, but you cannot add, change or delete anything.", vbExclamation, "CMU Database"
+        CMU_CanEdit = False
+    Else
+        CMU_CanEdit = True
+    End If
+End Function
+
+Public Sub CMU_ApplyRights()
+    Dim ws As Worksheet, f As Variant, isViewer As Boolean
+    isViewer = (SessRole() = "Viewer")
+    For Each ws In ThisWorkbook.Worksheets
+        On Error Resume Next
+        ws.Unprotect CMU_LOCKPWD
+        ws.Unprotect
+        On Error GoTo 0
+    Next ws
+    If isViewer Then
+        For Each ws In ThisWorkbook.Worksheets
+            If ws.Visible = xlSheetVisible Then
+                ws.Protect Password:=CMU_LOCKPWD, DrawingObjects:=True, Contents:=True, Scenarios:=True, UserInterfaceOnly:=True
+                If Left$(ws.Name, 6) = "Print " Then
+                    ws.EnableSelection = xlUnlockedCells
+                Else
+                    ws.EnableSelection = xlNoSelection
+                End If
+            End If
+        Next ws
+        ThisWorkbook.Protect Password:=CMU_LOCKPWD, Structure:=True
+    Else
+        For Each f In Array("Company Form", "Licence Form", "Clearance Form", "Bill Form", "Payment Form")
+            Set ws = ThisWorkbook.Worksheets(f)
+            ws.Protect DrawingObjects:=True, Contents:=True, UserInterfaceOnly:=True
+            ws.EnableSelection = xlUnlockedCells
+        Next f
+    End If
+End Sub
+Rem ==== END ACCESS RIGHTS ====
+
+Rem ==== LICENCE FORM - CHEMICAL LINES (Licence Form rows 20-34 <-> tblLicenceChemicals) ====
+Private Function Lic_ChemCols() As Variant
+    Lic_ChemCols = Array("Trade or IUPAC Name", "EPA Registration No.", "Type", "Stipulated Qty", "Unit", "Consignment Ref. (BL/IPD No.)")
+End Function
+
+Private Sub Lic_ClearChems(sh As Worksheet)
+    sh.Range("C20:H34").ClearContents: Eff_Clear sh
+End Sub
+
+Private Function Lic_CountFor(ByVal licID As String) As Long
+    Dim lo As ListObject, i As Long
+    Set lo = GetLO("tblLicenceChemicals")
+    For i = 1 To lo.ListRows.Count
+        If UCase$(Trim$(CStr(lo.DataBodyRange.Cells(i, 1).Value))) = UCase$(licID) Then Lic_CountFor = Lic_CountFor + 1
+    Next i
+End Function
+
+Private Function Lic_ChemsOK(sh As Worksheet) As Boolean
+    Dim r As Long, bad As String, n As Long, cat As String
+    Lic_ChemsOK = True
+    If sh.Name <> "Licence Form" Then Exit Function
+    For r = 20 To 34
+        If Trim$(CStr(sh.Cells(r, 3).Value)) = "" Then
+            If Application.WorksheetFunction.CountA(sh.Range("D" & r & ":H" & r)) > 0 Then bad = bad & " " & (r - 19)
+        Else
+            n = n + 1
+        End If
+    Next r
+    If bad <> "" Then
+        MsgBox "Chemical line(s)" & bad & " have details but no Trade or IUPAC Name." & vbCrLf & "Type the name or clear the line, then try again.", vbExclamation, "CMU Database"
+        Lic_ChemsOK = False
+        Exit Function
+    End If
+    If Not Eff_OK(sh) Then Lic_ChemsOK = False: Exit Function
+    cat = CStr(sh.Range("C7").Value)
+    If n > 0 And InStr(1, cat, "(CRL)", vbTextCompare) = 0 And InStr(1, cat, "(CIL)", vbTextCompare) = 0 Then
+        Lic_ChemsOK = (MsgBox(n & " chemical line(s) are entered but the category is not CRL or CIL." & vbCrLf & "Save them anyway?", vbYesNo + vbQuestion, "CMU Database") = vbYes)
+    End If
+End Function
+
+Private Sub Lic_DeleteChems(ByVal licID As String)
+    Dim lo As ListObject, i As Long, c As Long
+    Set lo = GetLO("tblLicenceChemicals")
+    For i = lo.ListRows.Count To 1 Step -1
+        If UCase$(Trim$(CStr(lo.DataBodyRange.Cells(i, 1).Value))) = UCase$(licID) Then
+            If lo.ListRows.Count = 1 Then
+                lo.DataBodyRange.Cells(1, 1).ClearContents
+                For c = 4 To lo.ListColumns.Count
+                    lo.DataBodyRange.Cells(1, c).ClearContents
+                Next c
+            Else
+                lo.ListRows(i).Delete
+            End If
+        End If
+    Next i
+End Sub
+
+Private Sub Lic_SaveChems(sh As Worksheet, ByVal licID As String)
+    Dim lo As ListObject, r As Long, idx As Long, k As Long, cols As Variant, fB As String, fC As String
+    If sh.Name <> "Licence Form" Then Exit Sub
+    Eff_Save sh, licID
+    licID = UCase$(Trim$(licID))
+    If Lic_CountFor(licID) > 15 Then
+        MsgBox licID & " has more than 15 chemical lines, so its chemicals were NOT changed from the form." & vbCrLf & "Edit them on the Licence Chemicals sheet.", vbInformation, "CMU Database"
+        Exit Sub
+    End If
+    fB = "=IF([@[Licence Record ID]]="""","""",IFERROR(INDEX(tblLicences[Licence / Certificate No.],MATCH([@[Licence Record ID]],tblLicences[Record ID],0))&"""",""Unknown ID""))"
+    fC = "=IF([@[Licence Record ID]]="""","""",IFERROR(INDEX(tblLicences[Company Name],MATCH([@[Licence Record ID]],tblLicences[Record ID],0)),""Unknown ID""))"
+    cols = Lic_ChemCols()
+    Set lo = GetLO("tblLicenceChemicals")
+    Lic_DeleteChems licID
+    For r = 20 To 34
+        If Trim$(CStr(sh.Cells(r, 3).Value)) <> "" Then
+            idx = 0
+            If lo.ListRows.Count = 1 Then
+                If CStr(lo.DataBodyRange.Cells(1, 1).Value) = "" And CStr(lo.DataBodyRange.Cells(1, 4).Value) = "" Then idx = 1
+            End If
+            If idx = 0 Then idx = lo.ListRows.Add(AlwaysInsert:=True).Index
+            lo.DataBodyRange.Cells(idx, 1).Value = licID
+            lo.DataBodyRange.Cells(idx, ColIdx(lo, "Licence No.")).Formula = fB
+            lo.DataBodyRange.Cells(idx, ColIdx(lo, "Company")).Formula = fC
+            For k = 0 To 5
+                If CStr(sh.Cells(r, 3 + k).Value) = "" Then
+                    lo.DataBodyRange.Cells(idx, ColIdx(lo, CStr(cols(k)))).ClearContents
+                Else
+                    lo.DataBodyRange.Cells(idx, ColIdx(lo, CStr(cols(k)))).Value = sh.Cells(r, 3 + k).Value
+                End If
+            Next k
+        End If
+    Next r
+End Sub
+
+Private Sub Lic_LoadChems(sh As Worksheet, ByVal licID As String)
+    Dim lo As ListObject, i As Long, r As Long, k As Long, more As Long, cols As Variant
+    Lic_ClearChems sh
+    Eff_Load sh, licID
+    cols = Lic_ChemCols()
+    Set lo = GetLO("tblLicenceChemicals")
+    r = 20
+    For i = 1 To lo.ListRows.Count
+        If UCase$(Trim$(CStr(lo.DataBodyRange.Cells(i, 1).Value))) = UCase$(licID) Then
+            If r > 34 Then
+                more = more + 1
+            Else
+                For k = 0 To 5
+                    sh.Cells(r, 3 + k).Value = lo.DataBodyRange.Cells(i, ColIdx(lo, CStr(cols(k)))).Value
+                Next k
+                r = r + 1
+            End If
+        End If
+    Next i
+    If more > 0 Then MsgBox licID & " has " & (15 + more) & " chemical lines; only the first 15 are shown." & vbCrLf & "Change its chemicals on the Licence Chemicals sheet.", vbInformation, "CMU Database"
+End Sub
+Rem ==== END LICENCE CHEMICAL LINES ====
+
+Rem ==== LICENCE FORM - EFFLUENT DETAILS (Licence Form rows 39-97 <-> tblLicenceEffluent) ====
+Rem Settings C39:C41 | Limits C45:H64 | Coordinates C69:F88 | Sources C92:D97
+Private Sub Eff_Clear(sh As Worksheet)
+    If sh.Name <> "Licence Form" Then Exit Sub
+    sh.Range("C39:D41").ClearContents
+    sh.Range("C45:H64").ClearContents
+    sh.Range("C69:F88").ClearContents
+    sh.Range("C92:F97").ClearContents
+End Sub
+
+Private Function Eff_OK(sh As Worksheet) As Boolean
+    Dim r As Long, bad As String
+    Eff_OK = True
+    If sh.Name <> "Licence Form" Then Exit Function
+    For r = 45 To 64
+        If Trim$(CStr(sh.Cells(r, 3).Value)) = "" And Application.WorksheetFunction.CountA(sh.Range("D" & r & ":H" & r)) > 0 Then bad = bad & " " & (r - 44)
+    Next r
+    If bad <> "" Then
+        MsgBox "Discharge limit line(s)" & bad & " have details but no Parameter." & vbCrLf & "Type the parameter or clear the line, then try again.", vbExclamation, "CMU Database"
+        Eff_OK = False: Exit Function
+    End If
+    For r = 92 To 97
+        If Trim$(CStr(sh.Cells(r, 3).Value)) = "" And Trim$(CStr(sh.Cells(r, 4).Value)) <> "" Then bad = bad & " " & (r - 91)
+    Next r
+    If bad <> "" Then
+        MsgBox "Discharge source line(s)" & bad & " have a receiving unit but no discharge source.", vbExclamation, "CMU Database"
+        Eff_OK = False
+    End If
+End Function
+
+Private Sub Eff_Delete(ByVal licID As String)
+    Dim lo As ListObject, i As Long, c As Long
+    Set lo = GetLO("tblLicenceEffluent")
+    licID = UCase$(Trim$(licID))
+    For i = lo.ListRows.Count To 1 Step -1
+        If UCase$(Trim$(CStr(lo.DataBodyRange.Cells(i, 1).Value))) = licID Then
+            If lo.ListRows.Count = 1 Then
+                lo.DataBodyRange.Cells(1, 1).ClearContents
+                For c = 4 To 11
+                    lo.DataBodyRange.Cells(1, c).ClearContents
+                Next c
+            Else
+                lo.ListRows(i).Delete
+            End If
+        End If
+    Next i
+End Sub
+
+Private Sub Eff_AddRow(lo As ListObject, ByVal licID As String, ByVal sect As String, ByVal ln As Long, vals As Variant)
+    Dim idx As Long, k As Long, fB As String, fC As String, fK As String
+    fB = "=IF([@[Licence Record ID]]="""","""",IFERROR(INDEX(tblLicences[Licence / Certificate No.],MATCH([@[Licence Record ID]],tblLicences[Record ID],0))&"""",""Unknown ID""))"
+    fC = "=IF([@[Licence Record ID]]="""","""",IFERROR(INDEX(tblLicences[Company Name],MATCH([@[Licence Record ID]],tblLicences[Record ID],0)),""Unknown ID""))"
+    fK = "=IF([@[Licence Record ID]]="""","""",UPPER(TRIM([@[Licence Record ID]]))&""|""&[@Section]&""|""&[@Line])"
+    If lo.ListRows.Count = 1 Then
+        If CStr(lo.DataBodyRange.Cells(1, 1).Value) = "" And CStr(lo.DataBodyRange.Cells(1, 4).Value) = "" Then idx = 1
+    End If
+    If idx = 0 Then idx = lo.ListRows.Add(AlwaysInsert:=True).Index
+    lo.DataBodyRange.Cells(idx, 1).Value = licID
+    lo.DataBodyRange.Cells(idx, 2).Formula = fB
+    lo.DataBodyRange.Cells(idx, 3).Formula = fC
+    lo.DataBodyRange.Cells(idx, 4).Value = sect
+    lo.DataBodyRange.Cells(idx, 5).Value = ln
+    For k = 0 To 5
+        With lo.DataBodyRange.Cells(idx, 6 + k)
+            .NumberFormat = "@"
+            If k <= UBound(vals) Then
+                If Trim$(CStr(vals(k))) = "" Then .ClearContents Else .Value = Trim$(CStr(vals(k)))
+            Else
+                .ClearContents
+            End If
+        End With
+    Next k
+    lo.DataBodyRange.Cells(idx, 12).Formula = fK
+End Sub
+
+Private Sub Eff_Save(sh As Worksheet, ByVal licID As String)
+    Dim lo As ListObject, r As Long, n As Long
+    If sh.Name <> "Licence Form" Then Exit Sub
+    licID = UCase$(Trim$(licID))
+    If licID = "" Then Exit Sub
+    Set lo = GetLO("tblLicenceEffluent")
+    Eff_Delete licID
+    For r = 39 To 41
+        If Trim$(CStr(sh.Cells(r, 3).Value)) <> "" Then Eff_AddRow lo, licID, "Setting", r - 38, Array(sh.Cells(r, 2).Value, sh.Cells(r, 3).Value)
+    Next r
+    n = 0
+    For r = 45 To 64
+        If Trim$(CStr(sh.Cells(r, 3).Value)) <> "" Then
+            n = n + 1
+            Eff_AddRow lo, licID, "Limit", n, Array(sh.Cells(r, 3).Value, sh.Cells(r, 4).Value, sh.Cells(r, 5).Value, sh.Cells(r, 6).Value, sh.Cells(r, 7).Value, sh.Cells(r, 8).Value)
+        End If
+    Next r
+    n = 0
+    For r = 69 To 88
+        If Application.WorksheetFunction.CountA(sh.Range("C" & r & ":F" & r)) > 0 Then
+            n = n + 1
+            Eff_AddRow lo, licID, "Coordinate", n, Array(sh.Cells(r, 3).Value, sh.Cells(r, 4).Value, sh.Cells(r, 5).Value, sh.Cells(r, 6).Value)
+        End If
+    Next r
+    n = 0
+    For r = 92 To 97
+        If Trim$(CStr(sh.Cells(r, 3).Value)) <> "" Then
+            n = n + 1
+            Eff_AddRow lo, licID, "Source", n, Array(sh.Cells(r, 3).Value, sh.Cells(r, 4).Value, sh.Cells(r, 5).Value, sh.Cells(r, 6).Value)
+        End If
+    Next r
+End Sub
+
+Private Sub Eff_Load(sh As Worksheet, ByVal licID As String)
+    Dim lo As ListObject, i As Long, k As Long, ln As Long, sect As String, more As Long
+    If sh.Name <> "Licence Form" Then Exit Sub
+    Eff_Clear sh
+    licID = UCase$(Trim$(licID))
+    Set lo = GetLO("tblLicenceEffluent")
+    For i = 1 To lo.ListRows.Count
+        If UCase$(Trim$(CStr(lo.DataBodyRange.Cells(i, 1).Value))) = licID Then
+            sect = CStr(lo.DataBodyRange.Cells(i, 4).Value)
+            ln = Val(CStr(lo.DataBodyRange.Cells(i, 5).Value))
+            Select Case sect
+                Case "Setting"
+                    If ln >= 1 And ln <= 3 Then sh.Cells(38 + ln, 3).Value = lo.DataBodyRange.Cells(i, 7).Value
+                Case "Limit"
+                    If ln >= 1 And ln <= 20 Then
+                        For k = 0 To 5: sh.Cells(44 + ln, 3 + k).Value = lo.DataBodyRange.Cells(i, 6 + k).Value: Next k
+                    Else
+                        more = more + 1
+                    End If
+                Case "Coordinate"
+                    If ln >= 1 And ln <= 20 Then
+                        For k = 0 To 3: sh.Cells(68 + ln, 3 + k).Value = lo.DataBodyRange.Cells(i, 6 + k).Value: Next k
+                    Else
+                        more = more + 1
+                    End If
+                Case "Source"
+                    If ln >= 1 And ln <= 6 Then
+                        For k = 0 To 3: sh.Cells(91 + ln, 3 + k).Value = lo.DataBodyRange.Cells(i, 6 + k).Value: Next k
+                    Else
+                        more = more + 1
+                    End If
+            End Select
+        End If
+    Next i
+    If more > 0 Then MsgBox licID & " has " & more & " effluent line(s) that do not fit on the form." & vbCrLf & "See the Licence Effluent sheet.", vbInformation, "CMU Database"
+End Sub
+Rem ==== END LICENCE EFFLUENT DETAILS ====

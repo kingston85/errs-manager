@@ -1,0 +1,25 @@
+# Render blueprint — one-click deploy of the multi-user SERVER edition
+# of the CMU Database (shared data, accounts, audit log).
+#
+# Deploy button: https://render.com/deploy?repo=https://github.com/kingston85/errs-manager
+#
+# Notes:
+# - Free plan: the web service sleeps after 15 min idle and the disk is
+#   EPHEMERAL — data/cmu-live.json resets when the service redeploys.
+#   Use the built-in System Check → Backup/Restore for durable copies,
+#   or attach a Render disk (paid) and mount it at /data.
+# - Set PORT/HOST are already handled: Render injects PORT automatically.
+services:
+  - type: web
+    name: cmu-database
+    runtime: node
+    plan: free
+    rootDir: cmu-sheets
+    buildCommand: npm install --omit=dev
+    startCommand: npm start
+    healthCheckPath: /api/data
+    envVars:
+      - key: HOST
+        value: 0.0.0.0
+      - key: NODE_VERSION
+        value: 20.11.1
