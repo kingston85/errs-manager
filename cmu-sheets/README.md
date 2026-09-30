@@ -13,6 +13,15 @@ build step.
 
 ## Run it
 
+**Option 1 — one file, no install (offline edition).**
+Download **[`cmu-database-2026-offline.html`](cmu-database-2026-offline.html)** and double-click it —
+the entire system (interface + data + backend-in-the-browser) opens in any modern browser, no
+server, no Node, no internet. Changes are saved in that browser; a *Reset saved changes* button
+restores the original workbook data. Rebuild it after data changes with
+`node tools/build_offline.js` (tested by `node tools/test-offline.js`).
+
+**Option 2 — the server (multi-user, shared data).**
+
 ```bash
 cd cmu-sheets
 npm start          # → http://localhost:3000   (set PORT / HOST to change)
