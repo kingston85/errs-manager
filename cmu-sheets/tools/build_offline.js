@@ -61,5 +61,9 @@ html = html.replace("</title>", () => "</title>\n<!-- CMU Database 2026 — OFFL
 
 const out = path.join(ROOT, "cmu-database-2026-offline.html");
 fs.writeFileSync(out, html);
+// also publish it as the repository-root index.html so GitHub Pages
+// (source: main /) serves the app directly at the site root
+const rootIndex = path.join(ROOT, "..", "index.html");
+fs.writeFileSync(rootIndex, html);
 const mb = (fs.statSync(out).size / 1048576).toFixed(2);
-console.log("Built " + out + " (" + mb + " MB) — open it directly in any browser.");
+console.log("Built " + out + " (" + mb + " MB) and ../index.html for GitHub Pages.");

@@ -69,6 +69,25 @@ CMU_DATABASE Original.xlsx ──(tools/build_data.py)──▶ data/cmu-base.js
 - Any register exports its current view **with computed columns** as CSV (`⬇ CSV` in the grid
   toolbar or `GET /api/export/<sheet>`).
 
+## Deployment
+
+**Already deployed?** The static edition lives at the repository's GitHub Pages URL:
+**https://kingston85.github.io/errs-manager/** — the site root (`index.html`) is the offline
+build, so every visitor gets the full app instantly (each browser keeps its own changes via
+localStorage; *Reset saved changes* restores the original data).
+
+To publish new baseline data to the site: edit through the server edition (or `tools/build_data.py`
+from a new workbook), then `node tools/build_offline.js` — it rebuilds both
+`cmu-database-2026-offline.html` and the root `index.html` — commit and push to `main`;
+GitHub Pages rebuilds automatically.
+
+**Multi-user server edition (shared data, accounts, audit log):** one-click on Render with the
+repo's `render.yaml` blueprint →
+
+[![Deploy to Render](https://render.com/images/deploy-button.svg)](https://render.com/deploy?repo=https://github.com/kingston85/errs-manager)
+
+(or run `npm start` on any Node host — zero native dependencies.)
+
 ## Tests
 
 With the server running:

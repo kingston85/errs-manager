@@ -4,7 +4,7 @@ A web app for managing the four units of the **Environmental Research and Radiat
 
 This is a **working prototype** — a real web app with a real database, meant to be shown around internally and refined based on feedback before it's relied on for actual licensing decisions.
 
-> ### 🧪 CMU Database 2026 — web edition ([`cmu-sheets/`](cmu-sheets/))
+> ### 🧪 CMU Database 2026 — web edition — **LIVE: https://kingston85.github.io/errs-manager/** ([`cmu-sheets/`](cmu-sheets/))
 > The Chemical Management Unit's Excel workbook **`CMU_DATABASE Original.xlsx`** is also available as a
 > standalone, interactive **Google-Sheets-style web system** — all 31 sheets, the five data-entry
 > forms, the six official print pages (CRL · CIL · EDL · EDL RP · clearance · bill letters), the
