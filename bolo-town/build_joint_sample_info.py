@@ -28,7 +28,7 @@ from reportlab.lib.enums import TA_CENTER
 from reportlab.lib.pagesizes import A4, landscape
 from reportlab.lib.styles import ParagraphStyle, getSampleStyleSheet
 from reportlab.lib.units import inch
-from reportlab.platypus import (Paragraph, SimpleDocTemplate, Spacer, Table,
+from reportlab.platypus import (Paragraph, SimpleDocTemplate, Spacer, Table, Image, PageBreak,
                                 TableStyle, ListFlowable, ListItem)
 
 OUT_DIR = Path(__file__).resolve().parent
@@ -57,12 +57,32 @@ TABLE1 = [
     ("Alphonso farm", "AF-SW-JC-001", "7.547899", "-8.616177", "2:21 PM", ""),
     ("Neneyee Upstream (northern sediment control station)", "NEN-SW-JC-001", "7.537928", "-8.614119", "4:24 PM", ""),
     # ---- VA group -------------------------------------------------------
-    ("Wehyee Downstream", "W-SW-VA-001", "7.56771", "-8.60949", "2:58 PM", ""),
-    ("Wehyee Mid-point", "W-SW-VA-002", "7.56695", "-8.61227", "3:16 PM", ""),
-    ("Wehyee Upstream", "W-SW-VA-003", "7.56724", "-8.6128", "3:21 PM", ""),
-    ("Pompleh Downstream", "POM-SW-VA-001", "7.56793", "-8.6094", "3:03 PM", ""),
-    ("Pompleh Mid-point", "POM-SW-VA-002", "7.56822", "-8.60947", "3:07 PM", ""),
-    ("Pompleh Downstream", "POM-SW-VA-003", "7.56882", "-8.60976", "3:35 PM", ""),
+    ("Wehyee Downstream", "W-SW-VA-001", "7.56771", "-8.60949", "2:58 PM",
+     "Downstream surface water sample collected along the Wehyee stream within a densely "
+     "vegetated channel. Water was brownish to reddish-brown and visibly turbid, with "
+     "suspended particles and sediment apparent in the flowing water. No visible sign of "
+     "mine-runoff pollution was observed on the nearby farmland."),
+    ("Wehyee Mid-point", "W-SW-VA-002", "7.56695", "-8.61227", "3:16 PM",
+     "Mid-point surface water sample collected along the Wehyee stream to assess spatial "
+     "variation in sediment load. The stream was turbid and reddish-brown, with uneven "
+     "banks showing exposed soil, roots and localised erosion along the channel."),
+    ("Wehyee Upstream", "W-SW-VA-003", "7.56724", "-8.6128", "3:21 PM",
+     "Upstream surface water sample collected on the Wehyee stream above the mid-point and "
+     "downstream stations. Water remained discoloured and turbid under dense tree, shrub "
+     "and fern cover; disturbed bank sections with exposed soils were noted as possible "
+     "local sediment sources."),
+    ("Pompleh Downstream", "POM-SW-VA-001", "7.56793", "-8.6094", "3:03 PM",
+     "Downstream surface water sample collected along the Pompleh stream within dense "
+     "vegetation. Brownish, visibly turbid water with suspended sediment was observed; no "
+     "visible sign of mine-runoff pollution was noted on the adjacent farmland."),
+    ("Pompleh Mid-point", "POM-SW-VA-002", "7.56822", "-8.60947", "3:07 PM",
+     "Mid-point surface water sample collected along the Pompleh stream. The channel was "
+     "turbid and reddish-brown, flowing through abundant ground vegetation with uneven, "
+     "partially eroded streambanks."),
+    ("Pompleh Downstream", "POM-SW-VA-003", "7.56882", "-8.60976", "3:35 PM",
+     "Surface water sample collected further along the Pompleh stream to evaluate the "
+     "combined sediment load. Water was discoloured and turbid, with suspended particles "
+     "consistent with soil erosion and sediment runoff into the stream."),
     # ---- ES group -------------------------------------------------------
     ("Yeewa Downstream", "YEEWA-DS", "542444", "834881", "2:09 PM",
      "Downstream surface water sample collected from the Yeewa main stream, a natural "
@@ -109,6 +129,16 @@ TABLE1 = [
 ]
 
 ES_SAMPLE_PREFIXES = ("YEEWA", "YWK1", "YWK2")
+VA_SAMPLE_PREFIXES = ("W-SW-VA", "POM-SW-VA")
+SHADED_PREFIXES = ES_SAMPLE_PREFIXES + VA_SAMPLE_PREFIXES
+
+TABLE1_NOTE = (
+    "Note: Descriptions for the shaded rows are derived from the groups\u2019 field notes \u2013 "
+    "\u201cES Group \u2013 Physical Observations at Following Sampling Points\u201d (Emmanuel Suah "
+    "group; YWK2 = Yeewa Korweny 2 (Patel), YWK1 = Yeewa Korweny 1 (Dor)) and \u201cTeam Varney "
+    "Armah (Pompleh & Wehyee)\u201d (VA group). Descriptions for the JC group points are to be "
+    "supplied by that group."
+)
 
 OBS_HEADING = "Physical Observations at Sampling Points \u2013 ES Group (Yeewa, Yeewa Korweny 1 & 2)"
 OBS_INTRO = (
@@ -116,6 +146,45 @@ OBS_INTRO = (
     "Yeewa Korweny 1 (Dor) and Yeewa Korweny 2 (Patel) tributaries. The following "
     "preliminary observations were recorded by the ES group:"
 )
+
+VA_HEADING = "Physical Observations at Sampling Points \u2013 VA Group (Pompleh & Wehyee)"
+VA_INTRO = (
+    "During the field visit on 13 October 2026, the Varney Armah (VA) team conducted surface "
+    "water sampling along the Wehyee and Pompleh streams in Nimba County. The following "
+    "preliminary observations were recorded:"
+)
+VA_OBSERVATIONS = [
+    "The stream water was brownish to reddish-brown and visibly turbid, with suspended "
+    "particles and sediment apparent in the flowing water.",
+    "Both streams flow through a densely vegetated environment characterised by abundant "
+    "trees, shrubs, ferns and other ground vegetation.",
+    "The streambanks were uneven, with exposed soil, roots and areas of erosion visible "
+    "along the channel.",
+    "The presence of suspended sediment and the water\u2019s discoloration may indicate soil "
+    "erosion and sediment runoff into the stream, potentially influenced by rainfall and "
+    "surface-water movement. However, the specific cause of the discoloration cannot be "
+    "confirmed through visual observation alone.",
+    "The surrounding vegetation provides natural streambank cover, although localised exposed "
+    "soils and disturbed bank sections may contribute to sediment entering the water.",
+    "Around the collection points along the Pompleh and Wehyee streams, there were no visible "
+    "signs of possible environmental pollution due to mine runoff on the nearby farmlands.",
+    "Water samples were collected for subsequent analysis to assess the streams\u2019 water "
+    "quality and determine whether their physical and chemical characteristics meet the "
+    "applicable environmental standards.",
+]
+# (file, caption) -- photo GPS stamps matched to Table 1 coordinates / times
+PHOTO_DIR = OUT_DIR / "photos"
+VA_PHOTOS = [  # noqa: E501
+    ("W-SW-VA-001_Wehyee_Downstream.jpg",
+     "Plate 1: W-SW-VA-001 \u2013 Wehyee Downstream (7.5677, -8.6093; 2:58 PM). Reddish-brown, turbid flow."),
+    ("POM-SW-VA-002_Pompleh_Midpoint.jpg",
+     "Plate 2: POM-SW-VA-002 \u2013 Pompleh Mid-point (7.5682, -8.6095; 3:07 PM). Sampling under dense ground cover."),
+    ("W-SW-VA-002_Wehyee_Midpoint.jpg",
+     "Plate 3: W-SW-VA-002 \u2013 Wehyee Mid-point (7.5672, -8.6122; 3:16 PM). Suspended sediment in channel."),
+    ("W-SW-VA-003_Wehyee_Upstream.jpg",
+     "Plate 4: W-SW-VA-003 \u2013 Wehyee Upstream (7.5672, -8.6129; 3:21 PM). Uneven banks with exposed soil."),
+]
+
 OBSERVATIONS = [
     "An agricultural farm was observed to have been inundated and covered by sediments "
     "originating from the mining area. This may affect the overall productivity of the farmland.",
@@ -216,7 +285,7 @@ def build_docx(path: Path):
 
     for loc, sid, lat, lon, tm, desc in TABLE1:
         cells = t.add_row().cells
-        is_es = sid.startswith(ES_SAMPLE_PREFIXES)
+        is_es = sid.startswith(SHADED_PREFIXES)
         _cell_text(cells[0], loc)
         _cell_text(cells[1], sid, align=WD_ALIGN_PARAGRAPH.CENTER)
         _cell_text(cells[2], lat, align=WD_ALIGN_PARAGRAPH.CENTER)
@@ -232,21 +301,37 @@ def build_docx(path: Path):
             row.cells[i].width = w
 
     note = doc.add_paragraph()
-    nr = note.add_run(
-        "Note: Descriptions for the ES group sampling points (shaded) are derived from "
-        "\u201cES Group \u2013 Physical Observations at Following Sampling Points\u201d. "
-        "YWK2 = Yeewa Korweny 2 (Patel); YWK1 = Yeewa Korweny 1 (Dor). Descriptions for the "
-        "JC and VA group points are to be supplied by those groups.")
+    nr = note.add_run(TABLE1_NOTE)
     nr.italic = True; nr.font.size = Pt(9)
 
-    # Observations section -------------------------------------------------
+    # Observations sections ------------------------------------------------
+    def _obs_section(heading, intro, bullets):
+        doc.add_paragraph()
+        h = doc.add_paragraph()
+        hr = h.add_run(heading.upper()); hr.bold = True; hr.font.size = Pt(11)
+        doc.add_paragraph(intro)
+        for ob in bullets:
+            p = doc.add_paragraph(ob, style="List Bullet")
+            p.paragraph_format.space_after = Pt(4)
+
+    _obs_section(OBS_HEADING, OBS_INTRO, OBSERVATIONS)
+    _obs_section(VA_HEADING, VA_INTRO, VA_OBSERVATIONS)
+
+    # VA photo plates (2 x 2 grid)
     doc.add_paragraph()
-    h = doc.add_paragraph()
-    hr = h.add_run(OBS_HEADING.upper()); hr.bold = True; hr.font.size = Pt(11)
-    doc.add_paragraph(OBS_INTRO)
-    for ob in OBSERVATIONS:
-        p = doc.add_paragraph(ob, style="List Bullet")
-        p.paragraph_format.space_after = Pt(4)
+    pc = doc.add_paragraph()
+    pcr = pc.add_run("Photographic documentation \u2013 VA group sampling points"); pcr.bold = True
+    pt = doc.add_table(rows=2, cols=2)
+    pt.alignment = WD_TABLE_ALIGNMENT.CENTER
+    for i, (fn, capt) in enumerate(VA_PHOTOS):
+        cell = pt.cell(i // 2, i % 2)
+        cell.text = ""
+        p = cell.paragraphs[0]
+        p.alignment = WD_ALIGN_PARAGRAPH.CENTER
+        p.add_run().add_picture(str(PHOTO_DIR / fn), height=Inches(2.75))
+        cp = cell.add_paragraph()
+        cp.alignment = WD_ALIGN_PARAGRAPH.CENTER
+        cr = cp.add_run(capt); cr.font.size = Pt(8.5); cr.italic = True
 
     # Table 2 --------------------------------------------------------------
     doc.add_page_break()
@@ -313,7 +398,7 @@ def build_pdf(path: Path):
     ]
     es_rows = []
     for idx, (loc, sid, lat, lon, tm, desc) in enumerate(TABLE1, start=2):
-        if sid.startswith(ES_SAMPLE_PREFIXES):
+        if sid.startswith(SHADED_PREFIXES):
             es_rows.append(idx)
         data.append([Paragraph(loc, small), Paragraph(sid, small_c), Paragraph(lat, small_c),
                      Paragraph(lon, small_c), Paragraph(tm, small_c),
@@ -333,19 +418,36 @@ def build_pdf(path: Path):
     t.setStyle(ts)
     story.append(t)
     story.append(Spacer(1, 6))
-    story.append(Paragraph(
-        "Note: Descriptions for the ES group sampling points (shaded) are derived from "
-        "\u201cES Group \u2013 Physical Observations at Following Sampling Points\u201d. "
-        "YWK2 = Yeewa Korweny 2 (Patel); YWK1 = Yeewa Korweny 1 (Dor). Descriptions for the "
-        "JC and VA group points are to be supplied by those groups.", note))
+    story.append(Paragraph(TABLE1_NOTE, note))
 
-    story.append(Paragraph(OBS_HEADING.upper(), head))
-    story.append(Paragraph(OBS_INTRO, body))
-    story.append(Spacer(1, 4))
-    story.append(ListFlowable([ListItem(Paragraph(o, body), leftIndent=14) for o in OBSERVATIONS],
-                              bulletType="bullet", start="\u2022", leftIndent=14, bulletFontSize=9))
+    def _obs_section(heading, intro, bullets):
+        story.append(Paragraph(heading.upper(), head))
+        story.append(Paragraph(intro, body))
+        story.append(Spacer(1, 4))
+        story.append(ListFlowable([ListItem(Paragraph(o, body), leftIndent=14) for o in bullets],
+                                  bulletType="bullet", start="\u2022", leftIndent=14, bulletFontSize=9))
 
-    story.append(Spacer(1, 18))
+    _obs_section(OBS_HEADING, OBS_INTRO, OBSERVATIONS)
+    _obs_section(VA_HEADING, VA_INTRO, VA_OBSERVATIONS)
+
+    # VA photo plates
+    story.append(PageBreak())
+    story.append(Paragraph("<b>Photographic documentation \u2013 VA group sampling points</b>", body))
+    story.append(Spacer(1, 6))
+    capt_style = ParagraphStyle("capt", parent=small, fontName="Times-Italic", alignment=TA_CENTER)
+    ph = 2.75 * inch  # uniform plate height so the 2x2 grid fits one page
+    cells = []
+    for fn, capt in VA_PHOTOS:
+        img = Image(str(PHOTO_DIR / fn))
+        ratio = img.imageWidth / img.imageHeight
+        img.drawHeight, img.drawWidth = ph, ph * ratio
+        cells.append([img, Spacer(1, 2), Paragraph(capt, capt_style)])
+    grid = Table([[cells[0], cells[1]], [cells[2], cells[3]]], colWidths=[5.2 * inch] * 2)
+    grid.setStyle(TableStyle([("VALIGN", (0, 0), (-1, -1), "TOP"),
+                              ("TOPPADDING", (0, 0), (-1, -1), 4), ("BOTTOMPADDING", (0, 0), (-1, -1), 8)]))
+    story.append(grid)
+
+    story.append(PageBreak())
     story.append(Paragraph("Table 2: Surface Water Quality Result", cap))
     story.append(Spacer(1, 4))
     d2 = [[Paragraph("Sample Code", hdr), Paragraph("Sample Parameter", hdr), Paragraph("LWQS Class III", hdr),
