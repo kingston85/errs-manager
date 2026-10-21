@@ -28,7 +28,7 @@ from reportlab.platypus import (BaseDocTemplate, Frame, Image, KeepTogether, Lis
                                 Paragraph, Spacer, Table, TableStyle)
 from reportlab.platypus.tableofcontents import TableOfContents
 
-from report_content import BLOCKS, COVER
+from report_content import BLOCKS, COVER, ABBREVIATIONS
 
 OUT_DIR = Path(__file__).resolve().parent
 BASENAME = "Bolo Town Follow-up Investigative Assessment Report (Oct 13 2026) - DRAFT"
@@ -223,6 +223,21 @@ def build_docx(path: Path):
     uf = OxmlElement("w:updateFields"); uf.set(qn("w:val"), "true"); settings.append(uf)
     doc.add_page_break()
 
+    # ---- list of abbreviations (front matter) ---------------------------
+    h = doc.add_paragraph(); h.paragraph_format.space_after = Pt(8)
+    _add_text(h, "LIST OF ABBREVIATIONS", size=12, bold=True, color="FFFFFF"); _para_shade(h, BANNER)
+    at = doc.add_table(rows=1, cols=2); at.style = "Table Grid"; at.alignment = WD_TABLE_ALIGNMENT.CENTER
+    for c, txt in enumerate(("Abbreviation", "Meaning")):
+        cell = at.cell(0, c); cell.text = ""; _shade(cell, HDR_FILL)
+        _add_text(cell.paragraphs[0], txt, size=10, bold=True, color="FFFFFF")
+    for abbr, meaning in ABBREVIATIONS:
+        cells = at.add_row().cells
+        cells[0].text = ""; _add_text(cells[0].paragraphs[0], abbr, size=10, bold=True)
+        cells[1].text = ""; _add_text(cells[1].paragraphs[0], meaning, size=10)
+    for row in at.rows:
+        row.cells[0].width = Inches(1.5); row.cells[1].width = Inches(5.2)
+    doc.add_page_break()
+
     # ---- body ----------------------------------------------------------
     for blk in BLOCKS:
         kind = blk[0]
@@ -361,6 +376,20 @@ def build_pdf(path: Path):
     ]
     toc.dotsMinLevel = 0
     story.append(toc); story.append(PageBreak())
+
+    # ---- list of abbreviations (front matter, not in TOC) --------------
+    story.append(Paragraph("LIST OF ABBREVIATIONS", h1))
+    abbr_cell = ParagraphStyle("ab", parent=cell, fontSize=10, leading=13)
+    abbr_b = ParagraphStyle("abb", parent=abbr_cell, fontName="Times-Bold")
+    data = [[Paragraph("Abbreviation", ParagraphStyle("abh", parent=abbr_b, textColor=colors.white)),
+             Paragraph("Meaning", ParagraphStyle("abh2", parent=abbr_b, textColor=colors.white))]]
+    data += [[Paragraph(_rl(a), abbr_b), Paragraph(_rl(m), abbr_cell)] for a, m in ABBREVIATIONS]
+    at = Table(data, colWidths=[1.5 * inch, 5.2 * inch], repeatRows=1)
+    at.setStyle(TableStyle([("GRID", (0, 0), (-1, -1), 0.6, colors.black),
+                            ("BACKGROUND", (0, 0), (-1, 0), colors.HexColor("#" + HDR_FILL)),
+                            ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
+                            ("TOPPADDING", (0, 0), (-1, -1), 3), ("BOTTOMPADDING", (0, 0), (-1, -1), 3)]))
+    story.append(at); story.append(PageBreak())
 
     # ---- body ----------------------------------------------------------
     def heading(text, level):

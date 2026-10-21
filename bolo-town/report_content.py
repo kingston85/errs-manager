@@ -68,6 +68,36 @@ COVER = {
 }
 
 # ---------------------------------------------------------------------------
+# List of abbreviations (front matter, after the Table of Contents)
+# ---------------------------------------------------------------------------
+ABBREVIATIONS = [
+    ("AF", "Alphonso Farm (sample code prefix)"),
+    ("AML", "ArcelorMittal Liberia Limited"),
+    ("DS / MS / US", "Downstream / Mid-stream / Upstream (sampling station)"),
+    ("EPA", "Environmental Protection Agency of Liberia"),
+    ("ES", "Emmanuel Suah group (Group 1 \u2013 Yeewa, Yeewa Korweny 1 & 2); sample code suffix"),
+    ("GPS", "Global Positioning System"),
+    ("JC", "Joseph Charles group (Group 3 \u2013 Wenee, Saymenee, Alphonso farm, Neneyee); sample code suffix"),
+    ("LRA", "Liberia Revenue Authority"),
+    ("LWQS", "Liberian Water Quality Standards"),
+    ("mg/L", "Milligrams per litre"),
+    ("NEN", "Neneyee (sample code prefix)"),
+    ("POM", "Pompleh (sample code prefix)"),
+    ("QA/QC", "Quality Assurance / Quality Control"),
+    ("RAP", "Resettlement Action Plan"),
+    ("SM", "Saymenee (sample code prefix)"),
+    ("SW", "Surface Water (sample matrix)"),
+    ("TDS", "Total Dissolved Solids"),
+    ("TSS", "Total Suspended Solids"),
+    ("VA", "Varney Armah group (Group 2 \u2013 Wehyee and Pompleh); sample code suffix"),
+    ("W", "Wehyee (sample code prefix)"),
+    ("WE", "Wenee (sample code prefix)"),
+    ("YEEWA", "Yeewa main stream (sample code prefix)"),
+    ("YWK1", "Yeewa Korweny 1 \u2013 Dor tributary (sample code prefix)"),
+    ("YWK2", "Yeewa Korweny 2 \u2013 Patel tributary (sample code prefix)"),
+]
+
+# ---------------------------------------------------------------------------
 # Table specs
 # ---------------------------------------------------------------------------
 def _sample_info_table():
@@ -130,9 +160,9 @@ def _team_table():
              "Yeewa main stream, Yeewa Korweny 1 (Dor) and Yeewa Korweny 2 (Patel)."],
             ["Group 2 (VA)", "Varney Armah", "Environmental sampling and field assessment \u2013 "
              "Wehyee and Pompleh streams."],
-            ["Group 3 (JC)", "[Lead to be confirmed]", "Environmental sampling and field assessment \u2013 "
+            ["Group 3 (JC)", "Joseph Charles", "Environmental sampling and field assessment \u2013 "
              "Wenee, Saymenee, Alphonso farm and Neneyee (northern sediment control station)."],
-            ["Group 4 (Social Team)", "[Lead to be confirmed]", "Engagement of Bolo Town leadership and "
+            ["Group 4 (Social Team)", "Rafael S. Ngumbu (EPA Team Lead)", "Engagement of Bolo Town leadership and "
              "residents on farm damage, access, compensation and the farm-damage survey process."],
         ],
         "shade_rows": set(), "font": 9, "center_cols": set(), "repeat_header": False,
@@ -253,8 +283,10 @@ BLOCKS = [
         "Closing of the consultation and identification of outstanding issues for the subsequent EPA visit.",
     ]),
     ("h2", "Investigative Team Structure"),
-    ("p", "The EPA team was divided into four groups to facilitate the technical and social components "
-          "of the assessment."),
+    ("p", "The EPA team, led by Director Rafael S. Ngumbu, was divided into four groups to facilitate "
+          "the technical and social components of the assessment: three environmental sampling and field "
+          "assessment groups headed by Emmanuel Suah (ES), Varney Armah (VA) and Joseph Charles (JC), and "
+          "a Social Team headed by Mr. Ngumbu."),
     ("caption", "Table 2: Composition and assignments of the EPA investigative team"),
     ("table", _team_table()),
     ("h3", "Environmental Sampling and Field Assessment Teams"),
