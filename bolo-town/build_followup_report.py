@@ -193,9 +193,31 @@ def build_docx(path: Path):
     # ---- table of contents ---------------------------------------------
     p = doc.add_paragraph(); p.alignment = WD_ALIGN_PARAGRAPH.CENTER
     r = p.add_run("Table of Contents"); r.bold = True; r.font.size = Pt(12)
+    # TOC field whose pre-update result is a static list of the headings, so the
+    # page reads correctly even before Word refreshes the field (F9 adds page numbers).
     p = doc.add_paragraph()
-    _field(p, 'TOC \\o "1-2" \\h \\z \\u',
-           "Right-click and choose \u201cUpdate Field\u201d (or press F9) to build the table of contents.")
+    r = p.add_run()
+    b = OxmlElement("w:fldChar"); b.set(qn("w:fldCharType"), "begin"); b.set(qn("w:dirty"), "true"); r._r.append(b)
+    r = p.add_run()
+    it = OxmlElement("w:instrText"); it.set(qn("xml:space"), "preserve"); it.text = 'TOC \\o "1-2" \\h \\z \\u'
+    r._r.append(it)
+    r = p.add_run(); sp = OxmlElement("w:fldChar"); sp.set(qn("w:fldCharType"), "separate"); r._r.append(sp)
+    first = True
+    for blk in BLOCKS:
+        if blk[0] not in ("h1", "h2"):
+            continue
+        if not first:
+            p = doc.add_paragraph()
+        first = False
+        p.paragraph_format.space_after = Pt(2)
+        if blk[0] == "h2":
+            p.paragraph_format.left_indent = Inches(0.3)
+        run = p.add_run(blk[1]); run.font.size = Pt(10.5 if blk[0] == "h1" else 10)
+        run.bold = blk[0] == "h1"
+    r = p.add_run(); e = OxmlElement("w:fldChar"); e.set(qn("w:fldCharType"), "end"); r._r.append(e)
+    note = doc.add_paragraph(); note.paragraph_format.space_before = Pt(8)
+    _add_text(note, "Page numbers: right-click the list above and choose \u201cUpdate Field\u201d (or press F9).",
+              size=8.5, italic=True, color=PLACEHOLDER_GREY)
     # ask Word to refresh fields on open
     settings = doc.settings.element
     uf = OxmlElement("w:updateFields"); uf.set(qn("w:val"), "true"); settings.append(uf)
