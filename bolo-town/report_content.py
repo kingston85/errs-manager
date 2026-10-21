@@ -31,6 +31,24 @@ from build_joint_sample_info import (TABLE1, TABLE2, TABLE2_STD, TABLE2_INSTR,
 HERE = Path(__file__).resolve().parent
 ASSETS = HERE / "assets"
 
+# JC group photographs (selected from the JC/ folder on the repository's main
+# branch).  The images carry no GPS stamp, so captions are descriptive; the
+# sample-point attribution is to be confirmed by the JC group.
+JC_PHOTOS = [
+    (PHOTO_DIR / "JC-01_sampling_sediment_laden_stream.jpg",
+     "Plate 5: JC group collecting a surface water sample from a reddish-brown, sediment-laden "
+     "stream channel; iron-rich sediment blankets the bed and banks."),
+    (PHOTO_DIR / "JC-02_inspector_in_turbid_channel.jpg",
+     "Plate 6: EPA inspector wading the turbid channel at a JC sampling point; dense riparian "
+     "vegetation with sediment-coated understorey."),
+    (PHOTO_DIR / "JC-03_reddish_brown_stream_channel.jpg",
+     "Plate 7: Reddish-brown, visibly turbid flow in a JC group stream, with sediment "
+     "deposition along the channel margins."),
+    (PHOTO_DIR / "JC-04_sediment_inundated_lowland.jpg",
+     "Plate 8: Low-lying land inundated by sediment-laden water, with mine-derived sediment "
+     "deposited over the ground surface and vegetation."),
+]
+
 # ---------------------------------------------------------------------------
 # Cover page
 # ---------------------------------------------------------------------------
@@ -393,8 +411,11 @@ BLOCKS = [
           "Pompleh streams. The following observations were recorded (see Appendix A, Plates 1\u20134):"),
     ("bullets", VA_OBSERVATIONS),
     ("h2", "Wenee, Saymenee, Alphonso Farm and Neneyee (JC Group)"),
-    (PH, "Physical observations of the JC group at the Wenee, Saymenee, Alphonso farm and Neneyee "
-         "sampling points."),
+    ("p", "Photographs taken by the JC group during sampling show reddish-brown, visibly turbid water "
+          "with iron-rich sediment blanketing the stream beds and banks, and low-lying land inundated "
+          "by sediment-laden water (see Appendix A, Plates 5\u20138)."),
+    (PH, "Written physical observations of the JC group at the Wenee, Saymenee, Alphonso farm and "
+         "Neneyee sampling points."),
 
     # ===================================================================
     ("h1", "Laboratory Analysis and Quality Assurance/Quality Control (QA/QC)"),
@@ -546,7 +567,12 @@ BLOCKS = [
     ("p", "Plates 1\u20134: VA group sampling points on the Wehyee and Pompleh streams, Bolo Town, Nimba "
           "County, October 13, 2026 (GPS Map Camera stamps)."),
     ("photos", [(PHOTO_DIR / fn, capt) for fn, capt in VA_PHOTOS]),
-    (PH, "Photographs from the ES and JC groups and from the community consultation."),
+    ("pagebreak",),
+    ("p", "Plates 5\u20138: JC group sampling along the Wenee, Saymenee, Alphonso farm and Neneyee "
+          "sampling points, Bolo Town, Nimba County, October 13, 2026."),
+    ("photos", JC_PHOTOS),
+    (PH, "Photographs from the ES group and from the community consultation; confirmation by the JC "
+         "group of the sampling point shown in each of Plates 5\u20138."),
     ("h2", "Appendix B: Source Documents"),
     ("bullets", [
         "Bolo Town Investigation Drafted Report V2 \u2013 Comprehensive Investigation Report on Water "
