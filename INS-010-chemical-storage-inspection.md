@@ -40,7 +40,7 @@ As an interim measure, the containers had been separated from other chemicals an
 
 ## Evidence and references
 
-The following links were supplied with the inspection record. Their contents have not been independently verified in this draft:
+The following links were supplied with the inspection record. The linked photographs have been downloaded and embedded in the PDF and Word versions as an eight-photo appendix. Captions describe visible scene elements only; the images alone do not establish chemical identity or confirm the reported nitric-acid incident. Their contents have not otherwise been independently verified:
 
 - [Evidence 1](https://drive.google.com/file/d/1BAjHV0U6XYD39cuiNbSEGQU-06-y3FH3/view?usp=drivesdk)
 - [Evidence 2](https://drive.google.com/file/d/11TZn0nlFYZFSR9JbzISrMgt2Zb-ous_h/view?usp=drivesdk)
